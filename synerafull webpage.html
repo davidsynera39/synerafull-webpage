@@ -98,7 +98,7 @@ input,select,textarea{font-family:inherit}
 .l-hero-visual{display:flex;align-items:flex-end;justify-content:flex-end;animation:fadeUp .7s .15s ease both}
 .hero-fig{position:relative;width:340px;height:400px;display:flex;align-items:flex-end;justify-content:center}
 .hero-glow{width:260px;height:260px;background:rgba(255,255,255,.1);border-radius:50%;position:absolute;bottom:0;left:50%;transform:translateX(-50%)}
-.hero-body{width:220px;height:340px;background:linear-gradient(to bottom,rgba(255,255,255,.18),rgba(255,255,255,.04));border-radius:110px 110px 0 0;display:flex;align-items:center;justify-content:center;position:relative;z-index:2;font-size:72px}
+.hero-body{width:220px;height:440px;display:flex;align-items:center;justify-content:center;position:relative;z-index:2;font-size:372px; font-weight: 10px;}
 .l-wave{position:absolute;bottom:-2px;left:0;right:0;z-index:3}
 
 .l-trust{padding:64px 0 52px;text-align:center}
@@ -933,6 +933,11 @@ body.is-mentor .m-fab{display:flex}
     </div>
   </section>
 
+  <section class="m-cta">
+    <h2>Join Our Community</h2>
+    <p>Get mentorship tips, career insights, and opportunities delivered to your inbox.</p>
+    <div class="nl-row"><input class="nl-input" type="email" id="nlEmail" placeholder="Enter your email"/><button class="btn btn-indigo" onclick="subscribe()">Subscribe</button></div>
+  </section>
   <footer class="l-footer">
     <div class="container">
       <div class="l-footer-top">
@@ -955,10 +960,10 @@ body.is-mentor .m-fab{display:flex}
   <nav class="m-nav">
     <div class="m-nav-inner">
       <div class="m-logo" onclick="navigate('landing')">Synera</div>
-      <ul class="m-nav-links"><li><a href="#" onclick="navigate('landing');return false">Home</a></li><li><a href="#">Categories</a></li><li><a href="#">How It Works</a></li></ul>
+      <ul class="m-nav-links"><li><a href="#" onclick="navigate('landing');return false">Home</a></li><li><a href="#">Categories</a></li><li><a href="#">How It Works</a></li><li><a href="#" onclick="navigate('dashboard')">Dashboard</a></li></ul>
       <div style="display:flex;gap:10px">
-        <button class="btn btn-ghost" onclick="navigate('login')" style="padding:9px 18px;font-size:.84rem">Log In</button>
-        <button class="btn btn-indigo" onclick="navigate('register')" style="padding:9px 18px;font-size:.84rem">Get Started</button>
+        <button class="btn btn-ghost" onclick="logout()" style="padding:9px 18px;font-size:.84rem">Log out</button>
+        <button class="btn btn-indigo" onclick="navigate('register')" style="padding:9px 18px;font-size:.84rem">Become a Mentor </button>
       </div>
     </div>
   </nav>
@@ -1033,7 +1038,19 @@ body.is-mentor .m-fab{display:flex}
     <p>Get mentorship tips, career insights, and opportunities delivered to your inbox.</p>
     <div class="nl-row"><input class="nl-input" type="email" id="nlEmail" placeholder="Enter your email"/><button class="btn btn-indigo" onclick="subscribe()">Subscribe</button></div>
   </section>
-  <footer class="m-footer"><p>© 2026 Synera. All rights reserved. · <a href="#">Privacy</a> · <a href="#">Terms</a></p></footer>
+  <footer class="l-footer">
+    <div class="container">
+      <div class="l-footer-top">
+        <div><div class="l-footer-logo"><div class="logo-mark" style="background:rgba(255,255,255,.2);color:#fff">S</div>Synera</div><p class="footer-desc">Your platform for smarter learning with expert guidance.</p></div>
+        <div><div class="footer-col-title">Navigation</div><ul class="footer-nav"><li><a href="#" onclick="navigate('landing');return false">Home</a></li><li><a href="#mentors-sec">Mentors</a></li><li><a href="#trust-sec">About</a></li></ul></div>
+        <div><div class="footer-col-title">Quick Links</div><ul class="footer-nav"><li><a href="#" onclick="navigate('login');return false">Login</a></li><li><a href="#" onclick="navigate('register');return false">Get Started</a></li><li><a href="#">Privacy Policy</a></li></ul></div>
+      </div>
+      <div class="l-footer-bottom">
+        <p>© 2026 Synera. All rights reserved.</p>
+        <div style="display:flex;align-items:center;gap:10px"><span style="font-size:.76rem;color:rgba(255,255,255,.42)">Follow us:</span><div class="social-links"><a class="social-link" href="#">f</a><a class="social-link" href="#">t</a><a class="social-link" href="#">in</a></div></div>
+      </div>
+    </div>
+  </footer>
 </div>
 
 <!-- ═══════════════════════════════════════════════════
