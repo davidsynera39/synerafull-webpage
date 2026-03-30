@@ -2910,20 +2910,28 @@ function renderStudentList(){
       el.innerHTML='<div style="font-size:.76rem;color:var(--muted);text-align:center;padding:8px 0">No conversations yet</div>';
       return;
     }
-    el.innerHTML=_chDMConvos.map(c=>`
+    el.innerHTML=_chDMConvos.map((c,i)=>`
       <div class="ch-dm-item${_chIsDM&&_chDMPeer&&_chDMPeer.id===c.peerId?' active':''}"
-           data-peer-id="${c.peerId}"
-           onclick="chOpenDM({id:'${c.peerId}',name:${JSON.stringify(c.peerName||'Unknown')},role:'${c.peerRole||'member'}'})" >
+           data-peer-id="${chEscHtml(c.peerId)}"
+           data-dm-convo-idx="${i}">
         <div class="ch-dm-av${_chOnlineUsers.some(u=>String(u.id)===String(c.peerId))?' ch-dm-av-online':''}"
              style="background:${chColorFor(c.peerName||'')}">
           ${chInitials(c.peerName||'?')}
         </div>
         <div class="ch-dm-info">
-          <div class="ch-dm-name">${c.peerName||'Unknown'}</div>
+          <div class="ch-dm-name">${chEscHtml(c.peerName||'Unknown')}</div>
           <div class="ch-dm-preview">${chEscHtml((c.lastMsg||'').slice(0,38))}</div>
         </div>
         ${c.unread>0?`<div class="ch-dm-unread">${c.unread}</div>`:''}
       </div>`).join('');
+    el.querySelectorAll('.ch-dm-item').forEach(item=>{
+      item.addEventListener('click',function(){
+        const idx=parseInt(this.getAttribute('data-dm-convo-idx'),10);
+        const c=_chDMConvos[idx];
+        if(!c) return;
+        chOpenDM({id:c.peerId,name:c.peerName||'Unknown',role:c.peerRole||'member'});
+      });
+    });
   }
 
   /* ── Load messages ───────────────────────────── */
@@ -3063,13 +3071,21 @@ function renderStudentList(){
     _chOnlineUsers=[...new Map(users.map(u=>[u.id||u.user_name,u])).values()];
     document.getElementById('chOnlineCount').textContent=_chOnlineUsers.length+' online';
     const list=document.getElementById('chOnlineList');
-    list.innerHTML=_chOnlineUsers.slice(0,8).map(u=>`
-      <div class="ch-ou-row" style="cursor:pointer" title="Send DM to ${u.user_name}"
-           onclick="chOpenDM({id:'${u.id}',name:${JSON.stringify(u.user_name)},role:'${u.user_role||'member'}'})">
+    const onlineSlice=_chOnlineUsers.slice(0,8);
+    list.innerHTML=onlineSlice.map((u,i)=>`
+      <div class="ch-ou-row" style="cursor:pointer" title="Send DM to ${chEscHtml(u.user_name)}" data-ou-idx="${i}">
         <div class="ch-ou-av" style="background:${chColorFor(u.user_name)}">${chInitials(u.user_name)}</div>
-        <div style="flex:1"><div class="ch-ou-name">${u.user_name}</div><div class="ch-ou-role">${u.user_role||'member'}</div></div>
+        <div style="flex:1"><div class="ch-ou-name">${chEscHtml(u.user_name)}</div><div class="ch-ou-role">${chEscHtml(u.user_role||'member')}</div></div>
         <svg width="11" height="11" fill="none" stroke="var(--muted)" stroke-width="2" viewBox="0 0 24 24" style="flex-shrink:0"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
       </div>`).join('');
+    list.querySelectorAll('.ch-ou-row').forEach(row=>{
+      row.addEventListener('click',function(){
+        const idx=parseInt(this.getAttribute('data-ou-idx'),10);
+        const u=onlineSlice[idx];
+        if(!u) return;
+        chOpenDM({id:u.id,name:u.user_name,role:u.user_role||'member'});
+      });
+    });
     chRenderDMList();
   }
 
@@ -3114,8 +3130,12 @@ function renderStudentList(){
     if(!_chUser){showToast('Sign in first','info');return;}
     document.getElementById('chDMModalOverlay').classList.add('open');
     document.getElementById('chDMSearch').value='';
-    chRenderDMUserList(_chAllUsers.length?_chAllUsers:[]);
-    chFetchAllUsers().then(()=>chRenderDMUserList(_chAllUsers));
+    if(_chAllUsers.length){
+      chRenderDMUserList(_chAllUsers);
+    } else {
+      document.getElementById('chDMUserList').innerHTML='<div class="ch-dm-empty-state">Loading users…</div>';
+      chFetchAllUsers().then(()=>chRenderDMUserList(_chAllUsers));
+    }
   };
 
   window.chCloseDMModal=function(){document.getElementById('chDMModalOverlay').classList.remove('open');};
@@ -3125,17 +3145,33 @@ function renderStudentList(){
     chRenderDMUserList(lq?_chAllUsers.filter(u=>u.name.toLowerCase().includes(lq)):_chAllUsers);
   };
 
+  // Internal lookup used by rendered DM user rows
+  let _chDMUserListCache = [];
+
   function chRenderDMUserList(users){
     const el=document.getElementById('chDMUserList'); if(!el) return;
-    if(!users.length){el.innerHTML='<div class="ch-dm-empty-state">No users found.</div>';return;}
-    el.innerHTML=users.slice(0,50).map(u=>{
+    const shown=users.slice(0,50);
+    if(!shown.length){el.innerHTML='<div class="ch-dm-empty-state">'+(users===_chAllUsers&&!_chAllUsers.length?'Loading users…':'No users found.')+'</div>';return;}
+    // Cache so click handlers can look up by index safely
+    _chDMUserListCache=shown;
+    el.innerHTML=shown.map((u,i)=>{
       const online=_chOnlineUsers.some(o=>String(o.id)===String(u.id));
-      return `<div class="ch-dm-user-row" onclick="chCloseDMModal();chOpenDM(${JSON.stringify(u)})">
+      return `<div class="ch-dm-user-row" data-dm-idx="${i}">
         <div class="ch-dm-user-av" style="background:${chColorFor(u.name)}">${chInitials(u.name)}</div>
-        <div><div class="ch-dm-user-name">${u.name}</div><div class="ch-dm-user-role">${u.role}</div></div>
+        <div><div class="ch-dm-user-name">${chEscHtml(u.name)}</div><div class="ch-dm-user-role">${chEscHtml(u.role)}</div></div>
         ${online?'<div class="ch-dm-user-online">&#x25CF; Online</div>':''}
       </div>`;
     }).join('');
+    // Attach click listeners after render to avoid inline-attribute injection issues
+    el.querySelectorAll('.ch-dm-user-row').forEach(row=>{
+      row.addEventListener('click',function(){
+        const idx=parseInt(this.getAttribute('data-dm-idx'),10);
+        const u=_chDMUserListCache[idx];
+        if(!u) return;
+        chCloseDMModal();
+        chOpenDM(u);
+      });
+    });
   }
 
   /* ── Cleanup ──────────────────────────────────── */
