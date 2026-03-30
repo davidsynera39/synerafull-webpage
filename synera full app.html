@@ -978,6 +978,70 @@ body.is-mentor .m-fab{display:flex}
   .ch-dm-modal{max-width:100%;margin:0;border-radius:20px 20px 0 0}
   .ch-dm-modal-overlay{align-items:flex-end;padding:0}
 }
+
+/* ═══════════════════════════════════════════════════════
+   MENTOR BROWSE — Live Courses & Sessions Sections
+═══════════════════════════════════════════════════════ */
+.browse-live-section{padding:56px 0 0}
+.browse-live-section+.browse-live-section{padding-top:0}
+.browse-sec-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:8px}
+.browse-sec-title{font-family:'DM Serif Display',serif;font-size:1.3rem;color:var(--text)}
+.browse-live-pill{display:inline-flex;align-items:center;gap:5px;background:#fef2f2;color:#dc2626;font-size:.7rem;font-weight:800;padding:3px 10px;border-radius:20px;letter-spacing:.05em;animation:pulseRed 2s ease-in-out infinite}
+@keyframes pulseRed{0%,100%{opacity:1}50%{opacity:.6}}
+.browse-live-pill::before{content:'●';font-size:.5rem}
+.browse-empty-state{text-align:center;padding:36px 20px;color:var(--muted);font-size:.88rem;background:var(--card);border:1.5px dashed var(--border);border-radius:var(--r);display:none}
+.browse-empty-state.show{display:block}
+
+/* Course cards on browse */
+.browse-courses-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:18px}
+.browse-course-card{background:#fff;border:1.5px solid var(--border);border-radius:var(--r);overflow:hidden;transition:transform var(--tr),box-shadow var(--tr);animation:cardIn .35s ease both}
+@keyframes cardIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+.browse-course-card:hover{transform:translateY(-4px);box-shadow:var(--sh-lg)}
+.browse-course-banner{aspect-ratio:4/3;display:flex;align-items:center;justify-content:center;font-size:2.4rem;position:relative}
+.browse-course-cat-tag{position:absolute;top:10px;left:10px;background:rgba(255,255,255,.92);backdrop-filter:blur(8px);border-radius:20px;padding:3px 10px;font-size:.68rem;font-weight:800;color:var(--indigo)}
+.browse-course-body{padding:14px 16px 16px}
+.browse-course-mentor-row{display:flex;align-items:center;gap:7px;margin-bottom:8px}
+.browse-course-av{width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:800;color:#fff;font-size:.65rem;flex-shrink:0}
+.browse-course-mname{font-size:.8rem;font-weight:700;color:var(--muted)}
+.browse-course-title{font-size:.9rem;font-weight:700;color:var(--text);margin-bottom:6px;line-height:1.35}
+.browse-course-meta{display:flex;align-items:center;gap:8px;margin-bottom:12px;flex-wrap:wrap}
+.browse-course-lessons{font-size:.72rem;font-weight:700;color:var(--indigo);background:var(--pf);padding:2px 8px;border-radius:8px}
+.browse-course-dur{font-size:.72rem;color:var(--muted)}
+.browse-course-desc{font-size:.78rem;color:var(--muted);line-height:1.55;margin-bottom:12px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.browse-course-btn{width:100%;padding:9px;background:var(--indigo);color:#fff;border:none;border-radius:9px;font-size:.82rem;font-weight:700;cursor:pointer;transition:background var(--tr)}
+.browse-course-btn:hover{background:#3730a3}
+
+/* Session cards on browse */
+.browse-sessions-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+.browse-session-card{background:#fff;border:1.5px solid var(--border);border-radius:var(--r);padding:20px;transition:transform var(--tr),box-shadow var(--tr);animation:cardIn .35s ease both;position:relative;overflow:hidden}
+.browse-session-card::before{content:'';position:absolute;top:0;left:0;right:0;height:4px;background:linear-gradient(90deg,var(--teal),var(--teal2))}
+.browse-session-card:hover{transform:translateY(-4px);box-shadow:var(--sh-lg)}
+.browse-session-mentor-row{display:flex;align-items:center;gap:9px;margin-bottom:14px}
+.browse-session-av{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:800;color:#fff;font-size:.78rem;flex-shrink:0}
+.browse-session-minfo{flex:1;min-width:0}
+.browse-session-mname{font-size:.88rem;font-weight:700;color:var(--text)}
+.browse-session-mexp{font-size:.72rem;color:var(--muted)}
+.browse-session-title{font-size:1rem;font-weight:800;color:var(--text);margin-bottom:6px;line-height:1.3}
+.browse-session-desc{font-size:.79rem;color:var(--muted);line-height:1.55;margin-bottom:12px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.browse-session-tags{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:14px}
+.browse-session-tag{font-size:.7rem;font-weight:700;padding:3px 10px;border-radius:8px;background:var(--tealfaint);color:var(--teal)}
+.browse-session-tag.price{background:#fff7ed;color:#c2410c}
+.browse-session-tag.type{background:var(--pf);color:var(--indigo)}
+.browse-session-avail{font-size:.72rem;font-weight:700;color:var(--teal);margin-bottom:12px}
+.browse-session-btn{width:100%;padding:9px;background:linear-gradient(135deg,var(--teal),var(--teal2));color:#fff;border:none;border-radius:9px;font-size:.82rem;font-weight:700;cursor:pointer;transition:opacity var(--tr)}
+.browse-session-btn:hover{opacity:.88}
+
+/* Mentorship cards on browse */
+.browse-mcards-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+
+@media(max-width:960px){
+  .browse-courses-grid{grid-template-columns:repeat(2,1fr)}
+  .browse-sessions-grid{grid-template-columns:repeat(2,1fr)}
+  .browse-mcards-grid{grid-template-columns:repeat(2,1fr)}
+}
+@media(max-width:560px){
+  .browse-courses-grid,.browse-sessions-grid,.browse-mcards-grid{grid-template-columns:1fr}
+}
 </style>
 
 </head>
@@ -1165,6 +1229,42 @@ body.is-mentor .m-fab{display:flex}
     <div class="m-grid" id="mentorGrid"></div>
     <div style="text-align:center;margin-top:28px"><button class="btn" style="background:var(--pf);color:var(--indigo)" onclick="filterMentors('')">Load More</button></div>
   </div></section>
+
+  <!-- ── Live Courses from mentors ── -->
+  <section class="browse-live-section" id="browseCoursesSec" style="display:none">
+    <div class="container">
+      <div class="browse-sec-hd">
+        <h2 class="browse-sec-title">📖 Courses from Our Mentors</h2>
+        <span class="browse-live-pill">LIVE</span>
+      </div>
+      <div class="browse-courses-grid" id="browseCoursesGrid"></div>
+      <div class="browse-empty-state" id="browseCoursesEmpty">No courses published yet — check back soon!</div>
+    </div>
+  </section>
+
+  <!-- ── Live Sessions from mentors ── -->
+  <section class="browse-live-section" id="browseSessionsSec" style="display:none">
+    <div class="container">
+      <div class="browse-sec-hd">
+        <h2 class="browse-sec-title">🗓️ Available Mentorship Sessions</h2>
+        <span class="browse-live-pill">LIVE</span>
+      </div>
+      <div class="browse-sessions-grid" id="browseSessionsGrid"></div>
+      <div class="browse-empty-state" id="browseSessionsEmpty">No sessions available yet — mentors are setting up!</div>
+    </div>
+  </section>
+
+  <!-- ── Live Mentorship Cards from mentors ── -->
+  <section class="browse-live-section" id="browseMCardsSec" style="display:none">
+    <div class="container">
+      <div class="browse-sec-hd">
+        <h2 class="browse-sec-title">🪪 Mentorship Packages</h2>
+        <span class="browse-live-pill">LIVE</span>
+      </div>
+      <div class="browse-mcards-grid" id="browseMCardsGrid"></div>
+      <div class="browse-empty-state" id="browseMCardsEmpty">No mentorship packages yet — check back soon!</div>
+    </div>
+  </section>
 
   <section class="m-cats"><div class="container">
     <h2 class="sec-title">Explore Categories</h2>
@@ -1899,7 +1999,7 @@ function navigate(page){
     });
     return;
   }
-  if(page === 'mentors') renderMentors(MENTORS);
+  if(page === 'mentors'){ renderMentors(MENTORS); renderBrowseContent(); }
   if(page === 'landing') initReveal();
   if(page === 'register'){ resetRegForm(); populateIndustryDrop('student'); }
 }
@@ -2386,10 +2486,15 @@ function addCourse(){
   const desc     = document.getElementById('cDesc').value.trim();
   if(!title){ showToast('Please enter a course title.','error'); return; }
   if(!cat){   showToast('Please select a category.','error');    return; }
-  MCM.add(_CU.id, 'courses', {title, cat, lessons, duration, desc});
+  MCM.add(_CU.id, 'courses', {
+    title, cat, lessons, duration, desc,
+    _mentorName: _CU.fullname,
+    _mentorExp:  _CU.industry || 'Mentor',
+  });
   ['cTitle','cLessons','cDuration','cDesc'].forEach(id => document.getElementById(id).value='');
   document.getElementById('cCat').value = '';
   renderMCMCourses(); updateMCMBadges(); refreshMStats();
+  renderBrowseContent();
   showToast('✅ Course added!');
 }
 function renderMCMCourses(){
@@ -2416,11 +2521,16 @@ function addSession(){
   const desc  = document.getElementById('sDesc').value.trim();
   if(!title){ showToast('Please enter a session title.','error'); return; }
   if(!type){  showToast('Please select a session type.','error'); return; }
-  MCM.add(_CU.id, 'sessions', {title, type, dur, price, avail, desc});
+  MCM.add(_CU.id, 'sessions', {
+    title, type, dur, price, avail, desc,
+    _mentorName: _CU.fullname,
+    _mentorExp:  _CU.industry || 'Mentor',
+  });
   ['sTitle','sDesc'].forEach(id => document.getElementById(id).value='');
   ['sType','sDur','sAvail'].forEach(id => document.getElementById(id).value='');
   document.getElementById('sPrice').value = '';
   renderMCMSessions(); updateMCMBadges(); syncMCMSessionLink(); refreshMStats();
+  renderBrowseContent();
   showToast('✅ Session added!');
 }
 function renderMCMSessions(){
@@ -2486,6 +2596,7 @@ function addCard(){
   document.getElementById('mcPrice').value = '';
   document.getElementById('mcSessions').value = '';
   renderMCMCards(); updateMCMBadges(); renderPubCards(); refreshMStats();
+  renderBrowseContent();
   showToast('🪪 Mentorship card published!');
 }
 function renderMCMCards(){
@@ -2518,7 +2629,172 @@ function delMCM(type, id){
   if(type==='sessions'){ renderMCMSessions(); syncMCMSessionLink(); }
   if(type==='cards'){    renderMCMCards();    renderPubCards(); }
   updateMCMBadges(); refreshMStats();
+  // Refresh browse page too if it's visible
+  renderBrowseContent();
   showToast('Deleted.','info');
+}
+
+/* ─────────────────────────────────────
+   BROWSE PAGE — Live Content Rendering
+   Scans all mentor localStorage entries and
+   renders courses, sessions & cards on the
+   mentor browse page in real-time.
+───────────────────────────────────── */
+
+// Helper: collect all mentor content from localStorage across all mentor accounts
+function browseCollectAll(type){
+  const results = [];
+  for(let i = 0; i < localStorage.length; i++){
+    const key = localStorage.key(i);
+    // MCM keys follow pattern: mcm_<uid>_<type>
+    if(!key || !key.startsWith('mcm_') || !key.endsWith('_' + type)) continue;
+    // Extract uid from key: mcm_<uid>_<type>
+    const uid = key.slice(4, key.length - type.length - 1);
+    try{
+      const items = JSON.parse(localStorage.getItem(key)) || [];
+      items.forEach(item => results.push({...item, _uid: uid}));
+    }catch(_){}
+  }
+  return results;
+}
+
+// Colour palette for avatars (mirrors chColorFor)
+const BROWSE_COLORS = ['#4338ca','#7c3aed','#0d9488','#f97316','#ec4899','#0ea5e9','#8b5cf6','#059669'];
+function browseColorFor(name){
+  let h=0; for(let c of (name||'?')) h=(h*31+c.charCodeAt(0))&0xffffffff;
+  return BROWSE_COLORS[Math.abs(h)%BROWSE_COLORS.length];
+}
+function browseInitials(name){ return (name||'?').split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase(); }
+
+const CAT_BG = {
+  'UI/UX Design':      'linear-gradient(135deg,#ede9fe,#c4b5fd)',
+  'Frontend Dev':      'linear-gradient(135deg,#dbeafe,#93c5fd)',
+  'Backend Dev':       'linear-gradient(135deg,#d1fae5,#6ee7b7)',
+  'Full-Stack':        'linear-gradient(135deg,#fef9c3,#fde68a)',
+  'Data Science':      'linear-gradient(135deg,#ecfdf5,#a7f3d0)',
+  'AI / ML':           'linear-gradient(135deg,#e0f2fe,#7dd3fc)',
+  'Digital Marketing': 'linear-gradient(135deg,#fff7ed,#fed7aa)',
+  'Branding':          'linear-gradient(135deg,#fce7f3,#fbcfe8)',
+  'Business':          'linear-gradient(135deg,#f0fdf4,#bbf7d0)',
+  'Other':             'linear-gradient(135deg,#f1f0f7,#e2e8f0)',
+};
+
+function renderBrowseCourses(){
+  const courses = browseCollectAll('courses');
+  const sec  = document.getElementById('browseCoursesSec');
+  const grid = document.getElementById('browseCoursesGrid');
+  const emp  = document.getElementById('browseCoursesEmpty');
+  if(!sec || !grid) return;
+
+  if(!courses.length){
+    sec.style.display = 'none';
+    return;
+  }
+  sec.style.display = '';
+  emp.classList.remove('show');
+  grid.innerHTML = courses.map(c => {
+    const bg   = CAT_BG[c.cat] || 'linear-gradient(135deg,#f1f0f7,#e2e8f0)';
+    const em   = CAT_EMOJI[c.cat] || '📚';
+    const av   = browseInitials(c._mentorName || 'Mentor');
+    const col  = browseColorFor(c._mentorName || '');
+    return `<div class="browse-course-card">
+      <div class="browse-course-banner" style="background:${bg}">
+        ${em}
+        <span class="browse-course-cat-tag">${c.cat || 'Course'}</span>
+      </div>
+      <div class="browse-course-body">
+        <div class="browse-course-mentor-row">
+          <div class="browse-course-av" style="background:${col}">${av}</div>
+          <span class="browse-course-mname">${c._mentorName || 'Mentor'}</span>
+        </div>
+        <div class="browse-course-title">${c.title}</div>
+        <div class="browse-course-meta">
+          ${c.lessons ? `<span class="browse-course-lessons">${c.lessons} lessons</span>` : ''}
+          ${c.duration ? `<span class="browse-course-dur">${c.duration}</span>` : ''}
+        </div>
+        ${c.desc ? `<div class="browse-course-desc">${c.desc}</div>` : ''}
+        <button class="browse-course-btn" onclick="showToast('Enrolment coming soon!','info')">Enrol Now</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function renderBrowseSessions(){
+  const sessions = browseCollectAll('sessions');
+  const sec  = document.getElementById('browseSessionsSec');
+  const grid = document.getElementById('browseSessionsGrid');
+  if(!sec || !grid) return;
+
+  if(!sessions.length){
+    sec.style.display = 'none';
+    return;
+  }
+  sec.style.display = '';
+  grid.innerHTML = sessions.map(s => {
+    const av  = browseInitials(s._mentorName || 'Mentor');
+    const col = browseColorFor(s._mentorName || '');
+    return `<div class="browse-session-card">
+      <div class="browse-session-mentor-row">
+        <div class="browse-session-av" style="background:${col}">${av}</div>
+        <div class="browse-session-minfo">
+          <div class="browse-session-mname">${s._mentorName || 'Mentor'}</div>
+          <div class="browse-session-mexp">${s._mentorExp || 'Mentor'}</div>
+        </div>
+      </div>
+      <div class="browse-session-title">${s.title}</div>
+      ${s.desc ? `<div class="browse-session-desc">${s.desc}</div>` : ''}
+      <div class="browse-session-tags">
+        ${s.type  ? `<span class="browse-session-tag type">${s.type}</span>` : ''}
+        ${s.dur   ? `<span class="browse-session-tag">${s.dur}</span>` : ''}
+        ${s.price ? `<span class="browse-session-tag price">$${s.price}/session</span>` : ''}
+      </div>
+      ${s.avail ? `<div class="browse-session-avail">● ${s.avail}</div>` : ''}
+      <button class="browse-session-btn" onclick="showToast('Booking coming soon!','info')">Book Session</button>
+    </div>`;
+  }).join('');
+}
+
+function renderBrowseMCards(){
+  const cards = browseCollectAll('cards');
+  const sec  = document.getElementById('browseMCardsSec');
+  const grid = document.getElementById('browseMCardsGrid');
+  if(!sec || !grid) return;
+
+  if(!cards.length){
+    sec.style.display = 'none';
+    return;
+  }
+  sec.style.display = '';
+  // Reuse the existing mcard HTML builder, but with a book button that works for browse
+  grid.innerHTML = cards.map(c => `
+    <div class="mcard">
+      <div class="mcard-banner" style="background:${c.color}">${c.emoji}<div class="mcard-type">Mentorship</div></div>
+      <div class="mcard-body">
+        <div class="mcard-mrow">
+          <div class="mcard-av">${c.mentorInitials || browseInitials(c.mentorName || 'Mentor')}</div>
+          <div>
+            <div class="mcard-mname">${c.mentorName || ''}</div>
+            <div class="mcard-mexp">${c.mentorExp || ''}</div>
+          </div>
+        </div>
+        <div class="mcard-title">${c.title}</div>
+        <div class="mcard-tagline">${c.tagline}</div>
+        <div class="mcard-foot">
+          <div class="mcard-price">$${c.price}</div>
+          <div class="mcard-meta">${c.sessions} session${c.sessions!==1?'s':''}${c.duration?' · '+c.duration:''}</div>
+        </div>
+        <div class="mcard-actions">
+          <button class="mcard-book-btn" style="flex:1;width:100%" onclick="showToast('Booking coming soon!','info')">Book Now</button>
+        </div>
+      </div>
+    </div>`).join('');
+}
+
+// Master function — renders all three sections at once
+function renderBrowseContent(){
+  renderBrowseCourses();
+  renderBrowseSessions();
+  renderBrowseMCards();
 }
 
 /* ─────────────────────────────────────
@@ -2601,6 +2877,7 @@ function delay(ms){ return new Promise(r => setTimeout(r,ms)); }
 (function init(){
   populateIndustryDrop('student');
   renderMentors(MENTORS);
+  renderBrowseContent();
   initReveal();
 })();
 
