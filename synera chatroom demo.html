@@ -1,0 +1,836 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Synera — Community Chat</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=DM+Serif+Display&display=swap" rel="stylesheet"/>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;overflow:hidden}
+:root{
+  --navy:#0f1729;--indigo:#4338ca;--indigo2:#6366f1;--violet:#7c3aed;
+  --teal:#0d9488;--teal2:#14b8a6;--orange:#f97316;
+  --bg:#f1f0f7;--white:#fff;--card:#fafafe;
+  --text:#0f172a;--muted:#64748b;--border:#e2e8f0;
+  --sh:0 2px 20px rgba(67,56,202,.09);
+  --r:16px;--rs:10px;--tr:.2s cubic-bezier(.4,0,.2,1);
+}
+body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:var(--text);display:flex;flex-direction:column;height:100vh}
+
+/* ── TOP NAV ─────────────────────────────────── */
+.nav{height:60px;background:rgba(255,255,255,.95);backdrop-filter:blur(18px);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 20px;gap:12px;flex-shrink:0;box-shadow:var(--sh)}
+.nav-logo{display:flex;align-items:center;gap:8px;font-size:1.1rem;font-weight:800;color:var(--indigo);text-decoration:none}
+.logo-mark{width:28px;height:28px;border-radius:8px;background:linear-gradient(135deg,var(--indigo),var(--violet));display:flex;align-items:center;justify-content:center;color:#fff;font-size:13px;font-weight:900;flex-shrink:0}
+.nav-divider{width:1px;height:22px;background:var(--border)}
+.nav-title{font-size:.9rem;font-weight:700;color:var(--text)}
+.nav-badge{background:linear-gradient(135deg,var(--teal),var(--teal2));color:#fff;font-size:.65rem;font-weight:800;padding:3px 9px;border-radius:20px;letter-spacing:.04em}
+.nav-right{margin-left:auto;display:flex;align-items:center;gap:10px}
+.online-dot{width:8px;height:8px;border-radius:50%;background:#10b981;flex-shrink:0;box-shadow:0 0 0 2px #d1fae5}
+.online-count{font-size:.78rem;font-weight:600;color:var(--muted)}
+.user-chip{display:flex;align-items:center;gap:7px;background:var(--bg);border:1px solid var(--border);border-radius:50px;padding:4px 12px 4px 5px;font-size:.78rem;font-weight:700;color:var(--text)}
+.user-av{width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:800;color:#fff;font-size:.65rem;flex-shrink:0}
+
+/* ── LAYOUT ──────────────────────────────────── */
+.chat-layout{display:flex;flex:1;overflow:hidden;height:calc(100vh - 60px)}
+
+/* ── SIDEBAR ─────────────────────────────────── */
+.sidebar{width:230px;background:var(--white);border-right:1px solid var(--border);display:flex;flex-direction:column;flex-shrink:0;overflow-y:auto}
+.sidebar::-webkit-scrollbar{width:0}
+.sb-section{padding:16px 14px 8px}
+.sb-label{font-size:.65rem;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:10px}
+.channel-btn{display:flex;align-items:center;gap:8px;width:100%;padding:8px 10px;border-radius:var(--rs);border:none;background:none;cursor:pointer;font-family:inherit;font-size:.84rem;font-weight:600;color:var(--muted);transition:background var(--tr),color var(--tr);text-align:left}
+.channel-btn:hover{background:var(--bg);color:var(--text)}
+.channel-btn.active{background:linear-gradient(135deg,#ede9fe,#ddd6fe);color:var(--indigo)}
+.channel-hash{font-size:1rem;opacity:.6;flex-shrink:0;width:16px;text-align:center}
+.channel-name{flex:1}
+.channel-badge{background:var(--orange);color:#fff;font-size:.6rem;font-weight:800;padding:1px 6px;border-radius:10px;min-width:16px;text-align:center}
+
+.sb-divider{height:1px;background:var(--border);margin:6px 14px}
+
+.online-users{padding:10px 14px 16px}
+.online-user-row{display:flex;align-items:center;gap:8px;padding:5px 0}
+.ou-av{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:800;color:#fff;font-size:.7rem;flex-shrink:0;position:relative}
+.ou-av::after{content:'';position:absolute;bottom:0;right:0;width:8px;height:8px;border-radius:50%;background:#10b981;border:1.5px solid #fff}
+.ou-name{font-size:.8rem;font-weight:600;color:var(--text)}
+.ou-role{font-size:.68rem;color:var(--muted)}
+
+/* ── MAIN CHAT ───────────────────────────────── */
+.chat-main{flex:1;display:flex;flex-direction:column;overflow:hidden;background:#fafafe}
+
+.chat-header{padding:14px 20px;border-bottom:1px solid var(--border);background:var(--white);display:flex;align-items:center;gap:10px;flex-shrink:0}
+.chat-header-icon{font-size:1.1rem}
+.chat-header-info{flex:1}
+.chat-header-name{font-size:.95rem;font-weight:800;color:var(--text)}
+.chat-header-desc{font-size:.75rem;color:var(--muted);margin-top:1px}
+.chat-header-actions{display:flex;gap:8px}
+.chat-action-btn{padding:6px 14px;border-radius:50px;border:1.5px solid var(--border);background:var(--white);font-family:inherit;font-size:.75rem;font-weight:700;color:var(--muted);cursor:pointer;transition:all var(--tr)}
+.chat-action-btn:hover{border-color:var(--indigo);color:var(--indigo);background:#f5f3ff}
+
+.messages-wrap{flex:1;overflow-y:auto;padding:20px;display:flex;flex-direction:column;gap:4px}
+.messages-wrap::-webkit-scrollbar{width:4px}
+.messages-wrap::-webkit-scrollbar-thumb{background:#c7d2fe;border-radius:2px}
+
+/* Date divider */
+.date-divider{display:flex;align-items:center;gap:10px;margin:14px 0 10px;color:var(--muted);font-size:.72rem;font-weight:700;letter-spacing:.05em}
+.date-divider::before,.date-divider::after{content:'';flex:1;height:1px;background:var(--border)}
+
+/* Message row */
+.msg-row{display:flex;gap:10px;padding:4px 6px;border-radius:var(--rs);transition:background .12s;align-items:flex-start}
+.msg-row:hover{background:rgba(67,56,202,.04)}
+.msg-row.own{flex-direction:row-reverse}
+.msg-av{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:800;color:#fff;font-size:.75rem;flex-shrink:0;margin-top:2px}
+.msg-body{max-width:68%;min-width:60px}
+.msg-row.own .msg-body{align-items:flex-end;display:flex;flex-direction:column}
+.msg-meta{display:flex;align-items:baseline;gap:6px;margin-bottom:3px}
+.msg-row.own .msg-meta{flex-direction:row-reverse}
+.msg-name{font-size:.78rem;font-weight:800;color:var(--text)}
+.msg-time{font-size:.68rem;color:var(--muted)}
+.msg-role-tag{font-size:.6rem;font-weight:800;padding:1px 6px;border-radius:8px;letter-spacing:.03em}
+.msg-role-tag.mentor{background:#ccfbf1;color:var(--teal)}
+.msg-role-tag.student{background:#ede9fe;color:var(--indigo)}
+.msg-bubble{display:inline-block;padding:9px 13px;border-radius:14px;font-size:.86rem;line-height:1.55;word-break:break-word;border:1px solid var(--border);background:var(--white);color:var(--text);max-width:100%}
+.msg-row.own .msg-bubble{background:linear-gradient(135deg,var(--indigo),var(--indigo2));color:#fff;border-color:transparent}
+
+/* Typing indicator */
+.typing-row{display:flex;align-items:center;gap:8px;padding:4px 6px;min-height:32px}
+.typing-dots{display:flex;gap:4px;align-items:center}
+.typing-dots span{width:6px;height:6px;border-radius:50%;background:var(--muted);animation:tdot 1.2s infinite}
+.typing-dots span:nth-child(2){animation-delay:.2s}
+.typing-dots span:nth-child(3){animation-delay:.4s}
+@keyframes tdot{0%,60%,100%{opacity:.3;transform:scale(1)}30%{opacity:1;transform:scale(1.2)}}
+.typing-text{font-size:.75rem;color:var(--muted);font-style:italic}
+
+/* ── INPUT BAR ───────────────────────────────── */
+.input-bar{padding:14px 20px;border-top:1px solid var(--border);background:var(--white);flex-shrink:0}
+.input-wrap{display:flex;align-items:flex-end;gap:10px;background:var(--bg);border:1.5px solid var(--border);border-radius:var(--r);padding:10px 14px;transition:border-color .2s}
+.input-wrap:focus-within{border-color:var(--indigo);background:#fff}
+.chat-input{flex:1;border:none;background:none;outline:none;font-family:inherit;font-size:.9rem;color:var(--text);resize:none;max-height:120px;min-height:22px;line-height:1.5}
+.chat-input::placeholder{color:var(--muted)}
+.send-btn{width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,var(--indigo),var(--violet));border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:transform var(--tr),opacity var(--tr)}
+.send-btn:hover{transform:scale(1.08)}
+.send-btn:disabled{opacity:.4;cursor:not-allowed;transform:none}
+.send-btn svg{stroke:#fff;fill:none;width:16px;height:16px}
+.input-hint{font-size:.7rem;color:var(--muted);margin-top:6px;text-align:right}
+
+/* ── AUTH OVERLAY ─────────────────────────────── */
+.auth-overlay{position:fixed;inset:0;background:rgba(15,23,41,.7);backdrop-filter:blur(6px);z-index:1000;display:flex;align-items:center;justify-content:center;padding:20px}
+.auth-card{background:var(--white);border-radius:22px;padding:32px 28px;width:100%;max-width:420px;box-shadow:0 24px 80px rgba(0,0,0,.28);animation:slideUp .3s cubic-bezier(.22,1,.36,1)}
+@keyframes slideUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:none}}
+.auth-logo{display:flex;align-items:center;justify-content:center;gap:9px;font-size:1.2rem;font-weight:800;color:var(--indigo);margin-bottom:6px}
+.auth-subtitle{text-align:center;font-size:.84rem;color:var(--muted);margin-bottom:24px}
+.auth-tabs{display:flex;background:var(--bg);border-radius:50px;padding:3px;margin-bottom:22px}
+.auth-tab{flex:1;padding:8px;border-radius:50px;border:none;font-family:inherit;font-size:.82rem;font-weight:700;cursor:pointer;transition:all .2s;background:none;color:var(--muted)}
+.auth-tab.active{background:var(--white);color:var(--indigo);box-shadow:0 2px 10px rgba(67,56,202,.12)}
+.auth-field{margin-bottom:14px}
+.auth-field label{font-size:.72rem;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--muted);display:block;margin-bottom:5px}
+.auth-field input,.auth-field select{width:100%;padding:.72rem 1rem;border:1.5px solid var(--border);border-radius:var(--rs);font-family:inherit;font-size:.88rem;color:var(--text);outline:none;transition:border-color .2s;background:#fff}
+.auth-field input:focus,.auth-field select:focus{border-color:var(--indigo)}
+.auth-field select{appearance:none;cursor:pointer;background-image:url("data:image/svg+xml,%3Csvg width='11' height='7' viewBox='0 0 11 7' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1l4.5 4.5L10 1' stroke='%2364748b' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right .8rem center}
+.auth-submit{width:100%;padding:.85rem;border-radius:50px;border:none;background:linear-gradient(135deg,var(--indigo),var(--violet));color:#fff;font-family:inherit;font-size:.9rem;font-weight:700;cursor:pointer;margin-top:6px;transition:opacity .2s}
+.auth-submit:hover{opacity:.9}
+.auth-error{background:#fee2e2;color:#dc2626;font-size:.8rem;font-weight:600;padding:9px 14px;border-radius:var(--rs);margin-bottom:12px;display:none}
+
+/* ── TOAST ─────────────────────────────────── */
+.toast{position:fixed;bottom:1.5rem;left:50%;z-index:9999;transform:translateX(-50%) translateY(140%);padding:.75rem 1.4rem;border-radius:50px;font-size:.84rem;font-weight:600;box-shadow:0 8px 28px rgba(0,0,0,.18);transition:transform .35s cubic-bezier(.22,1,.36,1);pointer-events:none;white-space:nowrap}
+.toast.show{transform:translateX(-50%) translateY(0)}
+.toast-success{background:#064e3b;color:#6ee7b7}
+.toast-error{background:#7f1d1d;color:#fca5a5}
+.toast-info{background:#1e3a5f;color:#93c5fd}
+
+/* ── RESPONSIVE ──────────────────────────────── */
+@media(max-width:640px){
+  .sidebar{display:none}
+  .chat-main{width:100%}
+}
+
+/* ── SYNERA AUTH FORM (ported from main app) ─── */
+.auth-layout{min-height:100%;display:grid;grid-template-columns:1fr 1fr}
+.auth-hero{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;padding:clamp(2rem,5vw,4rem) clamp(1.5rem,4vw,3rem) clamp(2.5rem,5vw,4rem);overflow:hidden}
+.auth-hero::before{content:'';position:absolute;inset:0;background-image:radial-gradient(circle,rgba(255,255,255,.055) 1px,transparent 1px);background-size:32px 32px;pointer-events:none}
+.auth-hero::after{content:'';position:absolute;top:-8%;right:-12%;width:clamp(260px,46%,480px);aspect-ratio:1;background:radial-gradient(circle,rgba(249,115,22,.2),transparent 70%);pointer-events:none}
+.auth-illus{position:relative;z-index:1;width:100%;max-width:440px;flex:1;display:flex;align-items:center;justify-content:center}
+.auth-illus svg{width:100%;height:auto;max-height:45vh;filter:drop-shadow(0 20px 40px rgba(0,0,0,.35))}
+.auth-hero-foot{position:relative;z-index:1;text-align:center;color:#fff}
+.auth-logo-bubble{width:50px;height:50px;background:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto .9rem;font-size:20px;font-weight:900;box-shadow:0 4px 20px rgba(255,255,255,.2)}
+.auth-tagline{font-family:'DM Serif Display',serif;font-size:clamp(1.3rem,2.8vw,2rem);line-height:1.25}
+.auth-panel{display:flex;align-items:center;justify-content:center;padding:clamp(1.5rem,4vw,3rem) clamp(1.5rem,5vw,4rem);overflow-y:auto}
+.auth-card{width:100%;max-width:460px;background:#fff;border-radius:clamp(16px,2.5vw,24px);padding:clamp(1.5rem,4vw,2.8rem) clamp(1.5rem,3.5vw,2.5rem) clamp(1.25rem,2.5vw,1.75rem);box-shadow:0 24px 60px rgba(0,0,0,.22);animation:cardIn .55s cubic-bezier(.22,1,.36,1) both}
+@keyframes cardIn{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:none}}
+.auth-card-logo{width:50px;height:50px;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 1rem;color:#fff;font-size:18px;font-weight:900;box-shadow:0 6px 20px rgba(67,56,202,.28)}
+.auth-card-title{font-family:'DM Serif Display',serif;font-size:clamp(1.4rem,3vw,1.9rem);text-align:center;margin-bottom:1.4rem;letter-spacing:-.02em}
+.afield{margin-bottom:.85rem}
+.afield label{display:block;font-size:.72rem;font-weight:600;letter-spacing:.05em;text-transform:uppercase;color:var(--muted);margin-bottom:.3rem}
+.aiw{position:relative}
+.aiw input{width:100%;padding:.82rem 2.6rem .82rem 1rem;border:1.5px solid var(--border);border-radius:var(--rs);font-size:.93rem;color:var(--text);background:#fff;outline:none;transition:border-color .2s,box-shadow .2s}
+.aiw input::placeholder{color:#b8b4ae}
+.aiw input:focus{border-color:var(--indigo);box-shadow:0 0 0 3px rgba(67,56,202,.1)}
+.aiw input.err{border-color:var(--red);box-shadow:0 0 0 3px rgba(239,68,68,.1)}
+.aiw .fi{position:absolute;right:.85rem;top:50%;transform:translateY(-50%);color:var(--muted);display:flex;align-items:center;background:none;border:none;padding:0;cursor:pointer;transition:color .2s}
+.aiw .fi:hover{color:var(--indigo)}
+.ferr{font-size:.73rem;color:var(--red);margin-top:.28rem;min-height:.9rem;display:block}
+.asel-wrap{position:relative}
+.asel{width:100%;padding:.82rem 2.4rem .82rem 1rem;border:1.5px solid var(--border);border-radius:var(--rs);font-size:.93rem;color:var(--text);background:#fff;outline:none;appearance:none;-webkit-appearance:none;cursor:pointer;transition:border-color .2s,box-shadow .2s;background-image:url("data:image/svg+xml,%3Csvg width='11' height='7' viewBox='0 0 11 7' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1l4.5 4.5L10 1' stroke='%2364748b' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right .85rem center}
+.asel:focus{border-color:var(--indigo);box-shadow:0 0 0 3px rgba(67,56,202,.1)}
+.asel.err{border-color:var(--red)}
+.a-submit{width:100%;margin-top:.5rem;padding:.92rem;border:none;border-radius:var(--rs);font-size:.97rem;font-weight:700;color:#fff;cursor:pointer;font-family:inherit;transition:background .2s,transform .15s;display:flex;align-items:center;justify-content:center;gap:8px}
+.a-submit:hover{transform:translateY(-1px)}
+.a-submit.loading{opacity:.7;pointer-events:none}
+.a-submit.loading .btn-text{display:none}.a-submit.loading .spinner{display:inline-block}
+.spinner{display:none;width:16px;height:16px;border:2px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:spin .6s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.auth-divider{display:flex;align-items:center;gap:.7rem;margin:1.2rem 0;color:var(--muted);font-size:.78rem;letter-spacing:.04em}
+.auth-divider::before,.auth-divider::after{content:'';flex:1;height:1px;background:var(--border)}
+.soc-row{display:flex;justify-content:center;gap:.75rem}
+.btn-soc{width:52px;height:52px;border:1.5px solid var(--border);border-radius:var(--rs);background:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:border-color .2s,box-shadow .2s,transform .15s}
+.btn-soc:hover{border-color:var(--indigo);box-shadow:0 4px 12px rgba(67,56,202,.1);transform:translateY(-2px)}
+.auth-foot{text-align:center;margin-top:1.1rem;font-size:.82rem;color:var(--muted)}
+.auth-foot a,.auth-foot button{color:var(--indigo);font-weight:600;text-decoration:none;background:none;border:none;font-size:.82rem;cursor:pointer}
+.auth-foot button:hover{text-decoration:underline}
+.auth-copy{text-align:center;font-size:.68rem;color:var(--muted);margin-top:1.2rem;padding-top:.8rem;border-top:1px solid var(--border)}
+.role-lbl{display:block;font-size:.72rem;font-weight:600;letter-spacing:.05em;text-transform:uppercase;color:var(--muted);margin-bottom:.6rem}
+.role-cards{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:.3rem}
+.role-card{position:relative;cursor:pointer;border:2px solid var(--border);border-radius:14px;padding:14px 12px 12px;display:flex;flex-direction:column;align-items:center;gap:6px;background:#fff;transition:border-color .2s,box-shadow .2s,background .2s;user-select:none}
+.role-card:hover{border-color:#a5b4fc;background:#fafafe}
+.role-card.sel{border-color:var(--indigo);background:var(--pf);box-shadow:0 0 0 3px rgba(67,56,202,.12)}
+.role-card input[type=radio]{position:absolute;opacity:0;pointer-events:none}
+.rc-check{position:absolute;top:9px;right:9px;width:18px;height:18px;border-radius:50%;border:2px solid var(--border);background:#fff;display:flex;align-items:center;justify-content:center;transition:border-color .2s,background .2s}
+.role-card.sel .rc-check{background:var(--indigo);border-color:var(--indigo)}
+.rc-check svg{display:none}.role-card.sel .rc-check svg{display:block}
+.rc-icon{font-size:1.6rem;line-height:1}
+.rc-title{font-size:.84rem;font-weight:800;color:var(--text)}
+.rc-desc{font-size:.7rem;color:var(--muted);text-align:center;line-height:1.4}
+.role-err{font-size:.73rem;color:var(--red);display:block;min-height:.9rem;margin-top:.2rem}
+@media(max-width:680px){.auth-layout{grid-template-columns:1fr}.auth-hero{display:none}}
+
+</style>
+</head>
+<body>
+
+<!-- TOP NAV -->
+<nav class="nav">
+  <a class="nav-logo" href="#">
+    <div class="logo-mark">S</div>
+    Synera
+  </a>
+  <div class="nav-divider"></div>
+  <div class="nav-title">Community Chat</div>
+  <span class="nav-badge">LIVE</span>
+  <div class="nav-right">
+    <div class="online-dot"></div>
+    <span class="online-count" id="onlineCount">0 online</span>
+    <div class="user-chip" id="userChip" style="display:none">
+      <div class="user-av" id="navAv" style="background:var(--indigo)">?</div>
+      <span id="navName">User</span>
+    </div>
+    <button class="chat-action-btn" id="logoutBtn" style="display:none" onclick="doLogout()">Leave</button>
+  </div>
+</nav>
+
+<!-- LAYOUT -->
+<div class="chat-layout">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sb-section">
+      <div class="sb-label">Channels</div>
+      <button class="channel-btn active" onclick="switchChannel('general',this)">
+        <span class="channel-hash">#</span>
+        <span class="channel-name">general</span>
+      </button>
+      <button class="channel-btn" onclick="switchChannel('mentors',this)">
+        <span class="channel-hash">#</span>
+        <span class="channel-name">mentors-lounge</span>
+      </button>
+      <button class="channel-btn" onclick="switchChannel('students',this)">
+        <span class="channel-hash">#</span>
+        <span class="channel-name">students-hub</span>
+      </button>
+      <button class="channel-btn" onclick="switchChannel('resources',this)">
+        <span class="channel-hash">#</span>
+        <span class="channel-name">resources</span>
+      </button>
+      <button class="channel-btn" onclick="switchChannel('sessions',this)">
+        <span class="channel-hash">#</span>
+        <span class="channel-name">book-a-session</span>
+      </button>
+    </div>
+    <div class="sb-divider"></div>
+    <div class="online-users">
+      <div class="sb-label">Online now</div>
+      <div id="onlineList"></div>
+    </div>
+  </aside>
+
+  <!-- MAIN CHAT -->
+  <main class="chat-main">
+    <div class="chat-header">
+      <span class="chat-header-icon">#</span>
+      <div class="chat-header-info">
+        <div class="chat-header-name" id="channelName">general</div>
+        <div class="chat-header-desc" id="channelDesc">Welcome to the Synera community — introduce yourself!</div>
+      </div>
+      <div class="chat-header-actions">
+        <button class="chat-action-btn" onclick="scrollToBottom()">↓ Latest</button>
+      </div>
+    </div>
+
+    <div class="messages-wrap" id="messagesWrap">
+      <div style="text-align:center;padding:40px 0 20px">
+        <div style="font-size:2rem;margin-bottom:8px">💬</div>
+        <div style="font-size:.9rem;font-weight:700;color:var(--text)">Welcome to Synera Chat</div>
+        <div style="font-size:.8rem;color:var(--muted);margin-top:4px">Sign in to start chatting with the community</div>
+      </div>
+    </div>
+
+    <div class="typing-row" id="typingRow" style="display:none;padding:0 20px 4px">
+      <div class="typing-dots"><span></span><span></span><span></span></div>
+      <span class="typing-text" id="typingText">Someone is typing…</span>
+    </div>
+
+    <div class="input-bar">
+      <div class="input-wrap">
+        <textarea class="chat-input" id="chatInput" placeholder="Sign in to chat…" rows="1" disabled
+          oninput="autoResize(this);handleTyping()"
+          onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendMessage()}"></textarea>
+        <button class="send-btn" id="sendBtn" onclick="sendMessage()" disabled>
+          <svg viewBox="0 0 24 24" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/>
+          </svg>
+        </button>
+      </div>
+      <div class="input-hint" id="inputHint">Sign in to join the conversation</div>
+    </div>
+  </main>
+</div>
+
+<!-- AUTH OVERLAY — uses exact Synera register/login forms -->
+<div class="auth-overlay" id="authOverlay" style="padding:0">
+  <div class="auth-layout" style="width:100%;min-height:100vh">
+
+    <!-- LEFT HERO (register colours) -->
+    <section class="auth-hero" style="background:linear-gradient(160deg,#312e81,#4c1d95)">
+      <div class="auth-illus">
+        <svg viewBox="0 0 420 480" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <ellipse cx="130" cy="468" rx="70" ry="10" fill="rgba(0,0,0,.3)"/>
+          <ellipse cx="290" cy="468" rx="70" ry="10" fill="rgba(0,0,0,.3)"/>
+          <rect x="94" y="220" width="72" height="120" rx="8" fill="#1a1a2e"/>
+          <path d="M127 222 L130 255 L133 222Z" fill="white" opacity=".6"/>
+          <path d="M115 220 Q130 232 145 220" stroke="white" stroke-width="2" fill="none" opacity=".4"/>
+          <rect x="99" y="336" width="28" height="130" rx="6" fill="#111128"/>
+          <rect x="133" y="336" width="28" height="130" rx="6" fill="#111128"/>
+          <rect x="70" y="222" width="24" height="80" rx="8" fill="#1a1a2e"/>
+          <rect x="166" y="222" width="24" height="80" rx="8" fill="#1a1a2e"/>
+          <line x1="130" y1="220" x2="130" y2="100" stroke="#10b981" stroke-width="4" stroke-linecap="round"/>
+          <ellipse cx="110" cy="145" rx="34" ry="16" fill="#10b981" transform="rotate(-30 110 145)"/>
+          <ellipse cx="152" cy="128" rx="38" ry="15" fill="#34d399" transform="rotate(25 152 128)"/>
+          <ellipse cx="100" cy="112" rx="30" ry="13" fill="#059669" transform="rotate(-45 100 112)"/>
+          <ellipse cx="160" cy="155" rx="28" ry="11" fill="#6ee7b7" transform="rotate(40 160 155)"/>
+          <rect x="254" y="220" width="72" height="120" rx="8" fill="#1a1a2e"/>
+          <path d="M287 222 L290 255 L293 222Z" fill="white" opacity=".6"/>
+          <rect x="259" y="336" width="28" height="130" rx="6" fill="#111128"/>
+          <rect x="293" y="336" width="28" height="130" rx="6" fill="#111128"/>
+          <rect x="230" y="222" width="24" height="80" rx="8" fill="#1a1a2e"/>
+          <circle cx="290" cy="185" r="34" fill="#111128"/>
+          <rect x="310" y="80" width="70" height="48" rx="10" fill="#f97316"/>
+          <path d="M380 104 L412 130" stroke="#f97316" stroke-width="10" stroke-linecap="round"/>
+        </svg>
+      </div>
+      <div class="auth-hero-foot">
+        <div class="auth-logo-bubble" style="color:var(--violet)">S</div>
+        <p class="auth-tagline">Join the Synera<br>Community Chat</p>
+      </div>
+    </section>
+
+    <!-- RIGHT PANEL: tab between Sign In & Register -->
+    <section class="auth-panel" style="background:#4c1d95">
+      <div class="auth-card">
+        <div class="auth-card-logo" style="background:var(--violet)">S</div>
+
+        <!-- Tab switcher -->
+        <div style="display:flex;background:var(--bg);border-radius:50px;padding:3px;margin-bottom:1.25rem">
+          <button id="chatTabSignin" onclick="switchChatTab('signin')"
+            style="flex:1;padding:8px;border-radius:50px;border:none;font-family:inherit;font-size:.82rem;font-weight:700;cursor:pointer;transition:all .2s;background:var(--white);color:var(--indigo);box-shadow:0 2px 10px rgba(67,56,202,.12)">
+            Sign In
+          </button>
+          <button id="chatTabRegister" onclick="switchChatTab('register')"
+            style="flex:1;padding:8px;border-radius:50px;border:none;font-family:inherit;font-size:.82rem;font-weight:700;cursor:pointer;transition:all .2s;background:none;color:var(--muted)">
+            Create Account
+          </button>
+        </div>
+
+        <!-- ── SIGN IN PANEL ── -->
+        <div id="chatPanelSignin">
+          <h1 class="auth-card-title" style="color:var(--indigo);margin-bottom:1.2rem">Welcome back</h1>
+          <form id="chatLoginForm" novalidate>
+            <div class="afield">
+              <label for="clEmail">Email address</label>
+              <div class="aiw">
+                <input type="email" id="clEmail" placeholder="jane@example.com" autocomplete="email"/>
+                <span class="fi"><svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m2 7 10 6.5L22 7"/></svg></span>
+              </div>
+              <span class="ferr" id="clEmailErr"></span>
+            </div>
+            <div class="afield">
+              <label for="clPw">Password</label>
+              <div class="aiw">
+                <input type="password" id="clPw" placeholder="Your password" autocomplete="current-password"/>
+                <button type="button" class="fi" onclick="togglePw('clPw',this)">
+                  <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                </button>
+              </div>
+              <span class="ferr" id="clPwErr"></span>
+            </div>
+            <button type="submit" class="a-submit" id="chatLoginBtn" style="background:var(--indigo)">
+              <span class="btn-text">Enter Chat →</span><span class="spinner"></span>
+            </button>
+          </form>
+          <div class="auth-foot" style="margin-top:.9rem">No account? <a href="#" onclick="switchChatTab('register');return false">Create one free</a></div>
+        </div>
+
+        <!-- ── REGISTER PANEL ── -->
+        <div id="chatPanelRegister" style="display:none">
+          <h1 class="auth-card-title" style="color:var(--violet);margin-bottom:1.2rem">Create Account</h1>
+          <form id="chatRegisterForm" novalidate>
+            <div class="afield">
+              <label for="crName">Full name</label>
+              <div class="aiw">
+                <input type="text" id="crName" placeholder="Jane Doe" autocomplete="name"/>
+                <span class="fi"><svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></span>
+              </div>
+              <span class="ferr" id="crNameErr"></span>
+            </div>
+            <div class="afield">
+              <label for="crEmail">Email address</label>
+              <div class="aiw">
+                <input type="email" id="crEmail" placeholder="jane@example.com" autocomplete="email"/>
+                <span class="fi"><svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m2 7 10 6.5L22 7"/></svg></span>
+              </div>
+              <span class="ferr" id="crEmailErr"></span>
+            </div>
+            <div class="afield">
+              <label for="crPw">Password</label>
+              <div class="aiw">
+                <input type="password" id="crPw" placeholder="Min. 8 characters" autocomplete="new-password"/>
+                <button type="button" class="fi" onclick="togglePw('crPw',this)">
+                  <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                </button>
+              </div>
+              <span class="ferr" id="crPwErr"></span>
+            </div>
+            <!-- Role selector — exact copy from main app -->
+            <div class="afield">
+              <span class="role-lbl">I want to join as</span>
+              <div class="role-cards">
+                <label class="role-card" id="crRcStudent" onclick="chatSelectRole('student')">
+                  <input type="radio" name="crRole" value="student"/>
+                  <div class="rc-check"><svg width="9" height="7" viewBox="0 0 12 9" fill="none"><polyline points="1,4.5 4.5,8 11,1" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+                  <div class="rc-icon">🎓</div>
+                  <div class="rc-title">Student</div>
+                  <div class="rc-desc">I want to learn &amp; find a mentor</div>
+                </label>
+                <label class="role-card" id="crRcMentor" onclick="chatSelectRole('mentor')">
+                  <input type="radio" name="crRole" value="mentor"/>
+                  <div class="rc-check"><svg width="9" height="7" viewBox="0 0 12 9" fill="none"><polyline points="1,4.5 4.5,8 11,1" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+                  <div class="rc-icon">🏫</div>
+                  <div class="rc-title">Mentor</div>
+                  <div class="rc-desc">I want to teach &amp; share expertise</div>
+                </label>
+              </div>
+              <span class="role-err" id="crRoleErr"></span>
+            </div>
+            <!-- Industry dropdown -->
+            <div class="afield">
+              <label for="crIndustry" id="crIndLbl">Industry you're interested in</label>
+              <div class="asel-wrap">
+                <select id="crIndustry" class="asel"><option value="" disabled selected>— Choose an industry —</option></select>
+              </div>
+              <span class="ferr" id="crIndErr"></span>
+            </div>
+            <button type="submit" class="a-submit" id="chatRegBtn" style="background:var(--violet)">
+              <span class="btn-text">Create account</span><span class="spinner"></span>
+            </button>
+          </form>
+          <div class="auth-foot" style="margin-top:.9rem">Already have an account? <a href="#" onclick="switchChatTab('signin');return false">Sign in</a></div>
+          <p class="auth-copy">By creating an account you agree to Synera's <a href="#">Terms</a> &amp; <a href="#">Privacy</a></p>
+        </div>
+
+      </div>
+    </section>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script>
+'use strict';
+
+/* ── SUPABASE ──────────────────────────────── */
+const SUPA_URL = 'https://mkuklkqvatequxvlpncm.supabase.co';
+const SUPA_KEY = 'sb_publishable_amstxWXd3Vt19V7um1YMsw_gw-keZHT';
+const sb = supabase.createClient(SUPA_URL, SUPA_KEY);
+
+/* ── STATE ─────────────────────────────────── */
+let _user       = null;
+let _channel    = 'general';
+let _realtimeSub = null;
+let _typingTimer  = null;
+let _lastDate     = '';
+
+const CHANNEL_INFO = {
+  general:   { name:'general',        desc:'Welcome to the Synera community — introduce yourself!' },
+  mentors:   { name:'mentors-lounge', desc:'A space for mentors to connect and share expertise.' },
+  students:  { name:'students-hub',   desc:'Students: ask questions, share progress, find peers.' },
+  resources: { name:'resources',      desc:'Share useful links, tools, and learning materials.' },
+  sessions:  { name:'book-a-session', desc:'Looking for a mentor? Post your request here!' },
+};
+
+const COLORS = ['#4338ca','#7c3aed','#0d9488','#f97316','#ec4899','#0ea5e9','#8b5cf6','#059669'];
+function colorFor(name){ let h=0; for(let c of (name||'?')) h=(h*31+c.charCodeAt(0))&0xffffffff; return COLORS[Math.abs(h)%COLORS.length]; }
+function initials(n){ return (n||'?').split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase(); }
+function timeStr(iso){ const d=new Date(iso); return d.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}); }
+function dateStr(iso){ const d=new Date(iso); return d.toLocaleDateString([],{weekday:'long',month:'long',day:'numeric'}); }
+
+/* ── TOAST ─────────────────────────────────── */
+let _tt;
+function toast(msg, type='success', ms=3000){
+  const el=document.getElementById('toast');
+  el.textContent=msg; el.className=`toast toast-${type} show`;
+  clearTimeout(_tt); _tt=setTimeout(()=>el.classList.remove('show'), ms);
+}
+
+/* ── AUTH — mirrors main Synera app exactly ── */
+
+/* Tab switcher */
+function switchChatTab(tab){
+  const si = document.getElementById('chatPanelSignin');
+  const re = document.getElementById('chatPanelRegister');
+  const bt1 = document.getElementById('chatTabSignin');
+  const bt2 = document.getElementById('chatTabRegister');
+  si.style.display = tab==='signin' ? '' : 'none';
+  re.style.display = tab==='register' ? '' : 'none';
+  bt1.style.cssText = tab==='signin'
+    ? 'flex:1;padding:8px;border-radius:50px;border:none;font-family:inherit;font-size:.82rem;font-weight:700;cursor:pointer;transition:all .2s;background:var(--white);color:var(--indigo);box-shadow:0 2px 10px rgba(67,56,202,.12)'
+    : 'flex:1;padding:8px;border-radius:50px;border:none;font-family:inherit;font-size:.82rem;font-weight:700;cursor:pointer;transition:all .2s;background:none;color:var(--muted)';
+  bt2.style.cssText = tab==='register'
+    ? 'flex:1;padding:8px;border-radius:50px;border:none;font-family:inherit;font-size:.82rem;font-weight:700;cursor:pointer;transition:all .2s;background:var(--white);color:var(--indigo);box-shadow:0 2px 10px rgba(67,56,202,.12)'
+    : 'flex:1;padding:8px;border-radius:50px;border:none;font-family:inherit;font-size:.82rem;font-weight:700;cursor:pointer;transition:all .2s;background:none;color:var(--muted)';
+  if(tab==='register') chatPopulateIndustry(_chatSelRole || 'student');
+}
+
+/* Form helpers — same as main app */
+function setErr(inputId, errId, msg){
+  const inp = document.getElementById(inputId);
+  const err = document.getElementById(errId);
+  if(inp) inp.classList.toggle('err', !!msg);
+  if(err) err.textContent = msg;
+}
+function clrErr(inputId, errId){ setErr(inputId, errId, ''); }
+function togglePw(id, btn){
+  const inp = document.getElementById(id);
+  const show = inp.type === 'password';
+  inp.type = show ? 'text' : 'password';
+  btn.innerHTML = show
+    ? `<svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>`
+    : `<svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>`;
+}
+
+/* Industry dropdown — same options as main app */
+const STU_OPTS = ['Technology & Engineering','Design & Creative Arts','Business & Entrepreneurship','Marketing & Communications','Data Science & AI','Finance & Accounting','Healthcare & Medicine','Education & Teaching','Law & Legal Studies','Product Management','Other'];
+const MEN_OPTS = ['UI/UX & Product Design','Frontend Development','Backend Development','Full-Stack Development','Mobile Development','Data Science & Machine Learning','Artificial Intelligence','DevOps & Cloud Infrastructure','Cybersecurity','Digital Marketing & SEO','Brand Strategy & Identity','Business Strategy & Growth','Finance & Investment','Entrepreneurship & Startups','Product Management','Content Creation & Writing','Other'];
+
+let _chatSelRole = '';
+function chatPopulateIndustry(role){
+  const sel = document.getElementById('crIndustry');
+  const lbl = document.getElementById('crIndLbl');
+  if(!sel) return;
+  const opts = role === 'mentor' ? MEN_OPTS : STU_OPTS;
+  if(lbl) lbl.textContent = role === 'mentor' ? 'Your area of expertise' : "Industry you're interested in";
+  sel.innerHTML = '<option value="" disabled selected>— Choose an industry —</option>' +
+    opts.map(o => `<option value="${o}">${o}</option>`).join('');
+  sel.value = '';
+}
+function chatSelectRole(role){
+  _chatSelRole = role;
+  document.getElementById('crRcStudent').classList.toggle('sel', role==='student');
+  document.getElementById('crRcMentor').classList.toggle('sel',  role==='mentor');
+  document.getElementById('crRoleErr').textContent = '';
+  chatPopulateIndustry(role);
+  const lbl = document.querySelector('#chatRegBtn .btn-text');
+  const btn = document.getElementById('chatRegBtn');
+  if(lbl) lbl.textContent = role==='mentor' ? 'Join as Mentor' : 'Join as Student';
+  if(btn) btn.style.background = role==='mentor' ? 'var(--teal)' : 'var(--violet)';
+}
+
+/* Sign in — same DB lookup as main app */
+document.addEventListener('DOMContentLoaded', () => {
+  chatPopulateIndustry('student');
+
+  document.getElementById('chatLoginForm').addEventListener('submit', async function(e){
+    e.preventDefault();
+    const email = document.getElementById('clEmail').value.trim();
+    const pw    = document.getElementById('clPw').value;
+    clrErr('clEmail','clEmailErr'); clrErr('clPw','clPwErr');
+    let ok = true;
+    if(!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){ setErr('clEmail','clEmailErr','Valid email required.'); ok=false; }
+    if(!pw || pw.length < 6){ setErr('clPw','clPwErr','Password required.'); ok=false; }
+    if(!ok) return;
+    const btn = document.getElementById('chatLoginBtn');
+    btn.classList.add('loading');
+    let found = null, role = '';
+    for(const r of ['mentor','student']){
+      const tbl = r==='mentor' ? 'sign-in-as-mentor' : 'sign-up-as-student';
+      const { data } = await sb.from(tbl).select('*').eq('email', email.toLowerCase()).maybeSingle();
+      if(data){ found=data; role=r; break; }
+    }
+    btn.classList.remove('loading');
+    if(!found){ setErr('clEmail','clEmailErr','No account found with that email.'); return; }
+    if(found.password !== pw){ setErr('clPw','clPwErr','Incorrect password.'); return; }
+    _user = { id: found.id, name: found.full_name || email.split('@')[0], role, email };
+    enterChat();
+  });
+
+  /* Register — same validation & DB insert as main app */
+  document.getElementById('chatRegisterForm').addEventListener('submit', async function(e){
+    e.preventDefault();
+    const fullname = document.getElementById('crName').value.trim();
+    const email    = document.getElementById('crEmail').value.trim();
+    const pw       = document.getElementById('crPw').value;
+    const industry = document.getElementById('crIndustry').value;
+    let ok = true;
+    ['crName','crEmail','crPw'].forEach((id,i) => clrErr(id, ['crNameErr','crEmailErr','crPwErr'][i]));
+    document.getElementById('crRoleErr').textContent = '';
+    document.getElementById('crIndErr').textContent  = '';
+    if(!fullname || fullname.length < 2){ setErr('crName','crNameErr','Full name required (min 2 chars).'); ok=false; }
+    if(!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){ setErr('crEmail','crEmailErr','Valid email required.'); ok=false; }
+    if(!pw || pw.length < 8){ setErr('crPw','crPwErr','Min 8 characters required.'); ok=false; }
+    if(!_chatSelRole){ document.getElementById('crRoleErr').textContent = 'Please choose student or mentor.'; ok=false; }
+    if(!industry){ document.getElementById('crIndErr').textContent = 'Please select an industry.'; ok=false; }
+    if(!ok) return;
+    const btn = document.getElementById('chatRegBtn');
+    btn.classList.add('loading');
+    const tbl = _chatSelRole==='mentor' ? 'sign-in-as-mentor' : 'sign-up-as-student';
+    const { data:ex } = await sb.from(tbl).select('id').eq('email', email.toLowerCase()).maybeSingle();
+    if(ex){ btn.classList.remove('loading'); setErr('crEmail','crEmailErr','An account with this email already exists.'); return; }
+    const { data, error } = await sb.from(tbl).insert([{
+      full_name: fullname.trim(), email: email.toLowerCase(),
+      password: pw, 'field-of-study': industry, progress: 30
+    }]).select().single();
+    btn.classList.remove('loading');
+    if(error){ setErr('crEmail','crEmailErr', error.message); return; }
+    _user = { id: data.id, name: fullname, role: _chatSelRole, email };
+    toast(`🎉 Welcome, ${fullname.split(' ')[0]}! Joined as ${_chatSelRole==='mentor'?'Mentor':'Student'}.`);
+    enterChat();
+  });
+});
+
+function enterChat(){
+  document.getElementById('authOverlay').style.display = 'none';
+  document.getElementById('userChip').style.display = 'flex';
+  document.getElementById('logoutBtn').style.display = '';
+  const av = document.getElementById('navAv');
+  av.textContent = initials(_user.name);
+  av.style.background = colorFor(_user.name);
+  document.getElementById('navName').textContent = _user.name.split(' ')[0];
+  const inp = document.getElementById('chatInput');
+  inp.disabled = false;
+  inp.placeholder = `Message #${_channel}…`;
+  document.getElementById('sendBtn').disabled = false;
+  document.getElementById('inputHint').textContent = 'Press Enter to send · Shift+Enter for new line';
+  loadMessages();
+  subscribeRealtime();
+  upsertPresence();
+  toast(`Welcome, ${_user.name.split(' ')[0]}! 👋`);
+}
+
+function doLogout(){
+  _user = null;
+  if(_realtimeSub){ sb.removeChannel(_realtimeSub); _realtimeSub = null; }
+  document.getElementById('authOverlay').style.display = 'flex';
+  switchChatTab('signin');
+  document.getElementById('userChip').style.display = 'none';
+  document.getElementById('logoutBtn').style.display = 'none';
+  document.getElementById('chatInput').disabled = true;
+  document.getElementById('chatInput').placeholder = 'Sign in to chat…';
+  document.getElementById('sendBtn').disabled = true;
+  document.getElementById('inputHint').textContent = 'Sign in to join the conversation';
+  document.getElementById('messagesWrap').innerHTML = `
+    <div style="text-align:center;padding:40px 0 20px">
+      <div style="font-size:2rem;margin-bottom:8px">💬</div>
+      <div style="font-size:.9rem;font-weight:700;color:var(--text)">Welcome to Synera Chat</div>
+      <div style="font-size:.8rem;color:var(--muted);margin-top:4px">Sign in to start chatting with the community</div>
+    </div>`;
+  document.getElementById('onlineCount').textContent = '0 online';
+  document.getElementById('onlineList').innerHTML = '';
+}
+
+/* ── CHANNELS ──────────────────────────────── */
+function switchChannel(ch, btn){
+  _channel = ch;
+  document.querySelectorAll('.channel-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  const info = CHANNEL_INFO[ch] || { name:ch, desc:'' };
+  document.getElementById('channelName').textContent = info.name;
+  document.getElementById('channelDesc').textContent = info.desc;
+  if(_user){
+    document.getElementById('chatInput').placeholder = `Message #${info.name}…`;
+    _lastDate = '';
+    loadMessages();
+    subscribeRealtime();
+  }
+}
+
+/* ── MESSAGES ──────────────────────────────── */
+async function loadMessages(){
+  const wrap = document.getElementById('messagesWrap');
+  wrap.innerHTML = '<div style="text-align:center;padding:30px;color:var(--muted);font-size:.84rem">Loading messages…</div>';
+  _lastDate = '';
+  const { data, error } = await sb.from('chat_messages')
+    .select('*').eq('channel', _channel)
+    .order('created_at', { ascending: true }).limit(80);
+  if(error){ wrap.innerHTML=`<div style="text-align:center;padding:30px;color:#dc2626;font-size:.84rem">Could not load messages: ${error.message}</div>`; return; }
+  wrap.innerHTML = '';
+  if(!data.length){
+    wrap.innerHTML = `<div style="text-align:center;padding:40px 0;color:var(--muted);font-size:.84rem">No messages yet. Say hello! 👋</div>`;
+    return;
+  }
+  data.forEach(m => appendMessage(m, false));
+  scrollToBottom();
+}
+
+function appendMessage(m, scroll=true){
+  const wrap = document.getElementById('messagesWrap');
+  const isOwn = _user && (m.user_id === String(_user.id) || m.user_name === _user.name);
+
+  // Date divider
+  const d = dateStr(m.created_at);
+  if(d !== _lastDate){
+    _lastDate = d;
+    const div = document.createElement('div');
+    div.className = 'date-divider'; div.textContent = d;
+    wrap.appendChild(div);
+  }
+
+  // Empty welcome placeholder
+  const emp = wrap.querySelector('[style*="Say hello"]') || wrap.querySelector('[style*="Sign in"]');
+  if(emp) emp.remove();
+
+  const roleTag = m.user_role === 'mentor'
+    ? '<span class="msg-role-tag mentor">MENTOR</span>'
+    : '<span class="msg-role-tag student">STUDENT</span>';
+
+  const row = document.createElement('div');
+  row.className = `msg-row${isOwn ? ' own' : ''}`;
+  row.innerHTML = `
+    <div class="msg-av" style="background:${colorFor(m.user_name)}">${initials(m.user_name)}</div>
+    <div class="msg-body">
+      <div class="msg-meta">
+        <span class="msg-name">${m.user_name}</span>
+        ${roleTag}
+        <span class="msg-time">${timeStr(m.created_at)}</span>
+      </div>
+      <div class="msg-bubble">${escHtml(m.content)}</div>
+    </div>`;
+  wrap.appendChild(row);
+  if(scroll) scrollToBottom();
+}
+
+function escHtml(s){
+  return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br>');
+}
+
+function scrollToBottom(){
+  const w = document.getElementById('messagesWrap');
+  w.scrollTop = w.scrollHeight;
+}
+
+/* ── SEND ──────────────────────────────────── */
+async function sendMessage(){
+  if(!_user) return;
+  const inp = document.getElementById('chatInput');
+  const text = inp.value.trim();
+  if(!text) return;
+  inp.value = ''; inp.style.height = '';
+  clearTyping();
+
+  const { error } = await sb.from('chat_messages').insert([{
+    channel:   _channel,
+    user_id:   String(_user.id),
+    user_name: _user.name,
+    user_role: _user.role,
+    content:   text
+  }]);
+  if(error) toast('Failed to send: ' + error.message, 'error');
+}
+
+/* ── REALTIME ──────────────────────────────── */
+function subscribeRealtime(){
+  if(_realtimeSub) sb.removeChannel(_realtimeSub);
+  _realtimeSub = sb.channel('chat_' + _channel)
+    .on('postgres_changes',{
+      event:'INSERT', schema:'public', table:'chat_messages', filter:`channel=eq.${_channel}`
+    }, payload => {
+      appendMessage(payload.new, true);
+    })
+    .on('presence', { event:'sync' }, () => updatePresence())
+    .subscribe();
+}
+
+/* ── PRESENCE ──────────────────────────────── */
+async function upsertPresence(){
+  if(!_user || !_realtimeSub) return;
+  await _realtimeSub.track({ user_name: _user.name, user_role: _user.role, id: String(_user.id) });
+}
+
+function updatePresence(){
+  if(!_realtimeSub) return;
+  const state  = _realtimeSub.presenceState();
+  const users  = Object.values(state).flat();
+  const unique = [...new Map(users.map(u=>[u.id||u.user_name, u])).values()];
+  document.getElementById('onlineCount').textContent = unique.length + ' online';
+  const list = document.getElementById('onlineList');
+  list.innerHTML = unique.slice(0,8).map(u => `
+    <div class="online-user-row">
+      <div class="ou-av" style="background:${colorFor(u.user_name)}">${initials(u.user_name)}</div>
+      <div><div class="ou-name">${u.user_name}</div><div class="ou-role">${u.user_role||'member'}</div></div>
+    </div>`).join('');
+}
+
+/* ── TYPING INDICATOR ──────────────────────── */
+function handleTyping(){
+  if(!_realtimeSub || !_user) return;
+  _realtimeSub.send({ type:'broadcast', event:'typing', payload:{ name:_user.name } });
+  clearTimeout(_typingTimer);
+  _typingTimer = setTimeout(clearTyping, 2500);
+}
+function clearTyping(){
+  document.getElementById('typingRow').style.display = 'none';
+}
+
+/* ── AUTO RESIZE TEXTAREA ─────────────────── */
+function autoResize(el){
+  el.style.height = 'auto';
+  el.style.height = Math.min(el.scrollHeight, 120) + 'px';
+}
+
+/* ── INIT ──────────────────────────────────── */
+// Listen for typing broadcasts from others
+setTimeout(() => {
+  const broadcastCh = sb.channel('typing_broadcast')
+    .on('broadcast', { event: 'typing' }, ({ payload }) => {
+      if(_user && payload.name === _user.name) return;
+      const tr = document.getElementById('typingRow');
+      const tt = document.getElementById('typingText');
+      tt.textContent = `${payload.name} is typing…`;
+      tr.style.display = 'flex';
+      clearTimeout(_typingTimer);
+      _typingTimer = setTimeout(()=>tr.style.display='none', 2500);
+    })
+    .subscribe();
+}, 500);
+</script>
+
+</body>
+</html>
