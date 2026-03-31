@@ -1042,6 +1042,65 @@ body.is-mentor .m-fab{display:flex}
 @media(max-width:560px){
   .browse-courses-grid,.browse-sessions-grid,.browse-mcards-grid{grid-template-columns:1fr}
 }
+
+/* ═══════════════════════════════════════════════════════
+   BOOKING MODAL
+═══════════════════════════════════════════════════════ */
+.bk-overlay{display:none;position:fixed;inset:0;z-index:3000;background:rgba(15,23,41,.55);backdrop-filter:blur(5px);align-items:center;justify-content:center;padding:20px}
+.bk-overlay.open{display:flex;animation:fadeOverlay .22s ease}
+.bk-modal{background:#fff;border-radius:24px;width:100%;max-width:480px;box-shadow:0 24px 80px rgba(0,0,0,.28);animation:slideModal .3s cubic-bezier(.22,1,.36,1) both;overflow:hidden}
+.bk-banner{padding:24px 26px 20px;background:linear-gradient(135deg,var(--indigo),var(--violet));color:#fff;position:relative}
+.bk-banner-type{font-size:.68rem;font-weight:800;letter-spacing:.1em;text-transform:uppercase;opacity:.7;margin-bottom:4px}
+.bk-banner-title{font-size:1.15rem;font-weight:800;line-height:1.3;margin-bottom:2px}
+.bk-banner-mentor{font-size:.8rem;opacity:.8;margin-bottom:4px}
+.bk-banner-price{display:inline-block;background:rgba(255,255,255,.18);border-radius:20px;padding:3px 12px;font-size:.78rem;font-weight:700}
+.bk-close{position:absolute;top:16px;right:16px;width:30px;height:30px;border-radius:50%;background:rgba(255,255,255,.18);border:none;color:#fff;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background var(--tr)}
+.bk-close:hover{background:rgba(255,255,255,.3)}
+.bk-body{padding:22px 26px 26px;display:flex;flex-direction:column;gap:14px}
+.bk-field{display:flex;flex-direction:column;gap:5px}
+.bk-field label{font-size:.78rem;font-weight:700;color:var(--text)}
+.bk-field input,.bk-field select,.bk-field textarea{padding:10px 14px;border:1.5px solid var(--border);border-radius:10px;font-size:.88rem;color:var(--text);font-family:inherit;outline:none;background:#fafafe;transition:border-color .2s}
+.bk-field input:focus,.bk-field select:focus,.bk-field textarea:focus{border-color:var(--indigo);background:#fff}
+.bk-field textarea{resize:vertical;min-height:72px;line-height:1.5}
+.bk-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.bk-submit{width:100%;padding:13px;background:linear-gradient(135deg,var(--indigo),var(--violet));color:#fff;border:none;border-radius:12px;font-size:.92rem;font-weight:800;cursor:pointer;transition:opacity var(--tr);display:flex;align-items:center;justify-content:center;gap:8px}
+.bk-submit:hover{opacity:.88}
+.bk-submit:disabled{opacity:.5;cursor:not-allowed}
+.bk-submit .spinner{display:none;width:15px;height:15px;border:2px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:spin .6s linear infinite}
+.bk-submit.loading .bk-label{display:none}
+.bk-submit.loading .spinner{display:inline-block}
+.bk-success{display:none;flex-direction:column;align-items:center;gap:12px;padding:32px 26px;text-align:center}
+.bk-success.show{display:flex}
+.bk-success-icon{width:64px;height:64px;border-radius:50%;background:linear-gradient(135deg,var(--teal),var(--teal2));display:flex;align-items:center;justify-content:center;font-size:2rem}
+.bk-success h3{font-size:1.1rem;font-weight:800;color:var(--text)}
+.bk-success p{font-size:.85rem;color:var(--muted);max-width:280px;line-height:1.6}
+.bk-success-btn{padding:10px 28px;background:var(--indigo);color:#fff;border:none;border-radius:50px;font-size:.85rem;font-weight:700;cursor:pointer}
+@media(max-width:480px){
+  .bk-modal{border-radius:20px 20px 0 0;max-height:95vh;overflow-y:auto}
+  .bk-overlay{align-items:flex-end;padding:0}
+  .bk-row{grid-template-columns:1fr}
+}
+
+/* ── Booking Request Cards (mentor dashboard) ── */
+.bk-req-list{display:flex;flex-direction:column;gap:12px}
+.bk-req-card{background:#fff;border:1.5px solid var(--border);border-radius:14px;padding:14px 16px;transition:box-shadow var(--tr)}
+.bk-req-card:hover{box-shadow:var(--sh)}
+.bk-req-top{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.bk-req-av{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:800;color:#fff;font-size:.75rem;flex-shrink:0}
+.bk-req-info{flex:1;min-width:0}
+.bk-req-name{font-size:.88rem;font-weight:700;color:var(--text)}
+.bk-req-title{font-size:.75rem;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.bk-req-badge{font-size:.65rem;font-weight:800;padding:3px 10px;border-radius:20px;white-space:nowrap;flex-shrink:0}
+.bk-req-badge.pending{background:#fff7ed;color:#c2410c}
+.bk-req-badge.confirmed{background:var(--tealfaint);color:var(--teal)}
+.bk-req-badge.cancelled{background:#f1f0f7;color:var(--muted)}
+.bk-req-meta{display:flex;gap:12px;font-size:.75rem;color:var(--muted);font-weight:600;margin-bottom:8px;flex-wrap:wrap}
+.bk-req-note{font-size:.77rem;color:var(--text);background:var(--bg);border-radius:8px;padding:8px 12px;margin-bottom:10px;line-height:1.5;font-style:italic}
+.bk-req-actions{display:flex;gap:8px}
+.bk-req-btn{flex:1;padding:8px;border:none;border-radius:9px;font-size:.78rem;font-weight:700;cursor:pointer;transition:opacity var(--tr)}
+.bk-req-btn.confirm{background:linear-gradient(135deg,var(--teal),var(--teal2));color:#fff}
+.bk-req-btn.decline{background:#fef2f2;color:#dc2626;border:1px solid #fecaca}
+.bk-req-btn:hover{opacity:.82}
 </style>
 
 </head>
@@ -1231,38 +1290,35 @@ body.is-mentor .m-fab{display:flex}
   </div></section>
 
   <!-- ── Live Courses from mentors ── -->
-  <section class="browse-live-section" id="browseCoursesSec" style="display:none">
+  <section class="browse-live-section" id="browseCoursesSec">
     <div class="container">
       <div class="browse-sec-hd">
         <h2 class="browse-sec-title">📖 Courses from Our Mentors</h2>
         <span class="browse-live-pill">LIVE</span>
       </div>
-      <div class="browse-courses-grid" id="browseCoursesGrid"></div>
-      <div class="browse-empty-state" id="browseCoursesEmpty">No courses published yet — check back soon!</div>
+      <div class="browse-courses-grid" id="browseCoursesGrid"><div style="text-align:center;padding:24px;color:var(--muted);font-size:.85rem">Loading courses…</div></div>
     </div>
   </section>
 
   <!-- ── Live Sessions from mentors ── -->
-  <section class="browse-live-section" id="browseSessionsSec" style="display:none">
+  <section class="browse-live-section" id="browseSessionsSec">
     <div class="container">
       <div class="browse-sec-hd">
         <h2 class="browse-sec-title">🗓️ Available Mentorship Sessions</h2>
         <span class="browse-live-pill">LIVE</span>
       </div>
-      <div class="browse-sessions-grid" id="browseSessionsGrid"></div>
-      <div class="browse-empty-state" id="browseSessionsEmpty">No sessions available yet — mentors are setting up!</div>
+      <div class="browse-sessions-grid" id="browseSessionsGrid"><div style="text-align:center;padding:24px;color:var(--muted);font-size:.85rem">Loading sessions…</div></div>
     </div>
   </section>
 
   <!-- ── Live Mentorship Cards from mentors ── -->
-  <section class="browse-live-section" id="browseMCardsSec" style="display:none">
+  <section class="browse-live-section" id="browseMCardsSec">
     <div class="container">
       <div class="browse-sec-hd">
         <h2 class="browse-sec-title">🪪 Mentorship Packages</h2>
         <span class="browse-live-pill">LIVE</span>
       </div>
-      <div class="browse-mcards-grid" id="browseMCardsGrid"></div>
-      <div class="browse-empty-state" id="browseMCardsEmpty">No mentorship packages yet — check back soon!</div>
+      <div class="browse-mcards-grid" id="browseMCardsGrid"><div style="text-align:center;padding:24px;color:var(--muted);font-size:.85rem">Loading packages…</div></div>
     </div>
   </section>
 
@@ -1956,13 +2012,107 @@ const DB = {
   }
 };
 
-/* MCM content store */
+/* ─────────────────────────────────────
+   MCM — Supabase-backed content store
+   Tables required (create once in Supabase SQL editor):
+
+   create table if not exists mentor_courses (
+     id bigint generated always as identity primary key,
+     created_at timestamptz default now(),
+     mentor_id text not null,
+     mentor_name text,
+     mentor_exp text,
+     title text not null,
+     cat text,
+     lessons int default 0,
+     duration text,
+     description text
+   );
+
+   create table if not exists mentor_sessions (
+     id bigint generated always as identity primary key,
+     created_at timestamptz default now(),
+     mentor_id text not null,
+     mentor_name text,
+     mentor_exp text,
+     title text not null,
+     type text,
+     duration text,
+     price numeric default 0,
+     availability text,
+     description text
+   );
+
+   create table if not exists mentor_cards (
+     id bigint generated always as identity primary key,
+     created_at timestamptz default now(),
+     mentor_id text not null,
+     mentor_name text,
+     mentor_exp text,
+     mentor_initials text,
+     title text not null,
+     tagline text,
+     price numeric default 0,
+     sessions int default 1,
+     duration text,
+     color text,
+     emoji text
+   );
+
+   -- Allow anyone to read, only the owner to insert/delete:
+   alter table mentor_courses  enable row level security;
+   alter table mentor_sessions enable row level security;
+   alter table mentor_cards    enable row level security;
+
+   create policy "public read courses"  on mentor_courses  for select using (true);
+   create policy "public read sessions" on mentor_sessions for select using (true);
+   create policy "public read cards"    on mentor_cards    for select using (true);
+   create policy "public insert courses"  on mentor_courses  for insert with check (true);
+   create policy "public insert sessions" on mentor_sessions for insert with check (true);
+   create policy "public insert cards"    on mentor_cards    for insert with check (true);
+   create policy "public delete courses"  on mentor_courses  for delete using (true);
+   create policy "public delete sessions" on mentor_sessions for delete using (true);
+   create policy "public delete cards"    on mentor_cards    for delete using (true);
+───────────────────────────────────── */
+const MCM_TABLE = { courses:'mentor_courses', sessions:'mentor_sessions', cards:'mentor_cards' };
+
 const MCM = {
-  _k: (uid, t) => `mcm_${uid}_${t}`,
-  load: (uid, t) => { try{ return JSON.parse(localStorage.getItem(MCM._k(uid,t))) || [] }catch(_){ return [] } },
-  save: (uid, t, a) => { try{ localStorage.setItem(MCM._k(uid,t), JSON.stringify(a)) }catch(_){} },
-  add(uid, t, item){ const a = MCM.load(uid,t); a.push({...item, _id:Date.now()}); MCM.save(uid,t,a); return a; },
-  del(uid, t, id){ const a = MCM.load(uid,t).filter(x => x._id !== id); MCM.save(uid,t,a); return a; }
+  async load(uid, t){
+    const sb = window._sb;
+    const { data, error } = await sb.from(MCM_TABLE[t]).select('*').eq('mentor_id', String(uid)).order('created_at', {ascending:true});
+    if(error){ console.warn('MCM.load error', error.message); return []; }
+    // Normalise rows to the shape the rest of the UI expects (_id = row id)
+    return (data||[]).map(r => MCM._norm(r, t));
+  },
+  async add(uid, t, item){
+    const sb = window._sb;
+    const row = MCM._toRow(uid, t, item);
+    const { data, error } = await sb.from(MCM_TABLE[t]).insert([row]).select().single();
+    if(error){ console.warn('MCM.add error', error.message); return null; }
+    return MCM._norm(data, t);
+  },
+  async del(uid, t, id){
+    const sb = window._sb;
+    const { error } = await sb.from(MCM_TABLE[t]).delete().eq('id', id).eq('mentor_id', String(uid));
+    if(error) console.warn('MCM.del error', error.message);
+  },
+  // Map a DB row → the shape the UI uses
+  _norm(r, t){
+    if(!r) return null;
+    const base = { _id: r.id, _uid: r.mentor_id, _mentorName: r.mentor_name, _mentorExp: r.mentor_exp };
+    if(t === 'courses')  return { ...base, title:r.title, cat:r.cat, lessons:r.lessons, duration:r.duration, desc:r.description, mentorName:r.mentor_name, mentorExp:r.mentor_exp };
+    if(t === 'sessions') return { ...base, title:r.title, type:r.type, dur:r.duration, price:r.price, avail:r.availability, desc:r.description, mentorName:r.mentor_name, mentorExp:r.mentor_exp };
+    if(t === 'cards')    return { ...base, title:r.title, tagline:r.tagline, price:r.price, sessions:r.sessions, duration:r.duration, color:r.color, emoji:r.emoji, mentorName:r.mentor_name, mentorExp:r.mentor_exp, mentorInitials:r.mentor_initials };
+    return base;
+  },
+  // Map an item object → a DB row
+  _toRow(uid, t, item){
+    const base = { mentor_id: String(uid), mentor_name: item._mentorName||item.mentorName||'', mentor_exp: item._mentorExp||item.mentorExp||'' };
+    if(t === 'courses')  return { ...base, title:item.title, cat:item.cat, lessons:item.lessons||0, duration:item.duration||'', description:item.desc||'' };
+    if(t === 'sessions') return { ...base, title:item.title, type:item.type||'', duration:item.dur||'', price:item.price||0, availability:item.avail||'', description:item.desc||'' };
+    if(t === 'cards')    return { ...base, title:item.title, tagline:item.tagline||'', price:item.price||0, sessions:item.sessions||1, duration:item.duration||'', color:item.color||'', emoji:item.emoji||'🎓', mentor_initials:item.mentorInitials||'' };
+    return base;
+  }
 };
 
 /* ─────────────────────────────────────
@@ -2269,12 +2419,15 @@ function buildStudentDash(){
 /* ─────────────────────────────────────
    MENTOR DASHBOARD CONTENT
 ───────────────────────────────────── */
-function buildMentorDash(){
+async function buildMentorDash(){
   if(!_CU) return;
   const uid = _CU.id;
-  const nC = MCM.load(uid,'courses').length;
-  const nS = MCM.load(uid,'sessions').length;
-  const nK = MCM.load(uid,'cards').length;
+  const [courses, sessions, cards] = await Promise.all([
+    MCM.load(uid,'courses'),
+    MCM.load(uid,'sessions'),
+    MCM.load(uid,'cards'),
+  ]);
+  const nC = courses.length, nS = sessions.length, nK = cards.length;
 
   // Stat cards
   document.getElementById('dTopCards').innerHTML = `
@@ -2362,11 +2515,127 @@ function buildMentorDash(){
 
   // Published mentorship cards
   renderPubCards();
+
+  // Booking requests inbox
+  renderMentorBookings();
 }
 
-function renderPubCards(){
+async function renderMentorBookings(){
   if(!_CU || _CU.role !== 'mentor') return;
-  const cards = MCM.load(_CU.id, 'cards');
+  const sb  = window._sb;
+  const el  = document.getElementById('dPubCards'); // injected before pub cards
+
+  // Fetch pending bookings for this mentor
+  const { data, error } = await sb.from('session_bookings')
+    .select('*')
+    .eq('mentor_id', String(_CU.id))
+    .order('created_at', { ascending: false })
+    .limit(20);
+
+  if(error){ console.warn('bookings fetch error', error.message); return; }
+  if(!data || !data.length) return; // no bookings yet — nothing to show
+
+  const pending   = data.filter(b => b.status === 'pending');
+  const confirmed = data.filter(b => b.status === 'confirmed');
+  const all       = [...pending, ...confirmed, ...data.filter(b => b.status === 'cancelled')];
+
+  const statusBadge = s =>
+    s === 'pending'   ? '<span class="bk-req-badge pending">⏳ Pending</span>'   :
+    s === 'confirmed' ? '<span class="bk-req-badge confirmed">✅ Confirmed</span>' :
+                        '<span class="bk-req-badge cancelled">✕ Declined</span>';
+
+  const bkHTML = `
+    <div class="m-pub-section" style="margin-top:28px">
+      <div class="d-sec-hd" style="margin-bottom:14px">
+        <div class="d-sec-title">📅 Booking Requests ${pending.length ? `<span style="background:var(--orange);color:#fff;font-size:.65rem;font-weight:800;padding:2px 8px;border-radius:20px;margin-left:6px">${pending.length} new</span>` : ''}</div>
+        <button class="d-see-all" onclick="navigate('chat')">Reply in Chat →</button>
+      </div>
+      <div class="bk-req-list">
+        ${all.slice(0,8).map(b => {
+          const initials = b.student_name.split(' ').map(n=>n[0]).join('').slice(0,2).toUpperCase();
+          const dateStr  = b.preferred_date ? new Date(b.preferred_date).toLocaleDateString([],{weekday:'short',month:'short',day:'numeric'}) : '—';
+          return `<div class="bk-req-card" data-bk-id="${b.id}" data-bk-status="${b.status}">
+            <div class="bk-req-top">
+              <div class="bk-req-av" style="background:${browseColorFor(b.student_name)}">${initials}</div>
+              <div class="bk-req-info">
+                <div class="bk-req-name">${b.student_name}</div>
+                <div class="bk-req-title">${b.item_title}</div>
+              </div>
+              ${statusBadge(b.status)}
+            </div>
+            <div class="bk-req-meta">
+              <span>🗓 ${dateStr}</span>
+              <span>🕐 ${b.preferred_time || '—'}</span>
+              ${b.price ? `<span>💰 $${b.price}</span>` : ''}
+            </div>
+            ${b.note ? `<div class="bk-req-note">"${b.note}"</div>` : ''}
+            ${b.status === 'pending' ? `
+              <div class="bk-req-actions">
+                <button class="bk-req-btn confirm" onclick="respondBooking(${b.id},'confirmed','${b.student_id}','${b.student_name.replace(/'/g,"\\'")}','${b.item_title.replace(/'/g,"\\'")}','${dateStr}','${b.preferred_time||''}')">✓ Confirm</button>
+                <button class="bk-req-btn decline" onclick="respondBooking(${b.id},'cancelled','${b.student_id}','${b.student_name.replace(/'/g,"\\'")}','${b.item_title.replace(/'/g,"\\'")}','${dateStr}','${b.preferred_time||''}')">✕ Decline</button>
+              </div>` : ''}
+          </div>`;
+        }).join('')}
+      </div>
+    </div>`;
+
+  // Prepend booking requests before pub cards
+  const pubEl = document.getElementById('dPubCards');
+  const existing = pubEl.querySelector('.bk-req-list');
+  if(existing) existing.closest('.m-pub-section').remove();
+  pubEl.insertAdjacentHTML('afterbegin', bkHTML);
+}
+
+async function respondBooking(bookingId, newStatus, studentId, studentName, itemTitle, dateStr, timeStr){
+  const sb   = window._sb;
+  const user = _CU;
+  if(!user) return;
+
+  // Update status in DB
+  const { error } = await sb.from('session_bookings')
+    .update({ status: newStatus })
+    .eq('id', bookingId);
+
+  if(error){ showToast('Update failed: ' + error.message, 'error'); return; }
+
+  // Send a DM reply to the student
+  const dmChannel = 'dm_' + [String(user.id), String(studentId)].sort().join('_');
+  const replyMsg  = newStatus === 'confirmed'
+    ? `✅ Hi ${studentName}! I've confirmed your booking for "${itemTitle}" on ${dateStr}${timeStr ? ' at ' + timeStr : ''}. Looking forward to our session! — ${user.fullname}`
+    : `Hi ${studentName}, unfortunately I'm unable to accept your booking for "${itemTitle}" at this time. Feel free to pick another slot! — ${user.fullname}`;
+
+  await sb.from('chat_messages').insert([{
+    channel:   dmChannel,
+    user_id:   String(user.id),
+    user_name: user.fullname,
+    user_role: 'mentor',
+    content:   replyMsg,
+  }]);
+
+  // Broadcast notification to student if online
+  try {
+    await sb.channel('dm_notif_' + String(studentId)).send({
+      type:    'broadcast',
+      event:   'dm_notify',
+      payload: {
+        to_id:     String(studentId),
+        from_id:   String(user.id),
+        from_name: user.fullname,
+        from_role: 'mentor',
+        content:   newStatus === 'confirmed'
+          ? `✅ Booking confirmed for "${itemTitle}" on ${dateStr}`
+          : `Your booking for "${itemTitle}" was declined`,
+      }
+    });
+  } catch(_) {}
+
+  showToast(newStatus === 'confirmed' ? '✅ Booking confirmed! Student notified.' : 'Booking declined. Student notified.', 'info');
+  renderMentorBookings(); // refresh the list
+}
+
+async function renderPubCards(){
+  if(!_CU || _CU.role !== 'mentor') return;
+  const cards = await MCM.load(_CU.id, 'cards');
   const el = document.getElementById('dPubCards');
   if(!cards.length){ el.innerHTML = ''; return; }
   el.innerHTML = `
@@ -2392,27 +2661,28 @@ function buildMCardHTML(c){
         <div class="mcard-meta">${c.sessions} session${c.sessions!==1?'s':''}${c.duration?' · '+c.duration:''}</div>
       </div>
       <div class="mcard-actions">
-        <button class="mcard-book-btn" style="flex:1" onclick="showToast('Booking coming soon!','info')">Book Now</button>
+        <button class="mcard-book-btn" style="flex:1" onclick='openBkModal(${JSON.stringify({type:"card",id:c._id,title:c.title,mentorName:c.mentorName||"Mentor",mentorId:c._uid||"",price:c.price||0})})'>Book Now</button>
         <button class="mcard-del" onclick="delPubCard(${c._id})" title="Delete">🗑</button>
       </div>
     </div>
   </div>`;
 }
 
-function delPubCard(id){
+async function delPubCard(id){
   if(!_CU) return;
-  MCM.del(_CU.id, 'cards', id);
-  renderPubCards(); refreshMStats(); renderMCMCards(); updateMCMBadges();
+  await MCM.del(_CU.id, 'cards', id);
+  await Promise.all([renderPubCards(), refreshMStats(), renderMCMCards(), updateMCMBadges(), renderBrowseContent()]);
   showToast('Card deleted.','info');
 }
 
-function refreshMStats(){
+async function refreshMStats(){
   if(!_CU) return;
   const uid = _CU.id;
+  const [c, s, k] = await Promise.all([MCM.load(uid,'courses'), MCM.load(uid,'sessions'), MCM.load(uid,'cards')]);
   const upd = (id, n) => { const el = document.getElementById(id); if(el) el.textContent = n || '—'; };
-  upd('statC', MCM.load(uid,'courses').length);
-  upd('statS', MCM.load(uid,'sessions').length);
-  upd('statK', MCM.load(uid,'cards').length);
+  upd('statC', c.length);
+  upd('statS', s.length);
+  upd('statK', k.length);
 }
 
 function setNav(btn){ document.querySelectorAll('.d-nav-btn').forEach(b => b.classList.remove('active')); btn.classList.add('active'); }
@@ -2452,12 +2722,12 @@ let _mcmEmoji = '🎓';
 const CARD_EMOJIS = ['🎓','💻','🎨','📊','🚀','🧠','💡','🔥','⭐','🛠️','📱','🎯','✏️','📐','🏆','🌱'];
 const CAT_EMOJI   = {'UI/UX Design':'🎨','Frontend Dev':'💻','Backend Dev':'⚙️','Full-Stack':'🔧','Data Science':'📊','AI / ML':'🤖','Digital Marketing':'📣','Branding':'✏️','Business':'💼','Other':'📚'};
 
-function openMCM(){
+async function openMCM(){
   if(!_CU) return;
   document.getElementById('mcmOverlay').classList.add('open');
   initEmojiPicker();
-  syncMCMSessionLink();
-  renderMCMCourses(); renderMCMSessions(); renderMCMCards();
+  await Promise.all([renderMCMCourses(), renderMCMSessions(), renderMCMCards()]);
+  await syncMCMSessionLink();
   updateMCMBadges();
 }
 function closeMCM(){ document.getElementById('mcmOverlay').classList.remove('open'); }
@@ -2467,17 +2737,20 @@ function switchMCMTab(name, btn){
   document.getElementById('panel' + name.charAt(0).toUpperCase() + name.slice(1)).classList.add('active');
   if(btn) btn.classList.add('active');
   if(name === 'cards') syncMCMSessionLink();
+  if(name === 'courses')  renderMCMCourses();
+  if(name === 'sessions') renderMCMSessions();
 }
-function updateMCMBadges(){
+async function updateMCMBadges(){
   if(!_CU) return;
   const uid = _CU.id;
-  document.getElementById('badgeCourses').textContent  = MCM.load(uid,'courses').length;
-  document.getElementById('badgeSessions').textContent = MCM.load(uid,'sessions').length;
-  document.getElementById('badgeCards').textContent    = MCM.load(uid,'cards').length;
+  const [c,s,k] = await Promise.all([MCM.load(uid,'courses'), MCM.load(uid,'sessions'), MCM.load(uid,'cards')]);
+  document.getElementById('badgeCourses').textContent  = c.length;
+  document.getElementById('badgeSessions').textContent = s.length;
+  document.getElementById('badgeCards').textContent    = k.length;
 }
 
 /* Courses */
-function addCourse(){
+async function addCourse(){
   if(!_CU) return;
   const title    = document.getElementById('cTitle').value.trim();
   const cat      = document.getElementById('cCat').value;
@@ -2486,21 +2759,24 @@ function addCourse(){
   const desc     = document.getElementById('cDesc').value.trim();
   if(!title){ showToast('Please enter a course title.','error'); return; }
   if(!cat){   showToast('Please select a category.','error');    return; }
-  MCM.add(_CU.id, 'courses', {
+  const btn = document.querySelector('#panelCourses .mcm-add-btn');
+  if(btn){ btn.disabled=true; btn.textContent='Saving…'; }
+  await MCM.add(_CU.id, 'courses', {
     title, cat, lessons, duration, desc,
     _mentorName: _CU.fullname,
     _mentorExp:  _CU.industry || 'Mentor',
   });
+  if(btn){ btn.disabled=false; btn.innerHTML='<svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Add Course'; }
   ['cTitle','cLessons','cDuration','cDesc'].forEach(id => document.getElementById(id).value='');
   document.getElementById('cCat').value = '';
-  renderMCMCourses(); updateMCMBadges(); refreshMStats();
-  renderBrowseContent();
+  await Promise.all([renderMCMCourses(), updateMCMBadges(), refreshMStats(), renderBrowseContent()]);
   showToast('✅ Course added!');
 }
-function renderMCMCourses(){
+async function renderMCMCourses(){
   if(!_CU) return;
-  const data = MCM.load(_CU.id, 'courses');
-  const el   = document.getElementById('coursesList');
+  const el = document.getElementById('coursesList');
+  el.innerHTML = '<div class="mcm-empty">Loading…</div>';
+  const data = await MCM.load(_CU.id, 'courses');
   if(!data.length){ el.innerHTML = '<div class="mcm-empty">No courses yet. Add your first course above.</div>'; return; }
   el.innerHTML = data.map(c=>`
     <div class="mcm-item">
@@ -2511,7 +2787,7 @@ function renderMCMCourses(){
 }
 
 /* Sessions */
-function addSession(){
+async function addSession(){
   if(!_CU) return;
   const title = document.getElementById('sTitle').value.trim();
   const type  = document.getElementById('sType').value;
@@ -2521,22 +2797,25 @@ function addSession(){
   const desc  = document.getElementById('sDesc').value.trim();
   if(!title){ showToast('Please enter a session title.','error'); return; }
   if(!type){  showToast('Please select a session type.','error'); return; }
-  MCM.add(_CU.id, 'sessions', {
+  const btn = document.querySelector('#panelSessions .mcm-add-btn');
+  if(btn){ btn.disabled=true; btn.textContent='Saving…'; }
+  await MCM.add(_CU.id, 'sessions', {
     title, type, dur, price, avail, desc,
     _mentorName: _CU.fullname,
     _mentorExp:  _CU.industry || 'Mentor',
   });
+  if(btn){ btn.disabled=false; btn.innerHTML='<svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Add Session'; }
   ['sTitle','sDesc'].forEach(id => document.getElementById(id).value='');
   ['sType','sDur','sAvail'].forEach(id => document.getElementById(id).value='');
   document.getElementById('sPrice').value = '';
-  renderMCMSessions(); updateMCMBadges(); syncMCMSessionLink(); refreshMStats();
-  renderBrowseContent();
+  await Promise.all([renderMCMSessions(), updateMCMBadges(), syncMCMSessionLink(), refreshMStats(), renderBrowseContent()]);
   showToast('✅ Session added!');
 }
-function renderMCMSessions(){
+async function renderMCMSessions(){
   if(!_CU) return;
-  const data = MCM.load(_CU.id, 'sessions');
-  const el   = document.getElementById('sessionsList');
+  const el = document.getElementById('sessionsList');
+  el.innerHTML = '<div class="mcm-empty">Loading…</div>';
+  const data = await MCM.load(_CU.id, 'sessions');
   if(!data.length){ el.innerHTML = '<div class="mcm-empty">No sessions yet. Add one above.</div>'; return; }
   el.innerHTML = data.map(s=>`
     <div class="mcm-item">
@@ -2545,12 +2824,12 @@ function renderMCMSessions(){
       <button class="mcm-del-btn" onclick="delMCM('sessions',${s._id})">🗑</button>
     </div>`).join('');
 }
-function syncMCMSessionLink(){
+async function syncMCMSessionLink(){
   if(!_CU) return;
-  const sel  = document.getElementById('mcLink');
+  const sel = document.getElementById('mcLink');
   if(!sel) return;
   const prev = sel.value;
-  const data = MCM.load(_CU.id, 'sessions');
+  const data = await MCM.load(_CU.id, 'sessions');
   sel.innerHTML = '<option value="">— None —</option>' +
     data.map(s=>`<option value="${s._id}">${s.title} · $${s.price||0}</option>`).join('');
   if(prev) sel.value = prev;
@@ -2575,7 +2854,7 @@ function initEmojiPicker(){
     wrap.appendChild(btn);
   });
 }
-function addCard(){
+async function addCard(){
   if(!_CU) return;
   const title    = document.getElementById('mcTitle').value.trim();
   const tagline  = document.getElementById('mcTagline').value.trim();
@@ -2585,24 +2864,27 @@ function addCard(){
   if(!title){   showToast('Please enter a card title.','error'); return; }
   if(!tagline){ showToast('Please enter a tagline.','error');    return; }
   if(!price){   showToast('Please enter a price.','error');      return; }
-  MCM.add(_CU.id, 'cards', {
+  const btn = document.querySelector('#panelCards .mcm-add-btn');
+  if(btn){ btn.disabled=true; btn.textContent='Publishing…'; }
+  await MCM.add(_CU.id, 'cards', {
     title, tagline, price, sessions, duration: dur,
     color: _mcmColor, emoji: _mcmEmoji,
     mentorName:     _CU.fullname,
     mentorExp:      _CU.industry || 'Mentor',
     mentorInitials: _CU.fullname.split(' ').map(n=>n[0]).join('').slice(0,2).toUpperCase(),
   });
+  if(btn){ btn.disabled=false; btn.innerHTML='<svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Create &amp; Publish Card'; }
   ['mcTitle','mcTagline','mcDur'].forEach(id => document.getElementById(id).value='');
   document.getElementById('mcPrice').value = '';
   document.getElementById('mcSessions').value = '';
-  renderMCMCards(); updateMCMBadges(); renderPubCards(); refreshMStats();
-  renderBrowseContent();
+  await Promise.all([renderMCMCards(), updateMCMBadges(), renderPubCards(), refreshMStats(), renderBrowseContent()]);
   showToast('🪪 Mentorship card published!');
 }
-function renderMCMCards(){
+async function renderMCMCards(){
   if(!_CU) return;
-  const data = MCM.load(_CU.id, 'cards');
   const grid = document.getElementById('cardPreview');
+  grid.innerHTML = '<div class="mcm-empty">Loading…</div>';
+  const data = await MCM.load(_CU.id, 'cards');
   if(!data.length){
     grid.innerHTML = '<div class="mcard-empty"><div class="icon">🪪</div>No cards yet. Create one above — it will appear here and on your dashboard!</div>';
     return;
@@ -2611,7 +2893,7 @@ function renderMCMCards(){
     <div class="mcard">
       <div class="mcard-banner" style="background:${c.color}">${c.emoji}<div class="mcard-type">Mentorship</div></div>
       <div class="mcard-body">
-        <div class="mcard-mrow"><div class="mcard-av">${c.mentorInitials}</div><div><div class="mcard-mname">${c.mentorName}</div><div class="mcard-mexp">${c.mentorExp}</div></div></div>
+        <div class="mcard-mrow"><div class="mcard-av">${c.mentorInitials||browseInitials(c.mentorName||'')}</div><div><div class="mcard-mname">${c.mentorName||''}</div><div class="mcard-mexp">${c.mentorExp||''}</div></div></div>
         <div class="mcard-title">${c.title}</div>
         <div class="mcard-tagline">${c.tagline}</div>
         <div class="mcard-foot"><div class="mcard-price">$${c.price}</div><div class="mcard-meta">${c.sessions} session${c.sessions!==1?'s':''}${c.duration?' · '+c.duration:''}</div></div>
@@ -2622,43 +2904,23 @@ function renderMCMCards(){
       </div>
     </div>`).join('');
 }
-function delMCM(type, id){
+async function delMCM(type, id){
   if(!_CU) return;
-  MCM.del(_CU.id, type, id);
-  if(type==='courses')  renderMCMCourses();
-  if(type==='sessions'){ renderMCMSessions(); syncMCMSessionLink(); }
-  if(type==='cards'){    renderMCMCards();    renderPubCards(); }
-  updateMCMBadges(); refreshMStats();
-  // Refresh browse page too if it's visible
-  renderBrowseContent();
+  await MCM.del(_CU.id, type, id);
+  if(type==='courses')  await Promise.all([renderMCMCourses(), renderBrowseContent()]);
+  if(type==='sessions'){ await Promise.all([renderMCMSessions(), syncMCMSessionLink(), renderBrowseContent()]); }
+  if(type==='cards'){    await Promise.all([renderMCMCards(), renderPubCards(), renderBrowseContent()]); }
+  await Promise.all([updateMCMBadges(), refreshMStats()]);
   showToast('Deleted.','info');
 }
 
 /* ─────────────────────────────────────
-   BROWSE PAGE — Live Content Rendering
-   Scans all mentor localStorage entries and
-   renders courses, sessions & cards on the
-   mentor browse page in real-time.
+   BROWSE PAGE — Supabase-backed rendering
+   Reads directly from mentor_courses / mentor_sessions /
+   mentor_cards tables so ANY logged-in user sees them.
 ───────────────────────────────────── */
 
-// Helper: collect all mentor content from localStorage across all mentor accounts
-function browseCollectAll(type){
-  const results = [];
-  for(let i = 0; i < localStorage.length; i++){
-    const key = localStorage.key(i);
-    // MCM keys follow pattern: mcm_<uid>_<type>
-    if(!key || !key.startsWith('mcm_') || !key.endsWith('_' + type)) continue;
-    // Extract uid from key: mcm_<uid>_<type>
-    const uid = key.slice(4, key.length - type.length - 1);
-    try{
-      const items = JSON.parse(localStorage.getItem(key)) || [];
-      items.forEach(item => results.push({...item, _uid: uid}));
-    }catch(_){}
-  }
-  return results;
-}
-
-// Colour palette for avatars (mirrors chColorFor)
+// Colour palette for avatars
 const BROWSE_COLORS = ['#4338ca','#7c3aed','#0d9488','#f97316','#ec4899','#0ea5e9','#8b5cf6','#059669'];
 function browseColorFor(name){
   let h=0; for(let c of (name||'?')) h=(h*31+c.charCodeAt(0))&0xffffffff;
@@ -2679,28 +2941,31 @@ const CAT_BG = {
   'Other':             'linear-gradient(135deg,#f1f0f7,#e2e8f0)',
 };
 
-function renderBrowseCourses(){
-  const courses = browseCollectAll('courses');
+async function renderBrowseCourses(){
+  const sb   = window._sb;
   const sec  = document.getElementById('browseCoursesSec');
   const grid = document.getElementById('browseCoursesGrid');
-  const emp  = document.getElementById('browseCoursesEmpty');
   if(!sec || !grid) return;
-
-  if(!courses.length){
-    sec.style.display = 'none';
+  sec.style.display = '';
+  grid.innerHTML = '<div style="text-align:center;padding:24px;color:var(--muted);font-size:.85rem">Loading courses…</div>';
+  const { data, error } = await sb.from('mentor_courses').select('*').order('created_at', {ascending:false});
+  if(error){
+    console.error('mentor_courses error:', error);
+    sec.style.display = '';
+    grid.innerHTML = `<div style="grid-column:1/-1;padding:20px;background:#fef2f2;border-radius:12px;color:#dc2626;font-size:.82rem;font-weight:600">⚠️ Table not set up yet. Run the SQL from the file comment in your Supabase SQL editor.</div>`;
     return;
   }
+  const courses = (data||[]).map(r => MCM._norm(r,'courses'));
+  if(!courses.length){ sec.style.display='none'; return; }
   sec.style.display = '';
-  emp.classList.remove('show');
   grid.innerHTML = courses.map(c => {
-    const bg   = CAT_BG[c.cat] || 'linear-gradient(135deg,#f1f0f7,#e2e8f0)';
-    const em   = CAT_EMOJI[c.cat] || '📚';
-    const av   = browseInitials(c._mentorName || 'Mentor');
-    const col  = browseColorFor(c._mentorName || '');
+    const bg  = CAT_BG[c.cat] || 'linear-gradient(135deg,#f1f0f7,#e2e8f0)';
+    const em  = CAT_EMOJI[c.cat] || '📚';
+    const av  = browseInitials(c._mentorName || 'Mentor');
+    const col = browseColorFor(c._mentorName || '');
     return `<div class="browse-course-card">
       <div class="browse-course-banner" style="background:${bg}">
-        ${em}
-        <span class="browse-course-cat-tag">${c.cat || 'Course'}</span>
+        ${em}<span class="browse-course-cat-tag">${c.cat || 'Course'}</span>
       </div>
       <div class="browse-course-body">
         <div class="browse-course-mentor-row">
@@ -2719,21 +2984,29 @@ function renderBrowseCourses(){
   }).join('');
 }
 
-function renderBrowseSessions(){
-  const sessions = browseCollectAll('sessions');
+async function renderBrowseSessions(){
+  const sb   = window._sb;
   const sec  = document.getElementById('browseSessionsSec');
   const grid = document.getElementById('browseSessionsGrid');
   if(!sec || !grid) return;
-
-  if(!sessions.length){
-    sec.style.display = 'none';
+  sec.style.display = '';
+  grid.innerHTML = '<div style="text-align:center;padding:24px;color:var(--muted);font-size:.85rem">Loading sessions…</div>';
+  const { data, error } = await sb.from('mentor_sessions').select('*').order('created_at', {ascending:false});
+  if(error){
+    console.error('mentor_sessions error:', error);
+    sec.style.display = '';
+    grid.innerHTML = `<div style="grid-column:1/-1;padding:20px;background:#fef2f2;border-radius:12px;color:#dc2626;font-size:.82rem;font-weight:600">⚠️ Table not set up yet. Run the SQL from the file comment in your Supabase SQL editor.</div>`;
     return;
   }
+  const sessions = (data||[]).map(r => MCM._norm(r,'sessions'));
+  if(!sessions.length){ sec.style.display='none'; return; }
   sec.style.display = '';
-  grid.innerHTML = sessions.map(s => {
+  // Store session data so event listeners can reference it safely
+  const _sessData = sessions;
+  grid.innerHTML = sessions.map((s,i) => {
     const av  = browseInitials(s._mentorName || 'Mentor');
     const col = browseColorFor(s._mentorName || '');
-    return `<div class="browse-session-card">
+    return `<div class="browse-session-card" data-sess-idx="${i}">
       <div class="browse-session-mentor-row">
         <div class="browse-session-av" style="background:${col}">${av}</div>
         <div class="browse-session-minfo">
@@ -2749,52 +3022,67 @@ function renderBrowseSessions(){
         ${s.price ? `<span class="browse-session-tag price">$${s.price}/session</span>` : ''}
       </div>
       ${s.avail ? `<div class="browse-session-avail">● ${s.avail}</div>` : ''}
-      <button class="browse-session-btn" onclick="showToast('Booking coming soon!','info')">Book Session</button>
+      <button class="browse-session-btn">Book Session</button>
     </div>`;
   }).join('');
+  grid.querySelectorAll('.browse-session-card').forEach(card => {
+    card.querySelector('.browse-session-btn').addEventListener('click', () => {
+      const s = _sessData[parseInt(card.dataset.sessIdx)];
+      openBkModal({ type:'session', id:s._id, title:s.title, mentorName:s._mentorName||'Mentor', mentorId:s._uid, price:s.price||0 });
+    });
+  });
 }
 
-function renderBrowseMCards(){
-  const cards = browseCollectAll('cards');
+async function renderBrowseMCards(){
+  const sb   = window._sb;
   const sec  = document.getElementById('browseMCardsSec');
   const grid = document.getElementById('browseMCardsGrid');
   if(!sec || !grid) return;
-
-  if(!cards.length){
-    sec.style.display = 'none';
+  sec.style.display = '';
+  grid.innerHTML = '<div style="text-align:center;padding:24px;color:var(--muted);font-size:.85rem">Loading packages…</div>';
+  const { data, error } = await sb.from('mentor_cards').select('*').order('created_at', {ascending:false});
+  if(error){
+    console.error('mentor_cards error:', error);
+    sec.style.display = '';
+    grid.innerHTML = `<div style="grid-column:1/-1;padding:20px;background:#fef2f2;border-radius:12px;color:#dc2626;font-size:.82rem;font-weight:600">⚠️ Table not set up yet. Run the SQL from the file comment in your Supabase SQL editor.</div>`;
     return;
   }
+  const cards = (data||[]).map(r => MCM._norm(r,'cards'));
+  if(!cards.length){ sec.style.display='none'; return; }
   sec.style.display = '';
-  // Reuse the existing mcard HTML builder, but with a book button that works for browse
-  grid.innerHTML = cards.map(c => `
-    <div class="mcard">
-      <div class="mcard-banner" style="background:${c.color}">${c.emoji}<div class="mcard-type">Mentorship</div></div>
+  const _cardData = cards;
+  grid.innerHTML = cards.map((c,i) => `
+    <div class="mcard" data-card-idx="${i}">
+      <div class="mcard-banner" style="background:${c.color||'linear-gradient(135deg,#6366f1,#8b5cf6)'}">${c.emoji||'🎓'}<div class="mcard-type">Mentorship</div></div>
       <div class="mcard-body">
         <div class="mcard-mrow">
-          <div class="mcard-av">${c.mentorInitials || browseInitials(c.mentorName || 'Mentor')}</div>
+          <div class="mcard-av">${c.mentorInitials || browseInitials(c.mentorName||'Mentor')}</div>
           <div>
             <div class="mcard-mname">${c.mentorName || ''}</div>
             <div class="mcard-mexp">${c.mentorExp || ''}</div>
           </div>
         </div>
         <div class="mcard-title">${c.title}</div>
-        <div class="mcard-tagline">${c.tagline}</div>
+        <div class="mcard-tagline">${c.tagline||''}</div>
         <div class="mcard-foot">
-          <div class="mcard-price">$${c.price}</div>
-          <div class="mcard-meta">${c.sessions} session${c.sessions!==1?'s':''}${c.duration?' · '+c.duration:''}</div>
+          <div class="mcard-price">$${c.price||0}</div>
+          <div class="mcard-meta">${c.sessions||1} session${(c.sessions||1)!==1?'s':''}${c.duration?' · '+c.duration:''}</div>
         </div>
         <div class="mcard-actions">
-          <button class="mcard-book-btn" style="flex:1;width:100%" onclick="showToast('Booking coming soon!','info')">Book Now</button>
+          <button class="mcard-book-btn" style="flex:1;width:100%">Book Now</button>
         </div>
       </div>
     </div>`).join('');
+  grid.querySelectorAll('.mcard').forEach(card => {
+    card.querySelector('.mcard-book-btn').addEventListener('click', () => {
+      const c = _cardData[parseInt(card.dataset.cardIdx)];
+      openBkModal({ type:'card', id:c._id, title:c.title, mentorName:c.mentorName||'Mentor', mentorId:c._uid, price:c.price||0 });
+    });
+  });
 }
 
-// Master function — renders all three sections at once
-function renderBrowseContent(){
-  renderBrowseCourses();
-  renderBrowseSessions();
-  renderBrowseMCards();
+async function renderBrowseContent(){
+  await Promise.all([renderBrowseCourses(), renderBrowseSessions(), renderBrowseMCards()]);
 }
 
 /* ─────────────────────────────────────
@@ -2838,9 +3126,16 @@ function renderMentors(list){
     </div>`).join('');
 }
 function bookMentor(id, btn){
-  if(!DB.currentUser()){ showToast('Please sign in to book.','info'); setTimeout(()=>navigate('login'),1200); return; }
-  btn.textContent='✓ Booked!'; btn.style.background='var(--teal)'; btn.disabled=true;
-  showToast('🎉 Session booked!');
+  const mentor = MENTORS.find(m => m.id === id);
+  if(!mentor) return;
+  openBkModal({
+    type:       'session',
+    id:         null,
+    title:      mentor.role + ' Session',
+    mentorName: mentor.name,
+    mentorId:   String(id),
+    price:      mentor.price,
+  });
 }
 function subscribe(){
   const e = document.getElementById('nlEmail');
@@ -2998,6 +3293,168 @@ function renderStudentList(){
     </div>
   </div>
 </div>
+
+<script>
+/* ═══════════════════════════════════════════════════
+   BOOKING SYSTEM
+   Saves to Supabase table: session_bookings
+   SQL to run once:
+
+   create table if not exists session_bookings (
+     id bigint generated always as identity primary key,
+     created_at timestamptz default now(),
+     student_id text not null,
+     student_name text not null,
+     mentor_id text not null,
+     mentor_name text not null,
+     item_type text not null,
+     item_id bigint,
+     item_title text not null,
+     price numeric default 0,
+     preferred_date date,
+     preferred_time text,
+     note text,
+     status text default 'pending'
+   );
+   alter table session_bookings enable row level security;
+   create policy "public read bookings"   on session_bookings for select using (true);
+   create policy "public insert bookings" on session_bookings for insert with check (true);
+   create policy "public update bookings" on session_bookings for update using (true);
+═══════════════════════════════════════════════════ */
+
+let _bkItem = null; // current item being booked {type, id, title, mentorName, mentorId, price}
+
+function openBkModal(item){
+  // item = { type:'session'|'card', id, title, mentorName, mentorId, price }
+  _bkItem = item;
+
+  // Check student is signed in
+  DB.currentUser().then(u => {
+    if(!u){
+      showToast('Please sign in to book a session.','info');
+      setTimeout(() => navigate('login'), 1200);
+      return;
+    }
+    if(u.role === 'mentor'){
+      showToast('Mentors cannot book sessions — sign in as a student.','info');
+      return;
+    }
+
+    // Populate banner
+    document.getElementById('bkType').textContent    = item.type === 'card' ? 'Mentorship Package' : 'Mentorship Session';
+    document.getElementById('bkTitle').textContent   = item.title;
+    document.getElementById('bkMentor').textContent  = 'with ' + item.mentorName;
+    document.getElementById('bkPrice').textContent   = item.price ? '$' + item.price : 'Free';
+
+    // Set banner colour based on type
+    document.getElementById('bkBanner').style.background = item.type === 'card'
+      ? 'linear-gradient(135deg,var(--teal),var(--teal2))'
+      : 'linear-gradient(135deg,var(--indigo),var(--violet))';
+
+    // Set default date to tomorrow
+    const tom = new Date(); tom.setDate(tom.getDate()+1);
+    document.getElementById('bkDate').value = tom.toISOString().split('T')[0];
+    document.getElementById('bkTime').value = '10:00';
+    document.getElementById('bkNote').value = '';
+
+    // Reset states
+    document.getElementById('bkForm').style.display    = '';
+    document.getElementById('bkSuccess').classList.remove('show');
+    document.getElementById('bkSubmit').classList.remove('loading');
+    document.getElementById('bkSubmit').disabled = false;
+
+    document.getElementById('bkOverlay').classList.add('open');
+  });
+}
+
+function closeBkModal(){
+  document.getElementById('bkOverlay').classList.remove('open');
+  _bkItem = null;
+}
+
+async function submitBooking(){
+  if(!_bkItem) return;
+  const sb   = window._sb;
+  const user = await DB.currentUser();
+  if(!user){ showToast('Please sign in first.','info'); return; }
+
+  const date = document.getElementById('bkDate').value;
+  const time = document.getElementById('bkTime').value;
+  const note = document.getElementById('bkNote').value.trim();
+
+  if(!date){ showToast('Please pick a date.','error'); return; }
+  if(!time){ showToast('Please pick a time.','error'); return; }
+
+  const btn = document.getElementById('bkSubmit');
+  btn.classList.add('loading'); btn.disabled = true;
+
+  const { error } = await sb.from('session_bookings').insert([{
+    student_id:     String(user.id),
+    student_name:   user.fullname,
+    mentor_id:      String(_bkItem.mentorId),
+    mentor_name:    _bkItem.mentorName,
+    item_type:      _bkItem.type,
+    item_id:        _bkItem.id || null,
+    item_title:     _bkItem.title,
+    price:          _bkItem.price || 0,
+    preferred_date: date,
+    preferred_time: time,
+    note:           note || null,
+    status:         'pending'
+  }]);
+
+  btn.classList.remove('loading'); btn.disabled = false;
+
+  if(error){
+    console.error('Booking error:', error);
+    if(error.message.includes('does not exist')){
+      showToast('⚠️ Bookings table not set up yet — run the SQL in the file comment.','error',5000);
+    } else {
+      showToast('Booking failed: ' + error.message, 'error');
+    }
+    return;
+  }
+
+  // ── Send a DM to the mentor via chat_messages ──────────────────
+  // Build the DM channel key (same logic as dmKey in chat module)
+  const dmChannel = 'dm_' + [String(user.id), String(_bkItem.mentorId)].sort().join('_');
+  const dateStr   = new Date(date).toLocaleDateString([], {weekday:'long', month:'long', day:'numeric'});
+  const noteText  = note ? `\n\n📝 Note: "${note}"` : '';
+  const dmMsg     = `📅 New Booking Request!\n\nHi ${_bkItem.mentorName}, I'd like to book your "${_bkItem.title}" session.\n🗓 Date: ${dateStr} at ${time}${noteText}\n\nPlease confirm when you're available. — ${user.fullname}`;
+
+  // Insert DM message into chat_messages table
+  await sb.from('chat_messages').insert([{
+    channel:   dmChannel,
+    user_id:   String(user.id),
+    user_name: user.fullname,
+    user_role: 'student',
+    content:   dmMsg,
+  }]);
+
+  // Fire real-time broadcast notification to mentor if they're online in chat
+  try {
+    await sb.channel('dm_notif_' + String(_bkItem.mentorId)).send({
+      type:    'broadcast',
+      event:   'dm_notify',
+      payload: {
+        to_id:     String(_bkItem.mentorId),
+        from_id:   String(user.id),
+        from_name: user.fullname,
+        from_role: 'student',
+        content:   `📅 Booking request for "${_bkItem.title}" on ${dateStr} at ${time}`,
+      }
+    });
+  } catch(_) {}
+  // ──────────────────────────────────────────────────────────────
+
+  // Show success
+  document.getElementById('bkForm').style.display = 'none';
+  document.getElementById('bkSuccessMsg').textContent =
+    `Your request for "${_bkItem.title}" has been sent to ${_bkItem.mentorName}. A message has been sent to them in Community Chat — they'll confirm there.`;
+  document.getElementById('bkSuccess').classList.add('show');
+  showToast('🎉 Booking request sent to ' + _bkItem.mentorName + '!','success');
+}
+</script>
 
 <script>
 /* ═══════════════════════════════════════════════════
@@ -3462,5 +3919,56 @@ function renderStudentList(){
 
 })();
 </script>
+
+<!-- ═══════════════════════════════════════════════════
+     BOOKING MODAL
+═══════════════════════════════════════════════════ -->
+<div class="bk-overlay" id="bkOverlay" onclick="if(event.target===this)closeBkModal()">
+  <div class="bk-modal" id="bkModal">
+
+    <!-- Banner -->
+    <div class="bk-banner" id="bkBanner">
+      <div class="bk-banner-type" id="bkType">Mentorship Session</div>
+      <div class="bk-banner-title" id="bkTitle">Session Title</div>
+      <div class="bk-banner-mentor" id="bkMentor">with Mentor Name</div>
+      <span class="bk-banner-price" id="bkPrice">$0</span>
+      <button class="bk-close" onclick="closeBkModal()">✕</button>
+    </div>
+
+    <!-- Form -->
+    <div class="bk-body" id="bkForm">
+      <div class="bk-row">
+        <div class="bk-field">
+          <label>📅 Preferred Date</label>
+          <input type="date" id="bkDate"/>
+        </div>
+        <div class="bk-field">
+          <label>🕐 Preferred Time</label>
+          <input type="time" id="bkTime"/>
+        </div>
+      </div>
+      <div class="bk-field">
+        <label>📝 Your Goals / Note to Mentor</label>
+        <textarea id="bkNote" placeholder="What do you want to achieve in this session?"></textarea>
+      </div>
+      <div style="font-size:.75rem;color:var(--muted);background:var(--bg);border-radius:10px;padding:10px 14px;line-height:1.6">
+        💡 Your booking request will be sent to the mentor. They will confirm via the community chat.
+      </div>
+      <button class="bk-submit" id="bkSubmit" onclick="submitBooking()">
+        <span class="bk-label">Confirm Booking</span>
+        <span class="spinner"></span>
+      </button>
+    </div>
+
+    <!-- Success state -->
+    <div class="bk-success" id="bkSuccess">
+      <div class="bk-success-icon">✅</div>
+      <h3>Booking Confirmed!</h3>
+      <p id="bkSuccessMsg">Your session request has been sent to the mentor. Check your dashboard for updates.</p>
+      <button class="bk-success-btn" onclick="closeBkModal()">Done</button>
+    </div>
+
+  </div>
+</div>
 
 </body></html>
