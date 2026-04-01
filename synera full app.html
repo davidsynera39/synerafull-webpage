@@ -632,7 +632,7 @@ body.is-mentor .m-fab{display:flex}
 @media(max-width:960px){
   .dash-app{grid-template-columns:1fr}
   .d-side{
-    position:fixed;top:0;left:0;height:100vh;width:240px;
+    position:absolute;top:0;left:0;height:100vh;width:240px;
     transform:translateX(-110%);transition:transform var(--tr);
     box-shadow:6px 0 30px rgba(67,56,202,.14);z-index:300;
   }
@@ -1244,7 +1244,7 @@ body.is-mentor .m-fab{display:flex}
   <nav class="m-nav">
     <div class="m-nav-inner">
       <div class="m-logo" onclick="navigate('landing')">Synera</div>
-      <ul class="m-nav-links"><li><a href="#" onclick="navigate('landing');return false">Home</a></li><li><a href="#">Categories</a></li><li><a href="#">How It Works</a></li><li><a href="#" onclick="navigate('chat');return false">Community Chat</a></li><li><a href="#" onclick="navigate('dashboard')">Dashboard</a></li></ul>
+      <ul class="m-nav-links"><li><a href="#" onclick="navigate('landing');return false">Home</a></li><li><a href="#">Categories</a></li><li><a href="#">How It Works</a></li><li><a href="#" onclick="navigate('dashboard')">Dashboard</a></li></ul>
       <div style="display:flex;gap:10px">
         <button class="btn btn-ghost" onclick="logout()" style="padding:9px 18px;font-size:.84rem">Log out</button>
         <button class="btn btn-indigo" onclick="navigate('register')" style="padding:9px 18px;font-size:.84rem">Become a Mentor </button>
@@ -1277,17 +1277,13 @@ body.is-mentor .m-fab{display:flex}
       <input type="text" id="mSearch" placeholder="Search mentors by skill, role, or industry…" oninput="filterMentors(this.value)"/>
     </div>
     <button class="fpill active" onclick="filterCat('',this)">All</button>
-    <button class="fpill" onclick="filterCat('Design',this)">Design</button>
+    <button class="fpill" onclick="filterCat('Design',this)">Design</button>      
     <button class="fpill" onclick="filterCat('Tech',this)">Tech</button>
     <button class="fpill" onclick="filterCat('Business',this)">Business</button>
     <button class="fpill" onclick="filterCat('AI',this)">AI</button>
   </div></div></div>
 
-  <section class="m-featured"><div class="container">
-    <h2 class="sec-title" style="text-align:left;font-size:1.3rem;margin-bottom:20px">Featured Mentors</h2>
-    <div class="m-grid" id="mentorGrid"></div>
-    <div style="text-align:center;margin-top:28px"><button class="btn" style="background:var(--pf);color:var(--indigo)" onclick="filterMentors('')">Load More</button></div>
-  </div></section>
+  
 
   <!-- ── Live Courses from mentors ── -->
   <section class="browse-live-section" id="browseCoursesSec">
@@ -1320,10 +1316,12 @@ body.is-mentor .m-fab{display:flex}
       </div>
       <div class="browse-mcards-grid" id="browseMCardsGrid"><div style="text-align:center;padding:24px;color:var(--muted);font-size:.85rem">Loading packages…</div></div>
     </div>
+    <div style="text-align:center;margin-top:28px;margin-bottom: 40px;"><button class="btn" style="background:var(--pf);color:var(--indigo)" onclick="filterMentors('')">1</button></div>
+        <div style="text-align:center;margin-top:-80px;margin-bottom: 40px; margin-left: 130px;"><button class="btn" style="background:var(--pf);color:var(--indigo)" onclick="filterMentors('')">2</button></div>
   </section>
 
   <section class="m-cats"><div class="container">
-    <h2 class="sec-title">Explore Categories</h2>
+    <h2 class="sec-title" style="margin-top: 20px;">Explore Categories</h2>
     <div class="m-cats-grid">
       <div class="cat-pill" onclick="filterCat('Design',null)"><div class="cat-icon">🎨</div><div class="cat-name">Design</div></div>
       <div class="cat-pill" onclick="filterCat('Tech',null)"><div class="cat-icon">💻</div><div class="cat-name">Development</div></div>
@@ -1567,15 +1565,11 @@ body.is-mentor .m-fab{display:flex}
         <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5" opacity=".4"/><rect x="3" y="14" width="7" height="7" rx="1.5" opacity=".4"/><rect x="14" y="14" width="7" height="7" rx="1.5" opacity=".4"/></svg>
         Dashboard
       </button>
-      <button class="d-nav-btn" onclick="navigate('chat')">
-        <svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z" stroke-linecap="round" stroke-linejoin="round"/></svg>
-        Community Chat
-      </button>
       <button class="d-nav-btn" onclick="navigate('landing')">
         <svg viewBox="0 0 24 24"><path d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0h6" stroke-linecap="round" stroke-linejoin="round"/></svg>
         Home
       </button>
-      <button class="d-nav-btn" onclick="setNav(this)">
+      <button class="d-nav-btn" onclick="navigate('chat')">
         <svg viewBox="0 0 24 24"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M8 10h8M8 14h5" stroke-linecap="round"/></svg>
         Inbox
       </button>
@@ -3089,15 +3083,7 @@ async function renderBrowseContent(){
    MENTOR BROWSE
 ───────────────────────────────────── */
 const MENTORS = [
-  {id:1, name:'Lisa Monroe',   role:'Product Design',      rating:4.9, cat:'Design',   av:'LM', price:60,  avail:true,  bg:'linear-gradient(135deg,#c4b5fd,#8b5cf6)', em:'👩‍🎨'},
-  {id:2, name:'Emily Johnson', role:'Software Engineering', rating:4.9, cat:'Tech',     av:'EJ', price:80,  avail:true,  bg:'linear-gradient(135deg,#a5f3fc,#06b6d4)', em:'👩‍💻'},
-  {id:3, name:'Theo Fernandez',role:'Startup Founder',     rating:4.9, cat:'Business', av:'TF', price:100, avail:false, bg:'linear-gradient(135deg,#fde68a,#f59e0b)', em:'👨‍💼'},
-  {id:4, name:'Zakir Chen',    role:'AI / ML Engineer',    rating:4.8, cat:'AI',       av:'ZC', price:90,  avail:true,  bg:'linear-gradient(135deg,#d1fae5,#059669)', em:'🤖'},
-  {id:5, name:'Padhang Satrio',role:'UI/UX Lead',          rating:4.7, cat:'Design',   av:'PS', price:55,  avail:true,  bg:'linear-gradient(135deg,#fce7f3,#ec4899)', em:'🎨'},
-  {id:6, name:'Leonardo Samsul',role:'Front-End Dev',      rating:4.8, cat:'Tech',     av:'LS', price:70,  avail:false, bg:'linear-gradient(135deg,#ede9fe,#6366f1)', em:'💻'},
-  {id:7, name:'Bayu Salto',    role:'Brand Strategist',    rating:4.6, cat:'Design',   av:'BS', price:65,  avail:true,  bg:'linear-gradient(135deg,#dbeafe,#3b82f6)', em:'✏️'},
-  {id:8, name:'Sara Mitchell', role:'Digital Marketing',   rating:4.7, cat:'Marketing',av:'SM', price:50,  avail:true,  bg:'linear-gradient(135deg,#fff7ed,#f97316)', em:'📣'},
-  {id:9, name:'Chen Wei',      role:'Data Science',        rating:4.9, cat:'AI',       av:'CW', price:110, avail:true,  bg:'linear-gradient(135deg,#ecfdf5,#10b981)', em:'📊'},
+
 ];
 let _curCat = '';
 function filterMentors(q){
