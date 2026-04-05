@@ -972,11 +972,45 @@ body.is-mentor .m-fab{display:flex}
 .ch-dm-user-online{margin-left:auto;font-size:.68rem;font-weight:700;color:#10b981}
 .ch-dm-empty-state{text-align:center;padding:28px 20px;color:var(--muted);font-size:.84rem}
 
+/* Chat hamburger button (mobile) */
+.ch-sidebar-toggle{display:none;align-items:center;justify-content:center;width:36px;height:36px;border-radius:9px;border:1.5px solid var(--border);background:var(--white);cursor:pointer;flex-shrink:0;transition:background var(--tr),border-color var(--tr)}
+.ch-sidebar-toggle:hover{background:var(--pf);border-color:var(--indigo)}
+.ch-sidebar-toggle svg{width:18px;height:18px;stroke:var(--text);fill:none;stroke-width:2;stroke-linecap:round}
+
+/* Chat sidebar overlay (mobile) */
+.ch-sidebar-overlay{display:none;position:fixed;inset:0;background:rgba(15,23,41,.45);z-index:290;backdrop-filter:blur(2px)}
+.ch-sidebar-overlay.open{display:block}
+
 @media(max-width:640px){
-  .ch-sidebar{display:none}
+  .ch-sidebar{
+    display:flex;
+    position:fixed;top:0;left:0;height:100vh;width:280px;
+    transform:translateX(-105%);transition:transform var(--tr);
+    box-shadow:6px 0 30px rgba(67,56,202,.16);z-index:300;
+    background:var(--white);
+  }
+  .ch-sidebar.open{transform:translateX(0)}
   .ch-main{width:100%}
+  .ch-sidebar-toggle{display:flex}
   .ch-dm-modal{max-width:100%;margin:0;border-radius:20px 20px 0 0}
   .ch-dm-modal-overlay{align-items:flex-end;padding:0}
+}
+
+/* Mentor Browse — mobile navbar hamburger */
+.m-hamburger{display:none;flex-direction:column;gap:5px;background:none;border:none;padding:4px;cursor:pointer;flex-shrink:0}
+.m-hamburger span{display:block;width:22px;height:2px;background:var(--text);border-radius:2px;transition:var(--tr)}
+.m-hamburger.open span:nth-child(1){transform:translateY(7px) rotate(45deg)}
+.m-hamburger.open span:nth-child(2){opacity:0}
+.m-hamburger.open span:nth-child(3){transform:translateY(-7px) rotate(-45deg)}
+.m-mob-menu{display:none;position:fixed;top:var(--nav-h);left:0;right:0;z-index:199;background:#fff;border-bottom:1px solid var(--border);padding:20px 24px;flex-direction:column;gap:14px;box-shadow:0 16px 40px rgba(67,56,202,.1)}
+.m-mob-menu.open{display:flex}
+.m-mob-menu a,.m-mob-menu button.mob-nav-link{font-size:.97rem;font-weight:600;color:var(--text);padding:8px 0;border-bottom:1px solid var(--border);background:none;border-top:none;border-left:none;border-right:none;border-radius:0;text-align:left;width:100%;cursor:pointer;font-family:inherit}
+.m-mob-menu a:last-of-type,.m-mob-menu button.mob-nav-link:last-of-type{border-bottom:none}
+.m-mob-menu .mob-btn-row{display:flex;flex-direction:column;gap:8px;margin-top:4px}
+@media(max-width:768px){
+  .m-nav-links{display:none}
+  .m-nav-btns-desktop{display:none}
+  .m-hamburger{display:flex}
 }
 
 /* ═══════════════════════════════════════════════════════
@@ -1245,12 +1279,24 @@ body.is-mentor .m-fab{display:flex}
     <div class="m-nav-inner">
       <div class="m-logo" onclick="navigate('landing')">Synera</div>
       <ul class="m-nav-links"><li><a href="#" onclick="navigate('landing');return false">Home</a></li><li><a href="#">Categories</a></li><li><a href="#">How It Works</a></li><li><a href="#" onclick="navigate('dashboard')">Dashboard</a></li></ul>
-      <div style="display:flex;gap:10px">
+      <div class="m-nav-btns-desktop" style="display:flex;gap:10px">
         <button class="btn btn-ghost" onclick="logout()" style="padding:9px 18px;font-size:.84rem">Log out</button>
         <button class="btn btn-indigo" onclick="navigate('register')" style="padding:9px 18px;font-size:.84rem">Become a Mentor </button>
       </div>
+      <button class="m-hamburger" id="mHam" onclick="toggleMMenu()"><span></span><span></span><span></span></button>
     </div>
   </nav>
+  <!-- Mobile menu for mentor browse page -->
+  <div class="m-mob-menu" id="mMenu">
+    <a href="#" onclick="navigate('landing');closeMMenu();return false">Home</a>
+    <a href="#" onclick="closeMMenu()">Categories</a>
+    <a href="#" onclick="closeMMenu()">How It Works</a>
+    <a href="#" onclick="navigate('dashboard');closeMMenu();return false">Dashboard</a>
+    <div class="mob-btn-row">
+      <button class="btn btn-ghost" onclick="logout();closeMMenu()" style="width:100%;border-radius:50px">Log Out</button>
+      <button class="btn btn-indigo" onclick="navigate('register');closeMMenu()" style="width:100%;border-radius:50px">Become a Mentor</button>
+    </div>
+  </div>
 
   <section class="m-hero">
     <div class="container"><div class="m-hero-inner">
@@ -1794,6 +1840,9 @@ body.is-mentor .m-fab{display:flex}
 
   <!-- Chat Nav -->
   <nav class="ch-nav">
+    <button class="ch-sidebar-toggle" id="chSidebarToggle" onclick="chToggleSidebar()" aria-label="Toggle channels sidebar">
+      <svg viewBox="0 0 24 24"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+    </button>
     <div class="ch-nav-logo" onclick="navigate('landing')">
       <div class="logo-mark">S</div>
       Synera
@@ -1812,11 +1861,14 @@ body.is-mentor .m-fab{display:flex}
     </div>
   </nav>
 
+  <!-- Chat Sidebar Overlay (mobile) -->
+  <div class="ch-sidebar-overlay" id="chSidebarOverlay" onclick="chCloseSidebar()"></div>
+
   <!-- Chat Layout -->
   <div class="ch-layout">
 
     <!-- Sidebar -->
-    <aside class="ch-sidebar">
+    <aside class="ch-sidebar" id="chSidebar">
       <div class="ch-sb-section">
         <div class="ch-sb-label">Channels</div>
         <button class="ch-channel-btn active" onclick="chSwitchChannel('general',this)">
@@ -3144,8 +3196,66 @@ _lHam.addEventListener('click', () => { const o = _lMenu.classList.toggle('open'
 function closeLMenu(){ _lMenu.classList.remove('open'); _lHam.classList.remove('open'); }
 document.addEventListener('click', e => {
   if(!e.target.closest('.l-nav') && !e.target.closest('.l-mob-menu')){ closeLMenu(); }
+  // Also close mentor menu on outside click
+  if(!e.target.closest('.m-nav') && !e.target.closest('.m-mob-menu')){ closeMMenu(); }
 });
 window.addEventListener('scroll', () => { document.getElementById('lNav').classList.toggle('scrolled', scrollY > 20); }, {passive:true});
+
+/* ─────────────────────────────────────
+   MENTOR BROWSE PAGE — MOBILE NAV
+───────────────────────────────────── */
+function toggleMMenu(){
+  const ham  = document.getElementById('mHam');
+  const menu = document.getElementById('mMenu');
+  if(!ham || !menu) return;
+  const o = menu.classList.toggle('open');
+  ham.classList.toggle('open', o);
+}
+function closeMMenu(){
+  const ham  = document.getElementById('mHam');
+  const menu = document.getElementById('mMenu');
+  if(!ham || !menu) return;
+  menu.classList.remove('open');
+  ham.classList.remove('open');
+}
+
+/* ─────────────────────────────────────
+   CHAT PAGE — MOBILE SIDEBAR PANEL
+───────────────────────────────────── */
+function chToggleSidebar(){
+  const sidebar  = document.getElementById('chSidebar');
+  const overlay  = document.getElementById('chSidebarOverlay');
+  const toggle   = document.getElementById('chSidebarToggle');
+  if(!sidebar) return;
+  const isOpen = sidebar.classList.toggle('open');
+  if(overlay) overlay.classList.toggle('open', isOpen);
+  if(toggle){
+    toggle.innerHTML = isOpen
+      ? `<svg viewBox="0 0 24 24" style="width:18px;height:18px;stroke:var(--text);fill:none;stroke-width:2;stroke-linecap:round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>`
+      : `<svg viewBox="0 0 24 24" style="width:18px;height:18px;stroke:var(--text);fill:none;stroke-width:2;stroke-linecap:round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>`;
+  }
+}
+function chCloseSidebar(){
+  const sidebar  = document.getElementById('chSidebar');
+  const overlay  = document.getElementById('chSidebarOverlay');
+  const toggle   = document.getElementById('chSidebarToggle');
+  if(!sidebar) return;
+  sidebar.classList.remove('open');
+  if(overlay) overlay.classList.remove('open');
+  if(toggle) toggle.innerHTML = `<svg viewBox="0 0 24 24" style="width:18px;height:18px;stroke:var(--text);fill:none;stroke-width:2;stroke-linecap:round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>`;
+}
+// Auto-close sidebar when a channel is clicked on mobile
+(function patchChatChannelButtons(){
+  document.addEventListener('click', function(e){
+    const btn = e.target.closest('.ch-channel-btn, .ch-dm-item, .ch-dm-new-btn');
+    if(!btn) return;
+    // Only close if sidebar is in mobile off-canvas mode (i.e. has open class)
+    const sidebar = document.getElementById('chSidebar');
+    if(sidebar && sidebar.classList.contains('open') && window.innerWidth <= 640){
+      chCloseSidebar();
+    }
+  });
+})();
 
 /* ─────────────────────────────────────
    UTILITY
@@ -3957,4 +4067,5 @@ async function submitBooking(){
   </div>
 </div>
 
-</body></html>
+</body>
+</html>
