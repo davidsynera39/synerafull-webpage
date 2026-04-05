@@ -2389,16 +2389,16 @@ function initDashboard(user){
   if(isMentor){
     heroEl.className  = 'd-hero hero-mentor';
     heroTag.textContent = 'Mentor Dashboard';
-    heroH2.textContent  = 'Welcome back! You have 3 sessions scheduled today.';
+    heroH2.textContent  = `Welcome back, ${user.fullname.split(' ')[0]}! Manage your content below.`;
     heroBtn.style.color = 'var(--teal)';
     heroBtn.innerHTML   = 'Manage Content <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>';
     heroBtn.onclick     = openMCM;
   } else {
     heroEl.className  = 'd-hero hero-student';
-    heroTag.textContent = 'Online Course';
-    heroH2.textContent  = 'Sharpen Your Skills with Professional Online Courses';
+    heroTag.textContent = 'Student Dashboard';
+    heroH2.textContent  = `Welcome back, ${user.fullname.split(' ')[0]}! Explore mentors and book sessions.`;
     heroBtn.style.color = 'var(--indigo)';
-    heroBtn.innerHTML   = 'Join Now <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>';
+    heroBtn.innerHTML   = 'Browse Mentors <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>';
     heroBtn.onclick     = () => navigate('mentors');
   }
 
@@ -2409,57 +2409,206 @@ function initDashboard(user){
 /* ─────────────────────────────────────
    STUDENT DASHBOARD CONTENT
 ───────────────────────────────────── */
-function buildStudentDash(){
-  // Pills
-  document.getElementById('dTopCards').innerHTML = `
-    <div class="d-pills">
-      <div class="d-pill"><div class="d-pill-left"><div class="d-pill-icon" style="background:#ede9fe">🎨</div><div><div class="d-pill-watched">2/8 watched</div><div class="d-pill-name">UI/UX Design</div></div></div><div style="color:var(--muted);letter-spacing:2px">···</div></div>
-      <div class="d-pill"><div class="d-pill-left"><div class="d-pill-icon" style="background:#d1fae5">📣</div><div><div class="d-pill-watched">3/9 watched</div><div class="d-pill-name">Branding</div></div></div><div style="color:var(--muted);letter-spacing:2px">···</div></div>
-      <div class="d-pill"><div class="d-pill-left"><div class="d-pill-icon" style="background:#dbeafe">💻</div><div><div class="d-pill-watched">6/10 watched</div><div class="d-pill-name">Front End</div></div></div><div style="color:var(--muted);letter-spacing:2px">···</div></div>
-    </div>`;
+async function buildStudentDash(){
+  if(!_CU) return;
+  const sb = window._sb;
 
-  // Section 1 — Continue Watching
-  document.getElementById('dSec1Title').textContent = 'Continue Watching';
-  document.getElementById('dSec1Right').innerHTML = '<div class="d-arrows"><div class="d-arr">‹</div><div class="d-arr on">›</div></div>';
-  document.getElementById('dMidCards').innerHTML = `
-    <div class="d-cards" id="dashCards">
-      <div class="d-card"><div class="d-card-thumb" style="background:linear-gradient(135deg,#667eea,#764ba2)">👨‍💻<button class="d-fav">♡</button></div><div class="d-card-body"><span class="d-card-tag tag-fe">Front End</span><div class="d-card-title">Beginner's Guide to Becoming a Professional Front-End Developer</div><div class="d-card-mentor-row"><div class="dav dav-sm" style="background:var(--indigo2);width:24px;height:24px;font-size:9px">LS</div><div><div class="d-card-mname">Leonardo Samsul</div><div class="d-card-mrole">Mentor</div></div></div></div></div>
-      <div class="d-card"><div class="d-card-thumb" style="background:linear-gradient(135deg,#f093fb,#f5576c)">🖥️<button class="d-fav">♡</button></div><div class="d-card-body"><span class="d-card-tag tag-ui">UI/UX</span><div class="d-card-title">Optimizing User Experience with the Best UI/UX Design</div><div class="d-card-mentor-row"><div class="dav dav-sm" style="background:var(--teal);width:24px;height:24px;font-size:9px">BS</div><div><div class="d-card-mname">Bayu Salto</div><div class="d-card-mrole">Mentor</div></div></div></div></div>
-      <div class="d-card"><div class="d-card-thumb" style="background:linear-gradient(135deg,#4facfe,#00f2fe)">🏢<button class="d-fav">♡</button></div><div class="d-card-body"><span class="d-card-tag tag-br">Branding</span><div class="d-card-title">Reviving and Refreshing Company Image Through Design</div><div class="d-card-mentor-row"><div class="dav dav-sm" style="background:var(--orange);width:24px;height:24px;font-size:9px">PS</div><div><div class="d-card-mname">Padhang Satrio</div><div class="d-card-mrole">Mentor</div></div></div></div></div>
+  // ── Load real data from Supabase ──────────────────────────
+  // 1. All published courses (from mentors)
+  const { data: allCourses } = await sb.from('mentor_courses')
+    .select('*').order('created_at', { ascending: false }).limit(20);
+
+  // 2. All published sessions (from mentors)
+  const { data: allSessions } = await sb.from('mentor_sessions')
+    .select('*').order('created_at', { ascending: false }).limit(20);
+
+  // 3. Student's own bookings
+  const { data: myBookings } = await sb.from('session_bookings')
+    .select('*').eq('student_id', String(_CU.id))
+    .order('created_at', { ascending: false }).limit(20);
+
+  // 4. All mentors from sign-in-as-mentor table
+  const { data: allMentors } = await sb.from('sign-in-as-mentor')
+    .select('id,full_name,field-of-study').limit(50);
+
+  const courses  = allCourses  || [];
+  const sessions = allSessions || [];
+  const bookings = myBookings  || [];
+  const mentors  = allMentors  || [];
+
+  // ── Helper colours / gradients ────────────────────────────
+  const GRADIENTS = [
+    'linear-gradient(135deg,#667eea,#764ba2)',
+    'linear-gradient(135deg,#f093fb,#f5576c)',
+    'linear-gradient(135deg,#4facfe,#00f2fe)',
+    'linear-gradient(135deg,#43e97b,#38f9d7)',
+    'linear-gradient(135deg,#fa709a,#fee140)',
+    'linear-gradient(135deg,#a18cd1,#fbc2eb)',
+    'linear-gradient(135deg,#fccb90,#d57eeb)',
+    'linear-gradient(135deg,#0d9488,#14b8a6)',
+  ];
+  const CAT_EMOJI_MAP = {'UI/UX Design':'🎨','Frontend Dev':'💻','Backend Dev':'⚙️','Full-Stack':'🔧',
+    'Data Science':'📊','AI / ML':'🤖','Digital Marketing':'📣','Branding':'✏️','Business':'💼','Other':'📚'};
+  const BG_PALETTE = ['var(--indigo)','var(--teal)','var(--orange)','#8b5cf6','#0ea5e9','#ec4899','#10b981','#f59e0b'];
+  function gradFor(i){ return GRADIENTS[i % GRADIENTS.length]; }
+  function bgFor(i){   return BG_PALETTE[i  % BG_PALETTE.length]; }
+  function initFor(name){ return (name||'?').split(' ').map(n=>n[0]).join('').slice(0,2).toUpperCase(); }
+  function fmtDate(d){ try{ return new Date(d).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}); }catch(_){ return ''; } }
+
+  // ── Pills — unique categories from real courses ────────────
+  const pillBgs = ['#ede9fe','#d1fae5','#dbeafe','#fff7ed','#fef9c3'];
+  const cats = [...new Set(courses.map(c => c.cat).filter(Boolean))].slice(0, 3);
+  const pillsHTML = cats.length
+    ? cats.map((cat,i) => {
+        const count = courses.filter(c => c.cat === cat).length;
+        return `<div class="d-pill">
+          <div class="d-pill-left">
+            <div class="d-pill-icon" style="background:${pillBgs[i % pillBgs.length]}">${CAT_EMOJI_MAP[cat]||'📚'}</div>
+            <div><div class="d-pill-watched">${count} course${count!==1?'s':''}</div><div class="d-pill-name">${cat}</div></div>
+          </div>
+          <div style="color:var(--muted);letter-spacing:2px">···</div>
+        </div>`;
+      }).join('')
+    : `<div class="d-pill"><div class="d-pill-left"><div class="d-pill-icon" style="background:#ede9fe">📚</div><div><div class="d-pill-watched">No courses yet</div><div class="d-pill-name">Browse mentors</div></div></div></div>`;
+
+  document.getElementById('dTopCards').innerHTML = `<div class="d-pills">${pillsHTML}</div>`;
+
+  // ── Section 1 — Courses from mentors ──────────────────────
+  document.getElementById('dSec1Title').textContent = 'Available Courses';
+  document.getElementById('dSec1Right').innerHTML = `<button class="d-see-all" onclick="navigate('mentors')">See All →</button>`;
+
+  let cardsHTML = '';
+  if(courses.length){
+    cardsHTML = courses.slice(0,6).map((c,i) => {
+      const mn  = c.mentor_name || 'Mentor';
+      const ini = initFor(mn);
+      return `<div class="d-card">
+        <div class="d-card-thumb" style="background:${gradFor(i)}">${CAT_EMOJI_MAP[c.cat]||'📖'}<button class="d-fav">♡</button></div>
+        <div class="d-card-body">
+          <span class="d-card-tag" style="background:var(--pf);color:var(--indigo)">${c.cat||'Course'}</span>
+          <div class="d-card-title">${c.title}</div>
+          <div class="d-card-mentor-row">
+            <div class="dav dav-sm" style="background:${bgFor(i)};width:24px;height:24px;font-size:9px">${ini}</div>
+            <div><div class="d-card-mname">${mn}</div><div class="d-card-mrole">Mentor</div></div>
+          </div>
+        </div>
+      </div>`;
+    }).join('');
+  } else {
+    cardsHTML = `<div style="padding:24px;color:var(--muted);font-size:.87rem;text-align:center;width:100%">
+      No courses published yet. <button class="btn btn-ghost" style="padding:6px 14px;font-size:.8rem;margin-left:8px" onclick="navigate('mentors')">Browse Mentors</button>
     </div>`;
+  }
+  document.getElementById('dMidCards').innerHTML = `<div class="d-cards" id="dashCards">${cardsHTML}</div>`;
   document.querySelectorAll('.d-fav').forEach(btn => {
     btn.addEventListener('click', function(e){ e.stopPropagation(); this.textContent = this.textContent === '♡' ? '❤️' : '♡'; });
   });
 
-  // Section 2 — Lesson table
-  document.getElementById('dSec2Title').textContent = 'Your Lesson';
-  document.getElementById('dTable').innerHTML = `
-    <div class="d-table">
-      <div class="d-tbl-head tbl-s"><span>Mentor</span><span>Type</span><span>Description</span><span>Action</span></div>
-      <div class="d-tbl-row tbl-s"><div class="d-row-cell"><div class="dav dav-md" style="background:var(--orange)">PS</div><div><div style="font-size:12.5px;font-weight:700">Padhang Satrio</div><div style="font-size:10px;color:var(--muted)">Feb 16, 2024</div></div></div><div><span class="d-type-tag">UI/UX Design</span></div><div class="d-row-desc">Understand the Foundations of UI/UX Design</div><div><button class="d-act-btn"><svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg></button></div></div>
-      <div class="d-tbl-row tbl-s"><div class="d-row-cell"><div class="dav dav-md" style="background:var(--indigo2)">LS</div><div><div style="font-size:12.5px;font-weight:700">Leonardo Samsul</div><div style="font-size:10px;color:var(--muted)">Mar 1, 2024</div></div></div><div><span class="d-type-tag">Front End</span></div><div class="d-row-desc">HTML, CSS &amp; JavaScript Deep Dive</div><div><button class="d-act-btn"><svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg></button></div></div>
+  // ── Section 2 — Student's Booking history ─────────────────
+  document.getElementById('dSec2Title').textContent = 'My Booked Sessions';
+  let tableHTML = '';
+  if(bookings.length){
+    const rows = bookings.slice(0,8).map(b => {
+      const mn  = b.mentor_name || 'Mentor';
+      const ini = initFor(mn);
+      const clsMap = { pending:'upcoming', confirmed:'completed', cancelled:'cancelled' };
+      const lblMap = { pending:'Pending',  confirmed:'Confirmed',  cancelled:'Cancelled' };
+      const cls = clsMap[b.status] || 'upcoming';
+      const lbl = lblMap[b.status] || b.status;
+      return `<div class="d-tbl-row tbl-s">
+        <div class="d-row-cell">
+          <div class="dav dav-md" style="background:${bgFor(mn.charCodeAt(0)%8)}">${ini}</div>
+          <div><div style="font-size:12.5px;font-weight:700">${mn}</div><div style="font-size:10px;color:var(--muted)">${fmtDate(b.created_at)}</div></div>
+        </div>
+        <div><span class="sess-badge ss-${cls}">${lbl}</span></div>
+        <div class="d-row-desc">${b.item_title||'Session'}</div>
+        <div><button class="d-act-btn"><svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg></button></div>
+      </div>`;
+    }).join('');
+    tableHTML = `<div class="d-table">
+      <div class="d-tbl-head tbl-s"><span>Mentor</span><span>Status</span><span>Session</span><span></span></div>
+      ${rows}
     </div>`;
+  } else {
+    tableHTML = `<div style="padding:20px 0 8px;color:var(--muted);font-size:.87rem">
+      No bookings yet. <button class="btn btn-ghost" style="padding:7px 14px;font-size:.8rem;margin-left:8px" onclick="navigate('mentors')">Book a Session →</button>
+    </div>`;
+  }
+  document.getElementById('dTable').innerHTML = tableHTML;
 
-  // Right panel — mentor list
+  // ── Right panel — real mentors list ───────────────────────
+  let mentorListHTML = '';
+  if(mentors.length){
+    mentorListHTML = mentors.slice(0,4).map((m,i) => {
+      const nm  = m.full_name || 'Mentor';
+      const ini = initFor(nm);
+      return `<div class="d-mrow">
+        <div class="dav dav-md" style="background:${bgFor(i)}">${ini}</div>
+        <div class="d-minfo"><div class="d-mname">${nm}</div><div class="d-mrole">${m['field-of-study']||'Mentor'}</div></div>
+        <button class="d-follow-btn" onclick="toggleFollow(this)">Follow</button>
+      </div>`;
+    }).join('');
+  } else {
+    mentorListHTML = `<div style="font-size:.82rem;color:var(--muted);padding:8px 0">No mentors yet.</div>`;
+  }
   document.getElementById('dRightBot').innerHTML = `
     <div>
-      <div class="d-mhd"><div class="d-mhd-title">Your Mentors</div><div class="d-add-btn">+</div></div>
-      <div class="d-mlist">
-        <div class="d-mrow"><div class="dav dav-md" style="background:var(--orange)">PS</div><div class="d-minfo"><div class="d-mname">Padhang Satrio</div><div class="d-mrole">Mentor</div></div><button class="d-follow-btn" onclick="toggleFollow(this)">Follow</button></div>
-        <div class="d-mrow"><div class="dav dav-md" style="background:#0ea5e9">ZH</div><div class="d-minfo"><div class="d-mname">Zakir Horizontal</div><div class="d-mrole">Mentor</div></div><button class="d-follow-btn" onclick="toggleFollow(this)">Follow</button></div>
-        <div class="d-mrow"><div class="dav dav-md" style="background:var(--indigo2)">LS</div><div class="d-minfo"><div class="d-mname">Leonardo Samsul</div><div class="d-mrole">Mentor</div></div><button class="d-follow-btn" onclick="toggleFollow(this)">Follow</button></div>
-      </div>
+      <div class="d-mhd"><div class="d-mhd-title">Available Mentors</div><div class="d-add-btn" onclick="navigate('mentors')">+</div></div>
+      <div class="d-mlist">${mentorListHTML}</div>
       <button class="d-all-btn" onclick="navigate('mentors')" style="background:var(--indigo)">See All Mentors</button>
     </div>`;
 
-  // Sidebar friends
-  document.getElementById('dFriends').innerHTML = [
-    {av:'BM', bg:'var(--indigo2)', name:'Bagas Mahpie', role:'Friend'},
-    {av:'SD', bg:'var(--teal)',    name:'Sir Dandy',    role:'Old Friend'},
-    {av:'JT', bg:'var(--orange)',  name:'Jhon Tosan',  role:'Friend'},
-  ].map(f=>`<div class="side-friend-row"><div class="dav dav-sm" style="background:${f.bg}">${f.av}</div><div><div class="side-fname">${f.name}</div><div class="side-frole">${f.role}</div></div></div>`).join('');
+  // ── Sidebar — other students as community peers ────────────
+  const { data: otherStudents } = await sb.from('sign-up-as-student')
+    .select('id,full_name').neq('id', _CU.id).limit(5);
+  const peers = otherStudents || [];
+  document.getElementById('dFriends').innerHTML = peers.length
+    ? peers.slice(0,4).map((s,i)=>{
+        const nm  = s.full_name || 'Student';
+        return `<div class="side-friend-row">
+          <div class="dav dav-sm" style="background:${bgFor(i)}">${initFor(nm)}</div>
+          <div><div class="side-fname">${nm}</div><div class="side-frole">Student</div></div>
+        </div>`;
+      }).join('')
+    : `<div style="font-size:.78rem;color:var(--muted);padding:6px 0">No other students yet.</div>`;
 
   document.getElementById('dPubCards').innerHTML = '';
+
+  // ── Available mentorship packages for student ──────────────
+  await renderStudentPackages();
+}
+
+async function renderStudentPackages(){
+  const sb = window._sb;
+  const { data } = await sb.from('mentor_cards').select('*').order('created_at',{ascending:false}).limit(12);
+  const cards = data || [];
+  const el = document.getElementById('dPubCards');
+  if(!cards.length){ el.innerHTML = ''; return; }
+  el.innerHTML = `
+    <div class="m-pub-section">
+      <div class="d-sec-hd" style="margin-bottom:14px">
+        <div class="d-sec-title">🪪 Mentorship Packages</div>
+        <button class="d-see-all" onclick="navigate('mentors')">See All →</button>
+      </div>
+      <div class="m-pub-grid">${cards.map(c => buildStudentMCardHTML(c)).join('')}</div>
+    </div>`;
+}
+
+function buildStudentMCardHTML(c){
+  const initials = c.mentor_initials || (c.mentor_name||'M').split(' ').map(n=>n[0]).join('').slice(0,2).toUpperCase();
+  return `<div class="mcard">
+    <div class="mcard-banner" style="background:${c.color||'var(--indigo)'}">${c.emoji||'🎓'}<div class="mcard-type">Mentorship</div></div>
+    <div class="mcard-body">
+      <div class="mcard-mrow"><div class="mcard-av">${initials}</div><div><div class="mcard-mname">${c.mentor_name||''}</div><div class="mcard-mexp">${c.mentor_exp||''}</div></div></div>
+      <div class="mcard-title">${c.title}</div>
+      <div class="mcard-tagline">${c.tagline||''}</div>
+      <div class="mcard-foot">
+        <div class="mcard-price">$${c.price||0}</div>
+        <div class="mcard-meta">${c.sessions||1} session${(c.sessions||1)!==1?'s':''}${c.duration?' · '+c.duration:''}</div>
+      </div>
+      <button class="mcard-book-btn" onclick='openBkModal(${JSON.stringify({type:"card",id:c.id,title:c.title,mentorName:c.mentor_name||"Mentor",mentorId:c.mentor_id||"",price:c.price||0})})'>Book Now</button>
+    </div>
+  </div>`;
 }
 
 /* ─────────────────────────────────────
@@ -2492,72 +2641,135 @@ async function buildMentorDash(){
       </div>
     </div>`;
 
-  // Section 1 — Your Students
+  // Section 1 — Your Students (real bookings from students)
   document.getElementById('dSec1Title').textContent = 'Your Students';
   document.getElementById('dSec1Right').innerHTML = '<button class="d-see-all" onclick="openStudentList()">See All →</button>';
-  document.getElementById('dMidCards').innerHTML = `
-    <div class="m-stu-cards">
-      ${[{av:'AK',bg:'var(--indigo2)',name:'Aisha Kim',  subj:'UI/UX Design',  pct:72,next:'Tomorrow, 10 AM'},
-         {av:'LR',bg:'var(--orange)',  name:'Luca Romano',subj:'Front-End Dev', pct:45,next:'Wed, 3 PM'},
-         {av:'MO',bg:'var(--teal)',    name:'Maya Osei',  subj:'Brand Strategy',pct:88,next:'Thu, 1 PM'}]
-      .map(s=>`<div class="m-stu-card" onclick="openStudentList()" style="cursor:pointer" title="View all students">
-        <div class="m-stu-top"><div class="dav dav-md" style="background:${s.bg};width:36px;height:36px;font-size:12px">${s.av}</div><div><div class="m-stu-name">${s.name}</div><div class="m-stu-subj">${s.subj}</div></div></div>
-        <div class="m-stu-bar-wrap"><div class="m-stu-bar"><div class="m-stu-fill" style="width:${s.pct}%"></div></div><span class="m-stu-pct">${s.pct}%</span></div>
-        <div class="m-stu-next">Next session: <strong>${s.next}</strong></div>
+
+  // Fetch real student bookings for this mentor
+  const { data: bkData } = await window._sb.from('session_bookings')
+    .select('*').eq('mentor_id', String(_CU.id))
+    .order('created_at', { ascending: false }).limit(30);
+  const allBk = bkData || [];
+
+  // Build unique students from bookings
+  const seenIds = new Set();
+  const uniqueStudents = [];
+  for(const b of allBk){
+    const sid = String(b.student_id||'');
+    if(!sid || seenIds.has(sid)) continue;
+    seenIds.add(sid);
+    uniqueStudents.push(b);
+  }
+
+  const BG_P = ['var(--indigo2)','var(--orange)','var(--teal)','#8b5cf6','#0ea5e9','#ec4899'];
+  const ini = n => (n||'?').split(' ').map(x=>x[0]).join('').slice(0,2).toUpperCase();
+  const bgI = (n,i) => BG_P[i % BG_P.length];
+
+  let stuCardsHTML;
+  if(uniqueStudents.length){
+    stuCardsHTML = uniqueStudents.slice(0,3).map((b,i)=>{
+      const nm  = b.student_name || 'Student';
+      const subj = b.item_title  || 'Session';
+      const confirmed = allBk.filter(x=>String(x.student_id)===String(b.student_id)&&x.status==='confirmed').length;
+      const total     = allBk.filter(x=>String(x.student_id)===String(b.student_id)).length;
+      const pct = total ? Math.round((confirmed/total)*100) : 0;
+      return `<div class="m-stu-card" onclick="openStudentList()" style="cursor:pointer" title="View all students">
+        <div class="m-stu-top"><div class="dav dav-md" style="background:${bgI(nm,i)};width:36px;height:36px;font-size:12px">${ini(nm)}</div><div><div class="m-stu-name">${nm}</div><div class="m-stu-subj">${subj}</div></div></div>
+        <div class="m-stu-bar-wrap"><div class="m-stu-bar"><div class="m-stu-fill" style="width:${pct}%"></div></div><span class="m-stu-pct">${pct}%</span></div>
+        <div class="m-stu-next">Sessions: <strong>${total} total</strong></div>
         <div style="font-size:10.5px;color:var(--teal);font-weight:700;margin-top:4px;display:flex;align-items:center;gap:4px;opacity:.8">View all students →</div>
-      </div>`).join('')}
+      </div>`;
+    }).join('');
+  } else {
+    stuCardsHTML = `<div style="padding:20px;color:var(--muted);font-size:.87rem;text-align:center;width:100%">
+      No students have booked yet. <button class="btn btn-ghost" style="padding:7px 14px;font-size:.8rem;margin-left:8px" onclick="openMCM()">Add Sessions →</button>
     </div>`;
+  }
+  document.getElementById('dMidCards').innerHTML = `<div class="m-stu-cards">${stuCardsHTML}</div>`;
 
-  // Section 2 — Upcoming sessions table
-  document.getElementById('dSec2Title').textContent = 'Upcoming Sessions';
-  document.getElementById('dTable').innerHTML = `
-    <div class="d-table">
-      <div class="d-tbl-head tbl-m"><span>Student</span><span>Status</span><span>Topic</span><span>Time</span><span>Action</span></div>
-      ${[{av:'AK',bg:'var(--indigo2)',name:'Aisha Kim',  cls:'upcoming',  lbl:'Upcoming',  topic:'Wireframing Basics',      time:'Today 2 PM'},
-         {av:'LR',bg:'var(--orange)',  name:'Luca Romano',cls:'upcoming',  lbl:'Upcoming',  topic:'CSS Grid & Flexbox',      time:'Today 4 PM'},
-         {av:'MO',bg:'var(--teal)',    name:'Maya Osei',  cls:'completed', lbl:'Completed', topic:'Brand Identity Review',   time:'Yesterday'},
-         {av:'JP',bg:'#8b5cf6',        name:'Jake Park',  cls:'cancelled', lbl:'Cancelled', topic:'JavaScript Fundamentals', time:'Mon 11 AM'}]
-      .map(s=>`<div class="d-tbl-row tbl-m">
-        <div class="d-row-cell"><div class="dav dav-md" style="background:${s.bg}">${s.av}</div><div style="font-size:12.5px;font-weight:700">${s.name}</div></div>
-        <div><span class="sess-badge ss-${s.cls}">${s.lbl}</span></div>
-        <div class="sess-topic">${s.topic}</div>
-        <div class="sess-time">${s.time}</div>
+  // Section 2 — Upcoming Sessions (real bookings table)
+  document.getElementById('dSec2Title').textContent = 'Session Bookings';
+  let tblHTML;
+  if(allBk.length){
+    const rows = allBk.slice(0,8).map((b,i) => {
+      const nm  = b.student_name || 'Student';
+      const clsMap = { pending:'upcoming', confirmed:'completed', cancelled:'cancelled' };
+      const lblMap = { pending:'Pending',  confirmed:'Confirmed',  cancelled:'Cancelled' };
+      const cls = clsMap[b.status] || 'upcoming';
+      const lbl = lblMap[b.status] || b.status;
+      const dt  = b.preferred_date ? new Date(b.preferred_date).toLocaleDateString('en-US',{month:'short',day:'numeric'}) : '—';
+      const tm  = b.preferred_time || '';
+      return `<div class="d-tbl-row tbl-m">
+        <div class="d-row-cell"><div class="dav dav-md" style="background:${bgI(nm,i)}">${ini(nm)}</div><div style="font-size:12.5px;font-weight:700">${nm}</div></div>
+        <div><span class="sess-badge ss-${cls}">${lbl}</span></div>
+        <div class="sess-topic">${b.item_title||'Session'}</div>
+        <div class="sess-time">${dt}${tm?' '+tm:''}</div>
         <div><button class="d-act-btn"><svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg></button></div>
-      </div>`).join('')}
+      </div>`;
+    }).join('');
+    tblHTML = `<div class="d-table">
+      <div class="d-tbl-head tbl-m"><span>Student</span><span>Status</span><span>Topic</span><span>Date</span><span>Action</span></div>
+      ${rows}
     </div>`;
+  } else {
+    tblHTML = `<div style="padding:20px 0 8px;color:var(--muted);font-size:.87rem">
+      No bookings yet. Share your sessions on the <button class="btn btn-ghost" style="padding:7px 14px;font-size:.8rem;margin-left:4px" onclick="navigate('mentors')">Browse Page →</button>
+    </div>`;
+  }
+  document.getElementById('dTable').innerHTML = tblHTML;
 
-  // Right panel — earnings + schedule
+  // Right panel — earnings from real confirmed bookings + real sessions schedule
+  const confirmed = allBk.filter(b => b.status === 'confirmed');
+  const totalEarned = confirmed.reduce((sum,b) => sum + (Number(b.price)||0), 0);
+  const avgPer = confirmed.length ? Math.round(totalEarned / confirmed.length) : 0;
+  const pending = allBk.filter(b => b.status === 'pending');
+
+  // Upcoming scheduled (confirmed with a future date)
+  const now = Date.now();
+  const upcoming = confirmed
+    .filter(b => b.preferred_date && new Date(b.preferred_date+' '+(b.preferred_time||'00:00')).getTime() >= now - 3600000)
+    .sort((a,b2) => new Date(a.preferred_date) - new Date(b2.preferred_date))
+    .slice(0,3);
+
+  const schedHTML = upcoming.length
+    ? upcoming.map(b=>{
+        const nm = b.student_name || 'Student';
+        const dt = b.preferred_date ? new Date(b.preferred_date).toLocaleDateString('en-US',{month:'short',day:'numeric'}) : '';
+        const tm = b.preferred_time || '';
+        return `<div class="m-sched-item">
+          <div class="m-sched-time">${(dt+' '+tm).trim().replace(' ','<br/>')}</div>
+          <div class="m-sched-info"><div class="m-sched-name">${nm}</div><div class="m-sched-topic">${b.item_title||'Session'}</div></div>
+          <div class="m-sched-dot" style="background:var(--teal)"></div>
+        </div>`;
+      }).join('')
+    : `<div style="font-size:.82rem;color:var(--muted);padding:8px 0">No confirmed upcoming sessions.</div>`;
+
   document.getElementById('dRightBot').innerHTML = `
     <div>
       <div class="m-earn-card">
-        <div class="m-earn-lbl">💰 Total Earnings</div>
-        <div class="m-earn-amount">$2,840</div>
-        <div class="m-earn-period">This month · Mar 2026</div>
+        <div class="m-earn-lbl">💰 Confirmed Earnings</div>
+        <div class="m-earn-amount">$${totalEarned.toLocaleString()}</div>
+        <div class="m-earn-period">From ${confirmed.length} confirmed session${confirmed.length!==1?'s':''}</div>
         <div class="m-earn-row">
-          <div class="m-earn-mini"><div class="m-earn-mini-lbl">Sessions</div><div class="m-earn-mini-val">38</div></div>
-          <div class="m-earn-mini"><div class="m-earn-mini-lbl">Avg/session</div><div class="m-earn-mini-val">$74</div></div>
+          <div class="m-earn-mini"><div class="m-earn-mini-lbl">Pending</div><div class="m-earn-mini-val">${pending.length}</div></div>
+          <div class="m-earn-mini"><div class="m-earn-mini-lbl">Avg/session</div><div class="m-earn-mini-val">$${avgPer}</div></div>
         </div>
       </div>
-      <div class="d-mhd"><div class="d-mhd-title">Today's Schedule</div><div class="d-add-btn" onclick="openMCM()">+</div></div>
-      <div class="m-sched-list">
-        ${[{time:'2:00 PM',name:'Aisha Kim',  topic:'Wireframing Basics',   dot:'var(--indigo2)'},
-           {time:'4:00 PM',name:'Luca Romano',topic:'CSS Grid & Flexbox',    dot:'var(--orange)'},
-           {time:'6:30 PM',name:'Free slot',  topic:'Available for booking', dot:'#d1d5db'}]
-        .map(s=>`<div class="m-sched-item">
-          <div class="m-sched-time">${s.time.replace(' ','<br/>')}</div>
-          <div class="m-sched-info"><div class="m-sched-name">${s.name}</div><div class="m-sched-topic">${s.topic}</div></div>
-          <div class="m-sched-dot" style="background:${s.dot}"></div>
-        </div>`).join('')}
-      </div>
-      <button class="d-all-btn" style="margin-top:12px;background:var(--teal)" onclick="showToast('Full schedule coming soon!','info')">View Full Schedule</button>
+      <div class="d-mhd"><div class="d-mhd-title">Upcoming Sessions</div><div class="d-add-btn" onclick="openMCM()">+</div></div>
+      <div class="m-sched-list">${schedHTML}</div>
+      <button class="d-all-btn" style="margin-top:12px;background:var(--teal)" onclick="openStudentList()">View All Students</button>
     </div>`;
 
-  // Sidebar students
-  document.getElementById('dFriends').innerHTML = [
-    {av:'AK', bg:'var(--indigo2)', name:'Aisha Kim',   role:'UI/UX · 72%'},
-    {av:'LR', bg:'var(--orange)',  name:'Luca Romano', role:'Frontend · 45%'},
-    {av:'MO', bg:'var(--teal)',    name:'Maya Osei',   role:'Branding · 88%'},
-  ].map(f=>`<div class="side-friend-row" onclick="openStudentList()" style="cursor:pointer;transition:opacity .2s" onmouseenter="this.style.opacity='.7'" onmouseleave="this.style.opacity='1'"><div class="dav dav-sm" style="background:${f.bg}">${f.av}</div><div><div class="side-fname">${f.name}</div><div class="side-frole">${f.role}</div></div></div>`).join('');
+  // Sidebar — real students who booked
+  document.getElementById('dFriends').innerHTML = uniqueStudents.length
+    ? uniqueStudents.slice(0,4).map((b,i)=>{
+        const nm = b.student_name || 'Student';
+        return `<div class="side-friend-row" onclick="openStudentList()" style="cursor:pointer;transition:opacity .2s" onmouseenter="this.style.opacity='.7'" onmouseleave="this.style.opacity='1'">
+          <div class="dav dav-sm" style="background:${bgI(nm,i)}">${ini(nm)}</div>
+          <div><div class="side-fname">${nm}</div><div class="side-frole">${b.status==='confirmed'?'Confirmed':'Pending'}</div></div>
+        </div>`;
+      }).join('')
+    : `<div style="font-size:.78rem;color:var(--muted);padding:6px 0">No students yet.</div>`;
 
   // Published mentorship cards
   renderPubCards();
@@ -3273,25 +3485,11 @@ function delay(ms){ return new Promise(r => setTimeout(r,ms)); }
 })();
 
 /* ─────────────────────────────────────
-   STUDENT LIST MODAL
+   STUDENT LIST MODAL (real data)
 ───────────────────────────────────── */
-const ALL_STUDENTS = [
-  { id:1,  av:'AK', bg:'var(--indigo2)', name:'Aisha Kim',      subj:'UI/UX Design',      pct:72,  sessions:12, totalSessions:16, next:'Tomorrow, 10 AM',  status:'active',   joined:'Jan 2026' },
-  { id:2,  av:'LR', bg:'var(--orange)',  name:'Luca Romano',     subj:'Front-End Dev',     pct:45,  sessions:7,  totalSessions:12, next:'Wed, 3 PM',         status:'active',   joined:'Feb 2026' },
-  { id:3,  av:'MO', bg:'var(--teal)',    name:'Maya Osei',       subj:'Brand Strategy',    pct:88,  sessions:14, totalSessions:16, next:'Thu, 1 PM',         status:'active',   joined:'Nov 2025' },
-  { id:4,  av:'JP', bg:'#8b5cf6',        name:'Jake Park',       subj:'JavaScript',        pct:30,  sessions:4,  totalSessions:8,  next:'Rescheduling…',     status:'paused',   joined:'Mar 2026' },
-  { id:5,  av:'SA', bg:'#ec4899',        name:'Sofia Arias',     subj:'Product Design',    pct:61,  sessions:9,  totalSessions:12, next:'Today, 6 PM',       status:'upcoming', joined:'Dec 2025' },
-  { id:6,  av:'TN', bg:'#0ea5e9',        name:'Tariq Nasser',    subj:'Data Visualisation',pct:55,  sessions:6,  totalSessions:10, next:'Fri, 11 AM',        status:'active',   joined:'Jan 2026' },
-  { id:7,  av:'HW', bg:'#f59e0b',        name:'Hannah Wu',       subj:'UI/UX Design',      pct:95,  sessions:16, totalSessions:16, next:'Completed ✓',       status:'active',   joined:'Oct 2025' },
-  { id:8,  av:'DK', bg:'#10b981',        name:'Daniel Kovacs',   subj:'Frontend Dev',      pct:20,  sessions:2,  totalSessions:12, next:'Today, 2 PM',       status:'upcoming', joined:'Mar 2026' },
-  { id:9,  av:'PR', bg:'#6366f1',        name:'Priya Rajan',     subj:'Brand Strategy',    pct:78,  sessions:11, totalSessions:14, next:'Mon, 3 PM',         status:'active',   joined:'Dec 2025' },
-  { id:10, av:'CM', bg:'#d97706',        name:'Carlos Mendez',   subj:'Digital Marketing', pct:42,  sessions:5,  totalSessions:10, next:'Tue, 5 PM',         status:'active',   joined:'Feb 2026' },
-  { id:11, av:'EL', bg:'#7c3aed',        name:'Elena Larsson',   subj:'UI/UX Design',      pct:66,  sessions:8,  totalSessions:12, next:'Wed, 10 AM',        status:'active',   joined:'Jan 2026' },
-  { id:12, av:'OB', bg:'#059669',        name:'Olumide Babatunde',subj:'Entrepreneurship',  pct:50,  sessions:6,  totalSessions:10, next:'Rescheduling…',     status:'paused',   joined:'Feb 2026' },
-];
-
 let _slFilter = 'all';
 let _slQuery  = '';
+let _slBookings = []; // cached real bookings
 
 function openStudentList(){
   document.getElementById('slOverlay').classList.add('open');
@@ -3300,7 +3498,7 @@ function openStudentList(){
   document.getElementById('slSearch').value = '';
   document.querySelectorAll('.sl-filter-btn').forEach(b => b.classList.remove('on'));
   document.getElementById('slF-all').classList.add('on');
-  renderStudentList();
+  loadAndRenderStudentList();
 }
 
 function closeSL(){ document.getElementById('slOverlay').classList.remove('open'); }
@@ -3313,35 +3511,95 @@ function filterStudentStatus(status, btn){
   renderStudentList();
 }
 
+async function loadAndRenderStudentList(){
+  if(!_CU || _CU.role !== 'mentor') return;
+  const grid = document.getElementById('slGrid');
+  if(grid) grid.innerHTML = '<div class="sl-empty"><div class="icon">⏳</div><p>Loading students…</p></div>';
+
+  const sb = window._sb;
+  const { data, error } = await sb.from('session_bookings')
+    .select('*').eq('mentor_id', String(_CU.id))
+    .order('created_at', { ascending: false });
+
+  if(error){ console.warn('student list error', error.message); }
+  _slBookings = data || [];
+  renderStudentList();
+}
+
 function renderStudentList(){
-  let students = ALL_STUDENTS;
-  if(_slFilter === 'active')   students = students.filter(s => s.status === 'active');
-  if(_slFilter === 'upcoming') students = students.filter(s => s.status === 'upcoming');
-  if(_slQuery) students = students.filter(s =>
+  const BG_P = ['var(--indigo2)','var(--orange)','var(--teal)','#8b5cf6','#0ea5e9','#ec4899','#f59e0b','#10b981'];
+  const ini = n => (n||'?').split(' ').map(x=>x[0]).join('').slice(0,2).toUpperCase();
+  const bgI = (n) => BG_P[Math.abs([...n].reduce((a,c)=>a+c.charCodeAt(0),0)) % BG_P.length];
+  const fmtDate = d => { try{ return new Date(d).toLocaleDateString('en-US',{month:'short',year:'numeric'}); }catch(_){ return ''; } };
+
+  // Build unique students from bookings
+  const seenIds = new Set();
+  const students = [];
+  for(const b of _slBookings){
+    const sid = String(b.student_id||'');
+    if(!sid || seenIds.has(sid)) continue;
+    seenIds.add(sid);
+    const allForStu = _slBookings.filter(x => String(x.student_id) === sid);
+    const confirmed  = allForStu.filter(x => x.status === 'confirmed').length;
+    const pending    = allForStu.filter(x => x.status === 'pending').length;
+    const total      = allForStu.length;
+    const latest     = allForStu[0]; // most recent booking
+    let status = 'active';
+    if(pending > 0) status = 'upcoming'; // has a pending request today-ish
+    students.push({
+      id:       sid,
+      name:     b.student_name || 'Student',
+      subj:     b.item_title   || 'Session',
+      pct:      total ? Math.round((confirmed/total)*100) : 0,
+      sessions: confirmed,
+      totalSessions: total,
+      next:     latest.preferred_date
+        ? new Date(latest.preferred_date).toLocaleDateString('en-US',{month:'short',day:'numeric'}) + (latest.preferred_time?' '+latest.preferred_time:'')
+        : '—',
+      status,
+      joined: fmtDate(b.created_at),
+      latestBk: latest,
+    });
+  }
+
+  // Apply filters
+  let filtered = students;
+  if(_slFilter === 'active')   filtered = filtered.filter(s => s.status === 'active');
+  if(_slFilter === 'upcoming') filtered = filtered.filter(s => s.status === 'upcoming');
+  if(_slQuery) filtered = filtered.filter(s =>
     s.name.toLowerCase().includes(_slQuery) ||
     s.subj.toLowerCase().includes(_slQuery)
   );
+
   const countEl = document.getElementById('slCount');
-  if(countEl) countEl.textContent = students.length + ' student' + (students.length !== 1 ? 's' : '');
+  if(countEl) countEl.textContent = filtered.length + ' student' + (filtered.length !== 1 ? 's' : '');
   const grid = document.getElementById('slGrid');
   if(!grid) return;
-  if(!students.length){
+
+  if(!filtered.length && !_slBookings.length){
+    grid.innerHTML = `<div class="sl-empty"><div class="icon">👥</div><p>No students have booked yet. Share your sessions so students can discover you!</p></div>`;
+    return;
+  }
+  if(!filtered.length){
     grid.innerHTML = '<div class="sl-empty"><div class="icon">🔍</div><p>No students match your search.</p></div>';
     return;
   }
+
   const statusTag = {
     active:   '<span class="sl-tag sl-tag-active">● Active</span>',
     paused:   '<span class="sl-tag sl-tag-paused">⏸ Paused</span>',
-    upcoming: '<span class="sl-tag sl-tag-new">⏰ Session today</span>',
+    upcoming: '<span class="sl-tag sl-tag-new">⏰ Pending</span>',
   };
-  grid.innerHTML = students.map(s => `
-    <div class="sl-card" onclick="showToast('Opening ${s.name}\'s profile…','info')">
+  grid.innerHTML = filtered.map(s => {
+    const av = ini(s.name);
+    const bg = bgI(s.name);
+    return `<div class="sl-card">
       <div class="sl-card-left">
-        <div class="dav dav-md" style="background:${s.bg};width:42px;height:42px;font-size:14px">${s.av}</div>
+        <div class="dav dav-md" style="background:${bg};width:42px;height:42px;font-size:14px">${av}</div>
         <div class="sl-card-info">
           <div class="sl-card-name">${s.name}</div>
           <div class="sl-card-subj">${s.subj}</div>
-          <div class="sl-card-tags">${statusTag[s.status] || ''}<span class="sl-tag" style="background:#f1f0f7;color:var(--muted)">Since ${s.joined}</span></div>
+          <div class="sl-card-tags">${statusTag[s.status]||''}<span class="sl-tag" style="background:#f1f0f7;color:var(--muted)">Since ${s.joined}</span></div>
         </div>
       </div>
       <div class="sl-card-mid">
@@ -3349,16 +3607,17 @@ function renderStudentList(){
           <div class="sl-prog-bar"><div class="sl-prog-fill" style="width:${s.pct}%"></div></div>
           <span class="sl-prog-pct">${s.pct}%</span>
         </div>
-        <div class="sl-next-sess">Next: <strong>${s.next}</strong></div>
+        <div class="sl-next-sess">Latest: <strong>${s.next}</strong></div>
       </div>
       <div class="sl-card-right">
-        <div class="sl-sessions-count"><span>${s.sessions}</span> of ${s.totalSessions} sessions</div>
-        <button class="sl-msg-btn" onclick="event.stopPropagation();showToast('Messaging ${s.name}…','info')">
+        <div class="sl-sessions-count"><span>${s.sessions}</span> of ${s.totalSessions} confirmed</div>
+        <button class="sl-msg-btn" onclick="event.stopPropagation();navigate('chat')">
           <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
           Message
         </button>
       </div>
-    </div>`).join('');
+    </div>`;
+  }).join('');
 }
 
 </script>
@@ -4067,5 +4326,4 @@ async function submitBooking(){
   </div>
 </div>
 
-</body>
-</html>
+</body></html>
