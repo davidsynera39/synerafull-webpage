@@ -972,11 +972,45 @@ body.is-mentor .m-fab{display:flex}
 .ch-dm-user-online{margin-left:auto;font-size:.68rem;font-weight:700;color:#10b981}
 .ch-dm-empty-state{text-align:center;padding:28px 20px;color:var(--muted);font-size:.84rem}
 
+/* Chat hamburger button (mobile) */
+.ch-sidebar-toggle{display:none;align-items:center;justify-content:center;width:36px;height:36px;border-radius:9px;border:1.5px solid var(--border);background:var(--white);cursor:pointer;flex-shrink:0;transition:background var(--tr),border-color var(--tr)}
+.ch-sidebar-toggle:hover{background:var(--pf);border-color:var(--indigo)}
+.ch-sidebar-toggle svg{width:18px;height:18px;stroke:var(--text);fill:none;stroke-width:2;stroke-linecap:round}
+
+/* Chat sidebar overlay (mobile) */
+.ch-sidebar-overlay{display:none;position:fixed;inset:0;background:rgba(15,23,41,.45);z-index:290;backdrop-filter:blur(2px)}
+.ch-sidebar-overlay.open{display:block}
+
 @media(max-width:640px){
-  .ch-sidebar{display:none}
+  .ch-sidebar{
+    display:flex;
+    position:fixed;top:0;left:0;height:100vh;width:280px;
+    transform:translateX(-105%);transition:transform var(--tr);
+    box-shadow:6px 0 30px rgba(67,56,202,.16);z-index:300;
+    background:var(--white);
+  }
+  .ch-sidebar.open{transform:translateX(0)}
   .ch-main{width:100%}
+  .ch-sidebar-toggle{display:flex}
   .ch-dm-modal{max-width:100%;margin:0;border-radius:20px 20px 0 0}
   .ch-dm-modal-overlay{align-items:flex-end;padding:0}
+}
+
+/* Mentor Browse — mobile navbar hamburger */
+.m-hamburger{display:none;flex-direction:column;gap:5px;background:none;border:none;padding:4px;cursor:pointer;flex-shrink:0}
+.m-hamburger span{display:block;width:22px;height:2px;background:var(--text);border-radius:2px;transition:var(--tr)}
+.m-hamburger.open span:nth-child(1){transform:translateY(7px) rotate(45deg)}
+.m-hamburger.open span:nth-child(2){opacity:0}
+.m-hamburger.open span:nth-child(3){transform:translateY(-7px) rotate(-45deg)}
+.m-mob-menu{display:none;position:fixed;top:var(--nav-h);left:0;right:0;z-index:199;background:#fff;border-bottom:1px solid var(--border);padding:20px 24px;flex-direction:column;gap:14px;box-shadow:0 16px 40px rgba(67,56,202,.1)}
+.m-mob-menu.open{display:flex}
+.m-mob-menu a,.m-mob-menu button.mob-nav-link{font-size:.97rem;font-weight:600;color:var(--text);padding:8px 0;border-bottom:1px solid var(--border);background:none;border-top:none;border-left:none;border-right:none;border-radius:0;text-align:left;width:100%;cursor:pointer;font-family:inherit}
+.m-mob-menu a:last-of-type,.m-mob-menu button.mob-nav-link:last-of-type{border-bottom:none}
+.m-mob-menu .mob-btn-row{display:flex;flex-direction:column;gap:8px;margin-top:4px}
+@media(max-width:768px){
+  .m-nav-links{display:none}
+  .m-nav-btns-desktop{display:none}
+  .m-hamburger{display:flex}
 }
 
 /* ═══════════════════════════════════════════════════════
@@ -1245,12 +1279,24 @@ body.is-mentor .m-fab{display:flex}
     <div class="m-nav-inner">
       <div class="m-logo" onclick="navigate('landing')">Synera</div>
       <ul class="m-nav-links"><li><a href="#" onclick="navigate('landing');return false">Home</a></li><li><a href="#">Categories</a></li><li><a href="#">How It Works</a></li><li><a href="#" onclick="navigate('dashboard')">Dashboard</a></li></ul>
-      <div style="display:flex;gap:10px">
+      <div class="m-nav-btns-desktop" style="display:flex;gap:10px">
         <button class="btn btn-ghost" onclick="logout()" style="padding:9px 18px;font-size:.84rem">Log out</button>
         <button class="btn btn-indigo" onclick="navigate('register')" style="padding:9px 18px;font-size:.84rem">Become a Mentor </button>
       </div>
+      <button class="m-hamburger" id="mHam" onclick="toggleMMenu()"><span></span><span></span><span></span></button>
     </div>
   </nav>
+  <!-- Mobile menu for mentor browse page -->
+  <div class="m-mob-menu" id="mMenu">
+    <a href="#" onclick="navigate('landing');closeMMenu();return false">Home</a>
+    <a href="#" onclick="closeMMenu()">Categories</a>
+    <a href="#" onclick="closeMMenu()">How It Works</a>
+    <a href="#" onclick="navigate('dashboard');closeMMenu();return false">Dashboard</a>
+    <div class="mob-btn-row">
+      <button class="btn btn-ghost" onclick="logout();closeMMenu()" style="width:100%;border-radius:50px">Log Out</button>
+      <button class="btn btn-indigo" onclick="navigate('register');closeMMenu()" style="width:100%;border-radius:50px">Become a Mentor</button>
+    </div>
+  </div>
 
   <section class="m-hero">
     <div class="container"><div class="m-hero-inner">
@@ -1794,12 +1840,15 @@ body.is-mentor .m-fab{display:flex}
 
   <!-- Chat Nav -->
   <nav class="ch-nav">
+    <button class="ch-sidebar-toggle" id="chSidebarToggle" onclick="chToggleSidebar()" aria-label="Toggle channels sidebar">
+      <svg viewBox="0 0 24 24"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+    </button>
     <div class="ch-nav-logo" onclick="navigate('landing')">
       <div class="logo-mark">S</div>
       Synera
     </div>
     <div class="ch-nav-divider"></div>
-    <div class="ch-nav-title">Community Chat</div>
+    <div class="ch-nav-title">Direct Messages</div>
     <span class="ch-nav-badge">LIVE</span>
     <div class="ch-nav-right">
       <div class="ch-online-dot"></div>
@@ -1812,37 +1861,16 @@ body.is-mentor .m-fab{display:flex}
     </div>
   </nav>
 
+  <!-- Chat Sidebar Overlay (mobile) -->
+  <div class="ch-sidebar-overlay" id="chSidebarOverlay" onclick="chCloseSidebar()"></div>
+
   <!-- Chat Layout -->
   <div class="ch-layout">
 
     <!-- Sidebar -->
-    <aside class="ch-sidebar">
-      <div class="ch-sb-section">
-        <div class="ch-sb-label">Channels</div>
-        <button class="ch-channel-btn active" onclick="chSwitchChannel('general',this)">
-          <span class="ch-channel-hash">#</span><span class="ch-channel-name">general</span>
-        </button>
-        <button class="ch-channel-btn" onclick="chSwitchChannel('mentors',this)">
-          <span class="ch-channel-hash">#</span><span class="ch-channel-name">mentors-lounge</span>
-        </button>
-        <button class="ch-channel-btn" onclick="chSwitchChannel('students',this)">
-          <span class="ch-channel-hash">#</span><span class="ch-channel-name">students-hub</span>
-        </button>
-        <button class="ch-channel-btn" onclick="chSwitchChannel('resources',this)">
-          <span class="ch-channel-hash">#</span><span class="ch-channel-name">resources</span>
-        </button>
-        <button class="ch-channel-btn" onclick="chSwitchChannel('sessions',this)">
-          <span class="ch-channel-hash">#</span><span class="ch-channel-name">book-a-session</span>
-        </button>
-      </div>
-      <div class="ch-sb-divider"></div>
-      <div class="ch-online-users">
-        <div class="ch-sb-label">Online now</div>
-        <div id="chOnlineList"></div>
-      </div>
-      <div class="ch-sb-divider"></div>
-      <div style="padding:12px 14px 4px;display:flex;align-items:center;justify-content:space-between">
-        <div class="ch-sb-label" style="margin-bottom:0">Direct Messages</div>
+    <aside class="ch-sidebar" id="chSidebar">
+      <div style="padding:16px 14px 8px;display:flex;align-items:center;justify-content:space-between">
+        <div class="ch-sb-label" style="margin-bottom:0">Messages</div>
       </div>
       <button class="ch-dm-new-btn" onclick="chOpenDMModal()">
         <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
@@ -1856,10 +1884,10 @@ body.is-mentor .m-fab{display:flex}
     <!-- Main Chat -->
     <main class="ch-main">
       <div class="ch-header">
-        <span class="ch-header-icon">#</span>
+        <span class="ch-header-icon" id="chHeaderIcon" style="display:none">💬</span>
         <div class="ch-header-info">
-          <div class="ch-header-name" id="chChannelName">general</div>
-          <div class="ch-header-desc" id="chChannelDesc">Welcome to the Synera community — introduce yourself!</div>
+          <div class="ch-header-name" id="chChannelName">Select a conversation</div>
+          <div class="ch-header-desc" id="chChannelDesc">Choose someone to message from the sidebar, or start a new conversation.</div>
         </div>
         <div class="ch-header-actions">
           <button class="ch-action-btn" onclick="chScrollToBottom()">↓ Latest</button>
@@ -1869,8 +1897,8 @@ body.is-mentor .m-fab{display:flex}
       <div class="ch-messages-wrap" id="chMessagesWrap">
         <div class="ch-auth-gate" id="chAuthGate">
           <div class="icon">💬</div>
-          <h3>Welcome to Synera Chat</h3>
-          <p>Sign in to your Synera account to start chatting with the community.</p>
+          <h3>Direct Messages</h3>
+          <p>Sign in to your Synera account to message mentors and students directly.</p>
           <div class="ch-gate-btns">
             <button class="btn btn-indigo" onclick="navigate('login')">Sign In</button>
             <button class="btn btn-ghost" onclick="navigate('register')">Create Account</button>
@@ -1885,7 +1913,7 @@ body.is-mentor .m-fab{display:flex}
 
       <div class="ch-input-bar">
         <div class="ch-input-wrap">
-          <textarea class="ch-chat-input" id="chChatInput" placeholder="Sign in to chat…" rows="1" disabled
+          <textarea class="ch-chat-input" id="chChatInput" placeholder="Select a conversation…" rows="1" disabled
             oninput="chAutoResize(this);chHandleTyping()"
             onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();chSendMessage()}"></textarea>
           <button class="ch-send-btn" id="chSendBtn" onclick="chSendMessage()" disabled>
@@ -1894,7 +1922,7 @@ body.is-mentor .m-fab{display:flex}
             </svg>
           </button>
         </div>
-        <div class="ch-input-hint" id="chInputHint">Sign in to join the conversation</div>
+        <div class="ch-input-hint" id="chInputHint">Select a conversation to start messaging</div>
       </div>
     </main>
 </div><!-- end ch-layout -->
@@ -2337,16 +2365,16 @@ function initDashboard(user){
   if(isMentor){
     heroEl.className  = 'd-hero hero-mentor';
     heroTag.textContent = 'Mentor Dashboard';
-    heroH2.textContent  = 'Welcome back! You have 3 sessions scheduled today.';
+    heroH2.textContent  = `Welcome back, ${user.fullname.split(' ')[0]}! Manage your content below.`;
     heroBtn.style.color = 'var(--teal)';
     heroBtn.innerHTML   = 'Manage Content <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>';
     heroBtn.onclick     = openMCM;
   } else {
     heroEl.className  = 'd-hero hero-student';
-    heroTag.textContent = 'Online Course';
-    heroH2.textContent  = 'Sharpen Your Skills with Professional Online Courses';
+    heroTag.textContent = 'Student Dashboard';
+    heroH2.textContent  = `Welcome back, ${user.fullname.split(' ')[0]}! Explore mentors and book sessions.`;
     heroBtn.style.color = 'var(--indigo)';
-    heroBtn.innerHTML   = 'Join Now <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>';
+    heroBtn.innerHTML   = 'Browse Mentors <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>';
     heroBtn.onclick     = () => navigate('mentors');
   }
 
@@ -2358,118 +2386,205 @@ function initDashboard(user){
    STUDENT DASHBOARD CONTENT
 ───────────────────────────────────── */
 async function buildStudentDash(){
-  // Pills — load real mentor courses from DB
+  if(!_CU) return;
   const sb = window._sb;
-  document.getElementById('dTopCards').innerHTML = `<div class="d-pills"><div style="font-size:.8rem;color:var(--muted);padding:8px 0">Loading courses…</div></div>`;
-  const { data: courseRows } = await sb.from('mentor_courses').select('*').limit(3);
-  const pillIcons = ['🎨','📣','💻','🎯','🚀','🎓'];
-  const pillBgs   = ['#ede9fe','#d1fae5','#dbeafe','#fff7ed','#fef9c3','#fce7f3'];
-  if(courseRows && courseRows.length){
-    document.getElementById('dTopCards').innerHTML = `<div class="d-pills">
-      ${courseRows.map((c,i)=>`<div class="d-pill"><div class="d-pill-left"><div class="d-pill-icon" style="background:${pillBgs[i%pillBgs.length]}">${pillIcons[i%pillIcons.length]}</div><div><div class="d-pill-watched">${c.lessons||0} lessons</div><div class="d-pill-name">${c.title||'Course'}</div></div></div><div style="color:var(--muted);letter-spacing:2px">···</div></div>`).join('')}
-    </div>`;
-  } else {
-    document.getElementById('dTopCards').innerHTML = `<div class="d-pills"><div style="font-size:.8rem;color:var(--muted);padding:8px 0">No courses published yet — check back soon!</div></div>`;
-  }
 
-  // Section 1 — Courses from real mentors
-  document.getElementById('dSec1Title').textContent = 'Available Courses';
-  document.getElementById('dSec1Right').innerHTML = '<div class="d-arrows"><div class="d-arr">‹</div><div class="d-arr on">›</div></div>';
-  const thumbGrads = ['linear-gradient(135deg,#667eea,#764ba2)','linear-gradient(135deg,#f093fb,#f5576c)','linear-gradient(135deg,#4facfe,#00f2fe)','linear-gradient(135deg,#43e97b,#38f9d7)','linear-gradient(135deg,#fa709a,#fee140)','linear-gradient(135deg,#a18cd1,#fbc2eb)'];
-  const thumbIcons = ['👨‍💻','🖥️','🏢','🎨','🚀','📊'];
-  const tagMap = { 'Frontend Development':'tag-fe','UI/UX & Product Design':'tag-ui','Brand Strategy & Identity':'tag-br','Data Science & Machine Learning':'tag-fe','Artificial Intelligence':'tag-fe','Digital Marketing & SEO':'tag-br' };
+  // ── Load real data from Supabase ──────────────────────────
+  // 1. All published courses (from mentors)
+  const { data: allCourses } = await sb.from('mentor_courses')
+    .select('*').order('created_at', { ascending: false }).limit(20);
 
-  const { data: allCourses } = await sb.from('mentor_courses').select('*').limit(12);
-  if(allCourses && allCourses.length){
-    document.getElementById('dMidCards').innerHTML = `<div class="d-cards" id="dashCards">
-      ${allCourses.map((c,i)=>{
-        const mentorInit = (c.mentor_name||'?').split(' ').map(n=>n[0]).join('').slice(0,2).toUpperCase();
-        const tag = tagMap[c.cat] || 'tag-fe';
-        return `<div class="d-card">
-          <div class="d-card-thumb" style="background:${thumbGrads[i%thumbGrads.length]}">${thumbIcons[i%thumbIcons.length]}<button class="d-fav">♡</button></div>
-          <div class="d-card-body">
-            <span class="d-card-tag ${tag}">${c.cat||'Course'}</span>
-            <div class="d-card-title">${c.title||'Untitled Course'}</div>
-            <div class="d-card-mentor-row">
-              <div class="dav dav-sm" style="background:var(--indigo2);width:24px;height:24px;font-size:9px">${mentorInit}</div>
-              <div><div class="d-card-mname">${c.mentor_name||'Mentor'}</div><div class="d-card-mrole">Mentor · ${c.lessons||0} lessons</div></div>
-            </div>
+  // 2. All published sessions (from mentors)
+  const { data: allSessions } = await sb.from('mentor_sessions')
+    .select('*').order('created_at', { ascending: false }).limit(20);
+
+  // 3. Student's own bookings
+  const { data: myBookings } = await sb.from('session_bookings')
+    .select('*').eq('student_id', String(_CU.id))
+    .order('created_at', { ascending: false }).limit(20);
+
+  // 4. All mentors from sign-in-as-mentor table
+  const { data: allMentors } = await sb.from('sign-in-as-mentor')
+    .select('id,full_name,field-of-study').limit(50);
+
+  const courses  = allCourses  || [];
+  const sessions = allSessions || [];
+  const bookings = myBookings  || [];
+  const mentors  = allMentors  || [];
+
+  // ── Helper colours / gradients ────────────────────────────
+  const GRADIENTS = [
+    'linear-gradient(135deg,#667eea,#764ba2)',
+    'linear-gradient(135deg,#f093fb,#f5576c)',
+    'linear-gradient(135deg,#4facfe,#00f2fe)',
+    'linear-gradient(135deg,#43e97b,#38f9d7)',
+    'linear-gradient(135deg,#fa709a,#fee140)',
+    'linear-gradient(135deg,#a18cd1,#fbc2eb)',
+    'linear-gradient(135deg,#fccb90,#d57eeb)',
+    'linear-gradient(135deg,#0d9488,#14b8a6)',
+  ];
+  const CAT_EMOJI_MAP = {'UI/UX Design':'🎨','Frontend Dev':'💻','Backend Dev':'⚙️','Full-Stack':'🔧',
+    'Data Science':'📊','AI / ML':'🤖','Digital Marketing':'📣','Branding':'✏️','Business':'💼','Other':'📚'};
+  const BG_PALETTE = ['var(--indigo)','var(--teal)','var(--orange)','#8b5cf6','#0ea5e9','#ec4899','#10b981','#f59e0b'];
+  function gradFor(i){ return GRADIENTS[i % GRADIENTS.length]; }
+  function bgFor(i){   return BG_PALETTE[i  % BG_PALETTE.length]; }
+  function initFor(name){ return (name||'?').split(' ').map(n=>n[0]).join('').slice(0,2).toUpperCase(); }
+  function fmtDate(d){ try{ return new Date(d).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}); }catch(_){ return ''; } }
+
+  // ── Pills — unique categories from real courses ────────────
+  const pillBgs = ['#ede9fe','#d1fae5','#dbeafe','#fff7ed','#fef9c3'];
+  const cats = [...new Set(courses.map(c => c.cat).filter(Boolean))].slice(0, 3);
+  const pillsHTML = cats.length
+    ? cats.map((cat,i) => {
+        const count = courses.filter(c => c.cat === cat).length;
+        return `<div class="d-pill">
+          <div class="d-pill-left">
+            <div class="d-pill-icon" style="background:${pillBgs[i % pillBgs.length]}">${CAT_EMOJI_MAP[cat]||'📚'}</div>
+            <div><div class="d-pill-watched">${count} course${count!==1?'s':''}</div><div class="d-pill-name">${cat}</div></div>
           </div>
-        </div>`;
-      }).join('')}
-    </div>`;
-    document.querySelectorAll('.d-fav').forEach(btn => {
-      btn.addEventListener('click', function(e){ e.stopPropagation(); this.textContent = this.textContent === '♡' ? '❤️' : '♡'; });
-    });
-  } else {
-    document.getElementById('dMidCards').innerHTML = `<div class="d-cards" id="dashCards"><div style="padding:24px;color:var(--muted);font-size:.88rem;text-align:center">No courses available yet. Mentors will publish them soon!</div></div>`;
-  }
-
-  // Section 2 — Real sessions from DB
-  document.getElementById('dSec2Title').textContent = 'Available Sessions';
-  const { data: allSessions } = await sb.from('mentor_sessions').select('*').limit(8);
-  if(allSessions && allSessions.length){
-    document.getElementById('dTable').innerHTML = `
-      <div class="d-table">
-        <div class="d-tbl-head tbl-s"><span>Mentor</span><span>Type</span><span>Description</span><span>Action</span></div>
-        ${allSessions.map(s => {
-          const init = (s.mentor_name||'?').split(' ').map(n=>n[0]).join('').slice(0,2).toUpperCase();
-          return `<div class="d-tbl-row tbl-s">
-            <div class="d-row-cell">
-              <div class="dav dav-md" style="background:var(--indigo2)">${init}</div>
-              <div><div style="font-size:12.5px;font-weight:700">${s.mentor_name||'Mentor'}</div>
-              <div style="font-size:10px;color:var(--muted)">${s.duration||''}</div></div>
-            </div>
-            <div><span class="d-type-tag">${s.type||'Session'}</span></div>
-            <div class="d-row-desc">${s.title||''} ${s.price ? '· $'+s.price : ''}</div>
-            <div><button class="d-act-btn" onclick="showToast('Booking coming soon!','info')"><svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg></button></div>
-          </div>`;
-        }).join('')}
-      </div>`;
-  } else {
-    document.getElementById('dTable').innerHTML = `<div class="d-table"><div style="padding:24px;text-align:center;color:var(--muted);font-size:.88rem">No sessions published yet.</div></div>`;
-  }
-
-  // Right panel — real mentors from DB
-  const { data: mentorRows } = await sb.from('sign-in-as-mentor').select('id,full_name,field-of-study').limit(6);
-  const mColors = ['var(--orange)','var(--indigo2)','var(--teal)','#8b5cf6','#ec4899','#0ea5e9'];
-  const mentorListHTML = (mentorRows && mentorRows.length)
-    ? mentorRows.map((m,i) => {
-        const init = (m.full_name||'?').split(' ').map(n=>n[0]).join('').slice(0,2).toUpperCase();
-        const mName = m.full_name || m['full name'] || 'Mentor';
-        const mField = m['field-of-study'] || m['field_of_study'] || 'Mentor';
-        return `<div class="d-mrow">
-          <div class="dav dav-md" style="background:${mColors[i%mColors.length]}">${init}</div>
-          <div class="d-minfo"><div class="d-mname">${mName}</div><div class="d-mrole">${mField}</div></div>
-          <button class="d-follow-btn" onclick="toggleFollow(this)">Follow</button>
+          <div style="color:var(--muted);letter-spacing:2px">···</div>
         </div>`;
       }).join('')
-    : '<div style="font-size:.8rem;color:var(--muted);padding:8px 0">No mentors yet.</div>';
+    : `<div class="d-pill"><div class="d-pill-left"><div class="d-pill-icon" style="background:#ede9fe">📚</div><div><div class="d-pill-watched">No courses yet</div><div class="d-pill-name">Browse mentors</div></div></div></div>`;
 
-  document.getElementById('dRightBot').innerHTML = `
-    <div>
-      <div class="d-mhd"><div class="d-mhd-title">Mentors on Synera</div><div class="d-add-btn" onclick="navigate('mentors')">→</div></div>
-      <div class="d-mlist">${mentorListHTML}</div>
-      <button class="d-all-btn" onclick="navigate('mentors')" style="background:var(--indigo)">Browse All Mentors</button>
-    </div>`;
+  document.getElementById('dTopCards').innerHTML = `<div class="d-pills">${pillsHTML}</div>`;
 
-  // Sidebar — real students from DB
-  const { data: studentRows } = await sb.from('sign-up-as-student').select('id,full_name,field-of-study,progress').limit(5);
-  const sColors = ['var(--indigo2)','var(--teal)','var(--orange)','#8b5cf6','#ec4899'];
-  if(studentRows && studentRows.length){
-    document.getElementById('dFriends').innerHTML = studentRows.map((s,i)=>{
-      const init = (s.full_name||'?').split(' ').map(n=>n[0]).join('').slice(0,2).toUpperCase();
-      return `<div class="side-friend-row">
-        <div class="dav dav-sm" style="background:${sColors[i%sColors.length]}">${init}</div>
-        <div><div class="side-fname">${s.full_name||'Student'}</div>
-        <div class="side-frole">${s['field-of-study']||'Student'} · ${s.progress||0}%</div></div>
+  // ── Section 1 — Courses from mentors ──────────────────────
+  document.getElementById('dSec1Title').textContent = 'Available Courses';
+  document.getElementById('dSec1Right').innerHTML = `<button class="d-see-all" onclick="navigate('mentors')">See All →</button>`;
+
+  let cardsHTML = '';
+  if(courses.length){
+    cardsHTML = courses.slice(0,6).map((c,i) => {
+      const mn  = c.mentor_name || 'Mentor';
+      const ini = initFor(mn);
+      return `<div class="d-card">
+        <div class="d-card-thumb" style="background:${gradFor(i)}">${CAT_EMOJI_MAP[c.cat]||'📖'}<button class="d-fav">♡</button></div>
+        <div class="d-card-body">
+          <span class="d-card-tag" style="background:var(--pf);color:var(--indigo)">${c.cat||'Course'}</span>
+          <div class="d-card-title">${c.title}</div>
+          <div class="d-card-mentor-row">
+            <div class="dav dav-sm" style="background:${bgFor(i)};width:24px;height:24px;font-size:9px">${ini}</div>
+            <div><div class="d-card-mname">${mn}</div><div class="d-card-mrole">Mentor</div></div>
+          </div>
+        </div>
       </div>`;
     }).join('');
   } else {
-    document.getElementById('dFriends').innerHTML = '<div style="font-size:.8rem;color:var(--muted);padding:8px 0">No students yet.</div>';
+    cardsHTML = `<div style="padding:24px;color:var(--muted);font-size:.87rem;text-align:center;width:100%">
+      No courses published yet. <button class="btn btn-ghost" style="padding:6px 14px;font-size:.8rem;margin-left:8px" onclick="navigate('mentors')">Browse Mentors</button>
+    </div>`;
   }
+  document.getElementById('dMidCards').innerHTML = `<div class="d-cards" id="dashCards">${cardsHTML}</div>`;
+  document.querySelectorAll('.d-fav').forEach(btn => {
+    btn.addEventListener('click', function(e){ e.stopPropagation(); this.textContent = this.textContent === '♡' ? '❤️' : '♡'; });
+  });
+
+  // ── Section 2 — Student's Booking history ─────────────────
+  document.getElementById('dSec2Title').textContent = 'My Booked Sessions';
+  let tableHTML = '';
+  if(bookings.length){
+    const rows = bookings.slice(0,8).map(b => {
+      const mn  = b.mentor_name || 'Mentor';
+      const ini = initFor(mn);
+      const clsMap = { pending:'upcoming', confirmed:'completed', cancelled:'cancelled' };
+      const lblMap = { pending:'Pending',  confirmed:'Confirmed',  cancelled:'Cancelled' };
+      const cls = clsMap[b.status] || 'upcoming';
+      const lbl = lblMap[b.status] || b.status;
+      return `<div class="d-tbl-row tbl-s">
+        <div class="d-row-cell">
+          <div class="dav dav-md" style="background:${bgFor(mn.charCodeAt(0)%8)}">${ini}</div>
+          <div><div style="font-size:12.5px;font-weight:700">${mn}</div><div style="font-size:10px;color:var(--muted)">${fmtDate(b.created_at)}</div></div>
+        </div>
+        <div><span class="sess-badge ss-${cls}">${lbl}</span></div>
+        <div class="d-row-desc">${b.item_title||'Session'}</div>
+        <div><button class="d-act-btn"><svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg></button></div>
+      </div>`;
+    }).join('');
+    tableHTML = `<div class="d-table">
+      <div class="d-tbl-head tbl-s"><span>Mentor</span><span>Status</span><span>Session</span><span></span></div>
+      ${rows}
+    </div>`;
+  } else {
+    tableHTML = `<div style="padding:20px 0 8px;color:var(--muted);font-size:.87rem">
+      No bookings yet. <button class="btn btn-ghost" style="padding:7px 14px;font-size:.8rem;margin-left:8px" onclick="navigate('mentors')">Book a Session →</button>
+    </div>`;
+  }
+  document.getElementById('dTable').innerHTML = tableHTML;
+
+  // ── Right panel — real mentors list ───────────────────────
+  let mentorListHTML = '';
+  if(mentors.length){
+    mentorListHTML = mentors.slice(0,4).map((m,i) => {
+      const nm  = m.full_name || 'Mentor';
+      const ini = initFor(nm);
+      return `<div class="d-mrow">
+        <div class="dav dav-md" style="background:${bgFor(i)}">${ini}</div>
+        <div class="d-minfo"><div class="d-mname">${nm}</div><div class="d-mrole">${m['field-of-study']||'Mentor'}</div></div>
+        <button class="d-follow-btn" onclick="toggleFollow(this)">Follow</button>
+      </div>`;
+    }).join('');
+  } else {
+    mentorListHTML = `<div style="font-size:.82rem;color:var(--muted);padding:8px 0">No mentors yet.</div>`;
+  }
+  document.getElementById('dRightBot').innerHTML = `
+    <div>
+      <div class="d-mhd"><div class="d-mhd-title">Available Mentors</div><div class="d-add-btn" onclick="navigate('mentors')">+</div></div>
+      <div class="d-mlist">${mentorListHTML}</div>
+      <button class="d-all-btn" onclick="navigate('mentors')" style="background:var(--indigo)">See All Mentors</button>
+    </div>`;
+
+  // ── Sidebar — other students as community peers ────────────
+  const { data: otherStudents } = await sb.from('sign-up-as-student')
+    .select('id,full_name').neq('id', _CU.id).limit(5);
+  const peers = otherStudents || [];
+  document.getElementById('dFriends').innerHTML = peers.length
+    ? peers.slice(0,4).map((s,i)=>{
+        const nm  = s.full_name || 'Student';
+        return `<div class="side-friend-row">
+          <div class="dav dav-sm" style="background:${bgFor(i)}">${initFor(nm)}</div>
+          <div><div class="side-fname">${nm}</div><div class="side-frole">Student</div></div>
+        </div>`;
+      }).join('')
+    : `<div style="font-size:.78rem;color:var(--muted);padding:6px 0">No other students yet.</div>`;
 
   document.getElementById('dPubCards').innerHTML = '';
+
+  // ── Available mentorship packages for student ──────────────
+  await renderStudentPackages();
+}
+
+async function renderStudentPackages(){
+  const sb = window._sb;
+  const { data } = await sb.from('mentor_cards').select('*').order('created_at',{ascending:false}).limit(12);
+  const cards = data || [];
+  const el = document.getElementById('dPubCards');
+  if(!cards.length){ el.innerHTML = ''; return; }
+  el.innerHTML = `
+    <div class="m-pub-section">
+      <div class="d-sec-hd" style="margin-bottom:14px">
+        <div class="d-sec-title">🪪 Mentorship Packages</div>
+        <button class="d-see-all" onclick="navigate('mentors')">See All →</button>
+      </div>
+      <div class="m-pub-grid">${cards.map(c => buildStudentMCardHTML(c)).join('')}</div>
+    </div>`;
+}
+
+function buildStudentMCardHTML(c){
+  const initials = c.mentor_initials || (c.mentor_name||'M').split(' ').map(n=>n[0]).join('').slice(0,2).toUpperCase();
+  return `<div class="mcard">
+    <div class="mcard-banner" style="background:${c.color||'var(--indigo)'}">${c.emoji||'🎓'}<div class="mcard-type">Mentorship</div></div>
+    <div class="mcard-body">
+      <div class="mcard-mrow"><div class="mcard-av">${initials}</div><div><div class="mcard-mname">${c.mentor_name||''}</div><div class="mcard-mexp">${c.mentor_exp||''}</div></div></div>
+      <div class="mcard-title">${c.title}</div>
+      <div class="mcard-tagline">${c.tagline||''}</div>
+      <div class="mcard-foot">
+        <div class="mcard-price">$${c.price||0}</div>
+        <div class="mcard-meta">${c.sessions||1} session${(c.sessions||1)!==1?'s':''}${c.duration?' · '+c.duration:''}</div>
+      </div>
+      <button class="mcard-book-btn" onclick='openBkModal(${JSON.stringify({type:"card",id:c.id,title:c.title,mentorName:c.mentor_name||"Mentor",mentorId:c.mentor_id||"",price:c.price||0})})'>Book Now</button>
+    </div>
+  </div>`;
 }
 
 /* ─────────────────────────────────────
@@ -2502,152 +2617,135 @@ async function buildMentorDash(){
       </div>
     </div>`;
 
-  // Section 1 — Real students from DB
+  // Section 1 — Your Students (real bookings from students)
   document.getElementById('dSec1Title').textContent = 'Your Students';
   document.getElementById('dSec1Right').innerHTML = '<button class="d-see-all" onclick="openStudentList()">See All →</button>';
-  const { data: realStudents, error: stuErr } = await sb.from('sign-up-as-student').select('*').limit(6);
-  if(stuErr) console.error('Students fetch error:', stuErr.message);
-  const stuColors = ['var(--indigo2)','var(--orange)','var(--teal)','#8b5cf6','#ec4899','#0ea5e9'];
-  if(realStudents && realStudents.length){
-    document.getElementById('dMidCards').innerHTML = `
-      <div class="m-stu-cards">
-        ${realStudents.map((s,i)=>{
-          const sName = s.full_name || s['full name'] || 'Student';
-          const sSubj = s['field-of-study'] || s['field_of_study'] || '—';
-          const init = sName.split(' ').map(n=>n[0]).join('').slice(0,2).toUpperCase();
-          const pct  = s.progress || 0;
-          return `<div class="m-stu-card" onclick="openStudentList()" style="cursor:pointer" title="View all students">
-            <div class="m-stu-top">
-              <div class="dav dav-md" style="background:${stuColors[i%stuColors.length]};width:36px;height:36px;font-size:12px">${init}</div>
-              <div><div class="m-stu-name">${sName}</div><div class="m-stu-subj">${sSubj}</div></div>
-            </div>
-            <div class="m-stu-bar-wrap"><div class="m-stu-bar"><div class="m-stu-fill" style="width:${pct}%"></div></div><span class="m-stu-pct">${pct}%</span></div>
-            <div style="font-size:10.5px;color:var(--teal);font-weight:700;margin-top:4px;opacity:.8">View all students →</div>
-          </div>`;
-        }).join('')}
-      </div>`;
-  } else {
-    document.getElementById('dMidCards').innerHTML = `<div class="m-stu-cards"><div style="padding:24px;text-align:center;color:var(--muted);font-size:.88rem">No students have registered yet.</div></div>`;
-  }
 
-  // Section 2 — Real bookings from DB
-  document.getElementById('dSec2Title').textContent = 'Session Bookings';
-  const { data: bookingRows } = await sb.from('session_bookings')
+  // Fetch real student bookings for this mentor
+  const { data: bkData } = await window._sb.from('session_bookings')
     .select('*').eq('mentor_id', String(_CU.id))
-    .order('created_at', { ascending: false }).limit(8);
-  if(bookingRows && bookingRows.length){
-    document.getElementById('dTable').innerHTML = `
-      <div class="d-table">
-        <div class="d-tbl-head tbl-m"><span>Student</span><span>Status</span><span>Topic</span><span>Time</span><span>Action</span></div>
-        ${bookingRows.map(b => {
-          const init = (b.student_name||'?').split(' ').map(n=>n[0]).join('').slice(0,2).toUpperCase();
-          const cls  = b.status === 'confirmed' ? 'upcoming' : b.status === 'cancelled' ? 'cancelled' : 'upcoming';
-          const lbl  = b.status === 'confirmed' ? 'Confirmed' : b.status === 'cancelled' ? 'Cancelled' : 'Pending';
-          const dateStr = b.preferred_date ? new Date(b.preferred_date).toLocaleDateString([],{month:'short',day:'numeric'}) : '—';
-          return `<div class="d-tbl-row tbl-m">
-            <div class="d-row-cell"><div class="dav dav-md" style="background:var(--indigo2)">${init}</div><div style="font-size:12.5px;font-weight:700">${b.student_name||'Student'}</div></div>
-            <div><span class="sess-badge ss-${cls}">${lbl}</span></div>
-            <div class="sess-topic">${b.item_title||'—'}</div>
-            <div class="sess-time">${dateStr} ${b.preferred_time||''}</div>
-            <div><button class="d-act-btn"><svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg></button></div>
-          </div>`;
-        }).join('')}
-      </div>`;
-  } else {
-    document.getElementById('dTable').innerHTML = `<div class="d-table"><div style="padding:24px;text-align:center;color:var(--muted);font-size:.88rem">No session bookings yet.</div></div>`;
+    .order('created_at', { ascending: false }).limit(30);
+  const allBk = bkData || [];
+
+  // Build unique students from bookings
+  const seenIds = new Set();
+  const uniqueStudents = [];
+  for(const b of allBk){
+    const sid = String(b.student_id||'');
+    if(!sid || seenIds.has(sid)) continue;
+    seenIds.add(sid);
+    uniqueStudents.push(b);
   }
 
-  // Right panel — live earnings + today's schedule from DB
-  document.getElementById('dRightBot').innerHTML = `
-    <div>
-      <div class="m-earn-card" id="earnCard">
-        <div class="m-earn-lbl">💰 Total Earnings</div>
-        <div class="m-earn-amount" id="earnTotal">—</div>
-        <div class="m-earn-period" id="earnPeriod">This month · loading…</div>
-        <div class="m-earn-row">
-          <div class="m-earn-mini"><div class="m-earn-mini-lbl">Sessions</div><div class="m-earn-mini-val" id="earnSessions">—</div></div>
-          <div class="m-earn-mini"><div class="m-earn-mini-lbl">Avg/session</div><div class="m-earn-mini-val" id="earnAvg">—</div></div>
-        </div>
-      </div>
-      <div class="d-mhd"><div class="d-mhd-title">Today's Schedule</div><div class="d-add-btn" onclick="openMCM()">+</div></div>
-      <div class="m-sched-list" id="todaySchedule"><div style="font-size:.8rem;color:var(--muted);padding:8px 0">Loading schedule…</div></div>
-      <button class="d-all-btn" style="margin-top:12px;background:var(--teal)" onclick="showToast('Full schedule coming soon!','info')">View Full Schedule</button>
-    </div>`;
+  const BG_P = ['var(--indigo2)','var(--orange)','var(--teal)','#8b5cf6','#0ea5e9','#ec4899'];
+  const ini = n => (n||'?').split(' ').map(x=>x[0]).join('').slice(0,2).toUpperCase();
+  const bgI = (n,i) => BG_P[i % BG_P.length];
 
-  // Load live earnings from confirmed bookings
-  (async () => {
-    const now   = new Date();
-    const month = now.toLocaleString([],{month:'long'});
-    const year  = now.getFullYear();
-    const start = new Date(now.getFullYear(), now.getMonth(), 1).toISOString();
-    const end   = new Date(now.getFullYear(), now.getMonth()+1, 0).toISOString();
-
-    const { data: earnData } = await sb.from('session_bookings')
-      .select('price, status, created_at')
-      .eq('mentor_id', String(_CU.id))
-      .eq('status', 'confirmed')
-      .gte('created_at', start).lte('created_at', end);
-
-    const sessions  = earnData ? earnData.length : 0;
-    const total     = earnData ? earnData.reduce((sum,b) => sum + (parseFloat(b.price)||0), 0) : 0;
-    const avg       = sessions > 0 ? Math.round(total / sessions) : 0;
-
-    const elTotal    = document.getElementById('earnTotal');
-    const elPeriod   = document.getElementById('earnPeriod');
-    const elSessions = document.getElementById('earnSessions');
-    const elAvg      = document.getElementById('earnAvg');
-    if(elTotal)    elTotal.textContent    = '$' + total.toLocaleString();
-    if(elPeriod)   elPeriod.textContent   = `This month · ${month} ${year}`;
-    if(elSessions) elSessions.textContent = sessions;
-    if(elAvg)      elAvg.textContent      = avg ? '$' + avg : '—';
-  })();
-
-  // Load today's schedule from confirmed bookings with today's date
-  (async () => {
-    const todayStr = new Date().toISOString().split('T')[0];
-    const { data: schedData } = await sb.from('session_bookings')
-      .select('student_name, item_title, preferred_time, status')
-      .eq('mentor_id', String(_CU.id))
-      .eq('preferred_date', todayStr)
-      .order('preferred_time', { ascending: true });
-
-    const el = document.getElementById('todaySchedule');
-    if(!el) return;
-    if(!schedData || !schedData.length){
-      el.innerHTML = `<div style="font-size:.8rem;color:var(--muted);padding:8px 0">No sessions scheduled today.</div>`;
-      return;
-    }
-    const dotColor = s => s === 'confirmed' ? 'var(--teal)' : s === 'pending' ? 'var(--orange)' : '#d1d5db';
-    el.innerHTML = schedData.map(s => `
-      <div class="m-sched-item">
-        <div class="m-sched-time">${(s.preferred_time||'—').replace(' ','<br/>')}</div>
-        <div class="m-sched-info">
-          <div class="m-sched-name">${s.student_name||'Student'}</div>
-          <div class="m-sched-topic">${s.item_title||'Session'}</div>
-        </div>
-        <div class="m-sched-dot" style="background:${dotColor(s.status)}"></div>
-      </div>`).join('');
-  })();
-
-  // Sidebar students — real from DB
-  const { data: sideStudents, error: sideErr } = await sb.from('sign-up-as-student').select('*').limit(5);
-    if(sideErr) console.error('Side students error:', sideErr.message);
-  const sideColors = ['var(--indigo2)','var(--orange)','var(--teal)','#8b5cf6','#ec4899'];
-  if(sideStudents && sideStudents.length){
-    document.getElementById('dFriends').innerHTML = sideStudents.map((s,i)=>{
-      const sN = s.full_name || s['full name'] || 'Student';
-      const sF = s['field-of-study'] || s['field_of_study'] || 'Student';
-      const init = sN.split(' ').map(n=>n[0]).join('').slice(0,2).toUpperCase();
-      return `<div class="side-friend-row" onclick="openStudentList()" style="cursor:pointer;transition:opacity .2s"
-        onmouseenter="this.style.opacity='.7'" onmouseleave="this.style.opacity='1'">
-        <div class="dav dav-sm" style="background:${sideColors[i%sideColors.length]}">${init}</div>
-        <div><div class="side-fname">${sN}</div>
-        <div class="side-frole">${sF} · ${s.progress||0}%</div></div>
+  let stuCardsHTML;
+  if(uniqueStudents.length){
+    stuCardsHTML = uniqueStudents.slice(0,3).map((b,i)=>{
+      const nm  = b.student_name || 'Student';
+      const subj = b.item_title  || 'Session';
+      const confirmed = allBk.filter(x=>String(x.student_id)===String(b.student_id)&&x.status==='confirmed').length;
+      const total     = allBk.filter(x=>String(x.student_id)===String(b.student_id)).length;
+      const pct = total ? Math.round((confirmed/total)*100) : 0;
+      return `<div class="m-stu-card" onclick="openStudentList()" style="cursor:pointer" title="View all students">
+        <div class="m-stu-top"><div class="dav dav-md" style="background:${bgI(nm,i)};width:36px;height:36px;font-size:12px">${ini(nm)}</div><div><div class="m-stu-name">${nm}</div><div class="m-stu-subj">${subj}</div></div></div>
+        <div class="m-stu-bar-wrap"><div class="m-stu-bar"><div class="m-stu-fill" style="width:${pct}%"></div></div><span class="m-stu-pct">${pct}%</span></div>
+        <div class="m-stu-next">Sessions: <strong>${total} total</strong></div>
+        <div style="font-size:10.5px;color:var(--teal);font-weight:700;margin-top:4px;display:flex;align-items:center;gap:4px;opacity:.8">View all students →</div>
       </div>`;
     }).join('');
   } else {
-    document.getElementById('dFriends').innerHTML = '<div style="font-size:.8rem;color:var(--muted);padding:8px 0">No students yet.</div>';
+    stuCardsHTML = `<div style="padding:20px;color:var(--muted);font-size:.87rem;text-align:center;width:100%">
+      No students have booked yet. <button class="btn btn-ghost" style="padding:7px 14px;font-size:.8rem;margin-left:8px" onclick="openMCM()">Add Sessions →</button>
+    </div>`;
   }
+  document.getElementById('dMidCards').innerHTML = `<div class="m-stu-cards">${stuCardsHTML}</div>`;
+
+  // Section 2 — Upcoming Sessions (real bookings table)
+  document.getElementById('dSec2Title').textContent = 'Session Bookings';
+  let tblHTML;
+  if(allBk.length){
+    const rows = allBk.slice(0,8).map((b,i) => {
+      const nm  = b.student_name || 'Student';
+      const clsMap = { pending:'upcoming', confirmed:'completed', cancelled:'cancelled' };
+      const lblMap = { pending:'Pending',  confirmed:'Confirmed',  cancelled:'Cancelled' };
+      const cls = clsMap[b.status] || 'upcoming';
+      const lbl = lblMap[b.status] || b.status;
+      const dt  = b.preferred_date ? new Date(b.preferred_date).toLocaleDateString('en-US',{month:'short',day:'numeric'}) : '—';
+      const tm  = b.preferred_time || '';
+      return `<div class="d-tbl-row tbl-m">
+        <div class="d-row-cell"><div class="dav dav-md" style="background:${bgI(nm,i)}">${ini(nm)}</div><div style="font-size:12.5px;font-weight:700">${nm}</div></div>
+        <div><span class="sess-badge ss-${cls}">${lbl}</span></div>
+        <div class="sess-topic">${b.item_title||'Session'}</div>
+        <div class="sess-time">${dt}${tm?' '+tm:''}</div>
+        <div><button class="d-act-btn"><svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg></button></div>
+      </div>`;
+    }).join('');
+    tblHTML = `<div class="d-table">
+      <div class="d-tbl-head tbl-m"><span>Student</span><span>Status</span><span>Topic</span><span>Date</span><span>Action</span></div>
+      ${rows}
+    </div>`;
+  } else {
+    tblHTML = `<div style="padding:20px 0 8px;color:var(--muted);font-size:.87rem">
+      No bookings yet. Share your sessions on the <button class="btn btn-ghost" style="padding:7px 14px;font-size:.8rem;margin-left:4px" onclick="navigate('mentors')">Browse Page →</button>
+    </div>`;
+  }
+  document.getElementById('dTable').innerHTML = tblHTML;
+
+  // Right panel — earnings from real confirmed bookings + real sessions schedule
+  const confirmed = allBk.filter(b => b.status === 'confirmed');
+  const totalEarned = confirmed.reduce((sum,b) => sum + (Number(b.price)||0), 0);
+  const avgPer = confirmed.length ? Math.round(totalEarned / confirmed.length) : 0;
+  const pending = allBk.filter(b => b.status === 'pending');
+
+  // Upcoming scheduled (confirmed with a future date)
+  const now = Date.now();
+  const upcoming = confirmed
+    .filter(b => b.preferred_date && new Date(b.preferred_date+' '+(b.preferred_time||'00:00')).getTime() >= now - 3600000)
+    .sort((a,b2) => new Date(a.preferred_date) - new Date(b2.preferred_date))
+    .slice(0,3);
+
+  const schedHTML = upcoming.length
+    ? upcoming.map(b=>{
+        const nm = b.student_name || 'Student';
+        const dt = b.preferred_date ? new Date(b.preferred_date).toLocaleDateString('en-US',{month:'short',day:'numeric'}) : '';
+        const tm = b.preferred_time || '';
+        return `<div class="m-sched-item">
+          <div class="m-sched-time">${(dt+' '+tm).trim().replace(' ','<br/>')}</div>
+          <div class="m-sched-info"><div class="m-sched-name">${nm}</div><div class="m-sched-topic">${b.item_title||'Session'}</div></div>
+          <div class="m-sched-dot" style="background:var(--teal)"></div>
+        </div>`;
+      }).join('')
+    : `<div style="font-size:.82rem;color:var(--muted);padding:8px 0">No confirmed upcoming sessions.</div>`;
+
+  document.getElementById('dRightBot').innerHTML = `
+    <div>
+      <div class="m-earn-card">
+        <div class="m-earn-lbl">💰 Confirmed Earnings</div>
+        <div class="m-earn-amount">$${totalEarned.toLocaleString()}</div>
+        <div class="m-earn-period">From ${confirmed.length} confirmed session${confirmed.length!==1?'s':''}</div>
+        <div class="m-earn-row">
+          <div class="m-earn-mini"><div class="m-earn-mini-lbl">Pending</div><div class="m-earn-mini-val">${pending.length}</div></div>
+          <div class="m-earn-mini"><div class="m-earn-mini-lbl">Avg/session</div><div class="m-earn-mini-val">$${avgPer}</div></div>
+        </div>
+      </div>
+      <div class="d-mhd"><div class="d-mhd-title">Upcoming Sessions</div><div class="d-add-btn" onclick="openMCM()">+</div></div>
+      <div class="m-sched-list">${schedHTML}</div>
+      <button class="d-all-btn" style="margin-top:12px;background:var(--teal)" onclick="openStudentList()">View All Students</button>
+    </div>`;
+
+  // Sidebar — real students who booked
+  document.getElementById('dFriends').innerHTML = uniqueStudents.length
+    ? uniqueStudents.slice(0,4).map((b,i)=>{
+        const nm = b.student_name || 'Student';
+        return `<div class="side-friend-row" onclick="openStudentList()" style="cursor:pointer;transition:opacity .2s" onmouseenter="this.style.opacity='.7'" onmouseleave="this.style.opacity='1'">
+          <div class="dav dav-sm" style="background:${bgI(nm,i)}">${ini(nm)}</div>
+          <div><div class="side-fname">${nm}</div><div class="side-frole">${b.status==='confirmed'?'Confirmed':'Pending'}</div></div>
+        </div>`;
+      }).join('')
+    : `<div style="font-size:.78rem;color:var(--muted);padding:6px 0">No students yet.</div>`;
 
   // Published mentorship cards
   renderPubCards();
@@ -2669,25 +2767,7 @@ async function renderMentorBookings(){
     .limit(20);
 
   if(error){ console.warn('bookings fetch error', error.message); return; }
-
-  // Always show the bookings section, even when empty
-  const pubEl = document.getElementById('dPubCards');
-  if(!pubEl) return;
-  const existing = pubEl.querySelector('.bk-req-list-wrap');
-  if(existing) existing.remove();
-
-  if(!data || !data.length){
-    pubEl.insertAdjacentHTML('afterbegin', `
-      <div class="m-pub-section bk-req-list-wrap" style="margin-top:28px">
-        <div class="d-sec-hd" style="margin-bottom:14px">
-          <div class="d-sec-title">📅 Booking Requests</div>
-        </div>
-        <div style="padding:16px;background:#f8f7ff;border-radius:12px;font-size:.84rem;color:var(--muted);text-align:center">
-          No booking requests yet. Students will appear here when they book your sessions.
-        </div>
-      </div>`);
-    return;
-  }
+  if(!data || !data.length) return; // no bookings yet — nothing to show
 
   const pending   = data.filter(b => b.status === 'pending');
   const confirmed = data.filter(b => b.status === 'confirmed');
@@ -2699,7 +2779,7 @@ async function renderMentorBookings(){
                         '<span class="bk-req-badge cancelled">✕ Declined</span>';
 
   const bkHTML = `
-    <div class="m-pub-section bk-req-list-wrap" style="margin-top:28px">
+    <div class="m-pub-section" style="margin-top:28px">
       <div class="d-sec-hd" style="margin-bottom:14px">
         <div class="d-sec-title">📅 Booking Requests ${pending.length ? `<span style="background:var(--orange);color:#fff;font-size:.65rem;font-weight:800;padding:2px 8px;border-radius:20px;margin-left:6px">${pending.length} new</span>` : ''}</div>
         <button class="d-see-all" onclick="navigate('chat')">Reply in Chat →</button>
@@ -2734,10 +2814,10 @@ async function renderMentorBookings(){
     </div>`;
 
   // Prepend booking requests before pub cards
-  const pubEl2 = document.getElementById('dPubCards');
-  const existing2 = pubEl2.querySelector('.bk-req-list-wrap');
-  if(existing2) existing2.remove();
-  pubEl2.insertAdjacentHTML('afterbegin', bkHTML);
+  const pubEl = document.getElementById('dPubCards');
+  const existing = pubEl.querySelector('.bk-req-list');
+  if(existing) existing.closest('.m-pub-section').remove();
+  pubEl.insertAdjacentHTML('afterbegin', bkHTML);
 }
 
 async function respondBooking(bookingId, newStatus, studentId, studentName, itemTitle, dateStr, timeStr){
@@ -3304,8 +3384,66 @@ _lHam.addEventListener('click', () => { const o = _lMenu.classList.toggle('open'
 function closeLMenu(){ _lMenu.classList.remove('open'); _lHam.classList.remove('open'); }
 document.addEventListener('click', e => {
   if(!e.target.closest('.l-nav') && !e.target.closest('.l-mob-menu')){ closeLMenu(); }
+  // Also close mentor menu on outside click
+  if(!e.target.closest('.m-nav') && !e.target.closest('.m-mob-menu')){ closeMMenu(); }
 });
 window.addEventListener('scroll', () => { document.getElementById('lNav').classList.toggle('scrolled', scrollY > 20); }, {passive:true});
+
+/* ─────────────────────────────────────
+   MENTOR BROWSE PAGE — MOBILE NAV
+───────────────────────────────────── */
+function toggleMMenu(){
+  const ham  = document.getElementById('mHam');
+  const menu = document.getElementById('mMenu');
+  if(!ham || !menu) return;
+  const o = menu.classList.toggle('open');
+  ham.classList.toggle('open', o);
+}
+function closeMMenu(){
+  const ham  = document.getElementById('mHam');
+  const menu = document.getElementById('mMenu');
+  if(!ham || !menu) return;
+  menu.classList.remove('open');
+  ham.classList.remove('open');
+}
+
+/* ─────────────────────────────────────
+   CHAT PAGE — MOBILE SIDEBAR PANEL
+───────────────────────────────────── */
+function chToggleSidebar(){
+  const sidebar  = document.getElementById('chSidebar');
+  const overlay  = document.getElementById('chSidebarOverlay');
+  const toggle   = document.getElementById('chSidebarToggle');
+  if(!sidebar) return;
+  const isOpen = sidebar.classList.toggle('open');
+  if(overlay) overlay.classList.toggle('open', isOpen);
+  if(toggle){
+    toggle.innerHTML = isOpen
+      ? `<svg viewBox="0 0 24 24" style="width:18px;height:18px;stroke:var(--text);fill:none;stroke-width:2;stroke-linecap:round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>`
+      : `<svg viewBox="0 0 24 24" style="width:18px;height:18px;stroke:var(--text);fill:none;stroke-width:2;stroke-linecap:round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>`;
+  }
+}
+function chCloseSidebar(){
+  const sidebar  = document.getElementById('chSidebar');
+  const overlay  = document.getElementById('chSidebarOverlay');
+  const toggle   = document.getElementById('chSidebarToggle');
+  if(!sidebar) return;
+  sidebar.classList.remove('open');
+  if(overlay) overlay.classList.remove('open');
+  if(toggle) toggle.innerHTML = `<svg viewBox="0 0 24 24" style="width:18px;height:18px;stroke:var(--text);fill:none;stroke-width:2;stroke-linecap:round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>`;
+}
+// Auto-close sidebar when a DM is clicked on mobile
+(function patchChatChannelButtons(){
+  document.addEventListener('click', function(e){
+    const btn = e.target.closest('.ch-dm-item, .ch-dm-new-btn');
+    if(!btn) return;
+    // Only close if sidebar is in mobile off-canvas mode (i.e. has open class)
+    const sidebar = document.getElementById('chSidebar');
+    if(sidebar && sidebar.classList.contains('open') && window.innerWidth <= 640){
+      chCloseSidebar();
+    }
+  });
+})();
 
 /* ─────────────────────────────────────
    UTILITY
@@ -3323,38 +3461,20 @@ function delay(ms){ return new Promise(r => setTimeout(r,ms)); }
 })();
 
 /* ─────────────────────────────────────
-   STUDENT LIST MODAL
+   STUDENT LIST MODAL (real data)
 ───────────────────────────────────── */
-// ── ALL STUDENTS MODAL — fetches live from Supabase ──
 let _slFilter = 'all';
 let _slQuery  = '';
-let _slData   = [];
-const _slColors = ['var(--indigo2)','var(--orange)','var(--teal)','#8b5cf6','#ec4899','#0ea5e9','#f59e0b','#10b981','#6366f1','#d97706','#7c3aed','#059669'];
+let _slBookings = []; // cached real bookings
 
-async function openStudentList(){
+function openStudentList(){
   document.getElementById('slOverlay').classList.add('open');
   _slFilter = 'all';
   _slQuery  = '';
   document.getElementById('slSearch').value = '';
   document.querySelectorAll('.sl-filter-btn').forEach(b => b.classList.remove('on'));
   document.getElementById('slF-all').classList.add('on');
-
-  const grid = document.getElementById('slGrid');
-  grid.innerHTML = '<div class="sl-empty"><p>Loading students…</p></div>';
-  const { data, error } = await window._sb.from('sign-up-as-student')
-    .select('*')
-    .order('created_at', { ascending: false });
-  if(error){ grid.innerHTML = `<div class="sl-empty"><p>Error: ${error.message}</p></div>`; return; }
-  _slData = (data||[]).map((s,i) => ({
-    id:     s.id,
-    av:     (s.full_name||'?').split(' ').map(n=>n[0]).join('').slice(0,2).toUpperCase(),
-    bg:     _slColors[i % _slColors.length],
-    name:   s.full_name || s['full name'] || 'Student',
-    subj:   s['field-of-study'] || s['field_of_study'] || '—',
-    pct:    s.progress || 0,
-    joined: s.created_at ? new Date(s.created_at).toLocaleDateString([],{month:'short',year:'numeric'}) : '—',
-  }));
-  renderStudentList();
+  loadAndRenderStudentList();
 }
 
 function closeSL(){ document.getElementById('slOverlay').classList.remove('open'); }
@@ -3367,31 +3487,95 @@ function filterStudentStatus(status, btn){
   renderStudentList();
 }
 
+async function loadAndRenderStudentList(){
+  if(!_CU || _CU.role !== 'mentor') return;
+  const grid = document.getElementById('slGrid');
+  if(grid) grid.innerHTML = '<div class="sl-empty"><div class="icon">⏳</div><p>Loading students…</p></div>';
+
+  const sb = window._sb;
+  const { data, error } = await sb.from('session_bookings')
+    .select('*').eq('mentor_id', String(_CU.id))
+    .order('created_at', { ascending: false });
+
+  if(error){ console.warn('student list error', error.message); }
+  _slBookings = data || [];
+  renderStudentList();
+}
+
 function renderStudentList(){
-  let students = _slData;
-  if(_slQuery) students = students.filter(s =>
+  const BG_P = ['var(--indigo2)','var(--orange)','var(--teal)','#8b5cf6','#0ea5e9','#ec4899','#f59e0b','#10b981'];
+  const ini = n => (n||'?').split(' ').map(x=>x[0]).join('').slice(0,2).toUpperCase();
+  const bgI = (n) => BG_P[Math.abs([...n].reduce((a,c)=>a+c.charCodeAt(0),0)) % BG_P.length];
+  const fmtDate = d => { try{ return new Date(d).toLocaleDateString('en-US',{month:'short',year:'numeric'}); }catch(_){ return ''; } };
+
+  // Build unique students from bookings
+  const seenIds = new Set();
+  const students = [];
+  for(const b of _slBookings){
+    const sid = String(b.student_id||'');
+    if(!sid || seenIds.has(sid)) continue;
+    seenIds.add(sid);
+    const allForStu = _slBookings.filter(x => String(x.student_id) === sid);
+    const confirmed  = allForStu.filter(x => x.status === 'confirmed').length;
+    const pending    = allForStu.filter(x => x.status === 'pending').length;
+    const total      = allForStu.length;
+    const latest     = allForStu[0]; // most recent booking
+    let status = 'active';
+    if(pending > 0) status = 'upcoming'; // has a pending request today-ish
+    students.push({
+      id:       sid,
+      name:     b.student_name || 'Student',
+      subj:     b.item_title   || 'Session',
+      pct:      total ? Math.round((confirmed/total)*100) : 0,
+      sessions: confirmed,
+      totalSessions: total,
+      next:     latest.preferred_date
+        ? new Date(latest.preferred_date).toLocaleDateString('en-US',{month:'short',day:'numeric'}) + (latest.preferred_time?' '+latest.preferred_time:'')
+        : '—',
+      status,
+      joined: fmtDate(b.created_at),
+      latestBk: latest,
+    });
+  }
+
+  // Apply filters
+  let filtered = students;
+  if(_slFilter === 'active')   filtered = filtered.filter(s => s.status === 'active');
+  if(_slFilter === 'upcoming') filtered = filtered.filter(s => s.status === 'upcoming');
+  if(_slQuery) filtered = filtered.filter(s =>
     s.name.toLowerCase().includes(_slQuery) ||
     s.subj.toLowerCase().includes(_slQuery)
   );
+
   const countEl = document.getElementById('slCount');
-  if(countEl) countEl.textContent = students.length + ' student' + (students.length !== 1 ? 's' : '');
+  if(countEl) countEl.textContent = filtered.length + ' student' + (filtered.length !== 1 ? 's' : '');
   const grid = document.getElementById('slGrid');
   if(!grid) return;
-  if(!students.length){
+
+  if(!filtered.length && !_slBookings.length){
+    grid.innerHTML = `<div class="sl-empty"><div class="icon">👥</div><p>No students have booked yet. Share your sessions so students can discover you!</p></div>`;
+    return;
+  }
+  if(!filtered.length){
     grid.innerHTML = '<div class="sl-empty"><div class="icon">🔍</div><p>No students match your search.</p></div>';
     return;
   }
-  grid.innerHTML = students.map(s => `
-    <div class="sl-card">
+
+  const statusTag = {
+    active:   '<span class="sl-tag sl-tag-active">● Active</span>',
+    paused:   '<span class="sl-tag sl-tag-paused">⏸ Paused</span>',
+    upcoming: '<span class="sl-tag sl-tag-new">⏰ Pending</span>',
+  };
+  grid.innerHTML = filtered.map(s => {
+    const av = ini(s.name);
+    const bg = bgI(s.name);
+    return `<div class="sl-card">
       <div class="sl-card-left">
-        <div class="dav dav-md" style="background:${s.bg};width:42px;height:42px;font-size:14px">${s.av}</div>
+        <div class="dav dav-md" style="background:${bg};width:42px;height:42px;font-size:14px">${av}</div>
         <div class="sl-card-info">
           <div class="sl-card-name">${s.name}</div>
           <div class="sl-card-subj">${s.subj}</div>
-          <div class="sl-card-tags">
-            <span class="sl-tag sl-tag-active">● Active</span>
-            <span class="sl-tag" style="background:#f1f0f7;color:var(--muted)">Since ${s.joined}</span>
-          </div>
+          <div class="sl-card-tags">${statusTag[s.status]||''}<span class="sl-tag" style="background:#f1f0f7;color:var(--muted)">Since ${s.joined}</span></div>
         </div>
       </div>
       <div class="sl-card-mid">
@@ -3399,17 +3583,18 @@ function renderStudentList(){
           <div class="sl-prog-bar"><div class="sl-prog-fill" style="width:${s.pct}%"></div></div>
           <span class="sl-prog-pct">${s.pct}%</span>
         </div>
-        <div class="sl-next-sess">Progress: <strong>${s.pct}% complete</strong></div>
+        <div class="sl-next-sess">Latest: <strong>${s.next}</strong></div>
       </div>
       <div class="sl-card-right">
-        <button class="sl-msg-btn" onclick="event.stopPropagation();navigate('chat');showToast('Opening chat…','info')">
+        <div class="sl-sessions-count"><span>${s.sessions}</span> of ${s.totalSessions} confirmed</div>
+        <button class="sl-msg-btn" onclick="event.stopPropagation();navigate('chat')">
           <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
           Message
         </button>
       </div>
-    </div>`).join('');
+    </div>`;
+  }).join('');
 }
-
 
 </script>
 
@@ -3596,7 +3781,7 @@ async function submitBooking(){
   // Show success
   document.getElementById('bkForm').style.display = 'none';
   document.getElementById('bkSuccessMsg').textContent =
-    `Your request for "${_bkItem.title}" has been sent to ${_bkItem.mentorName}. A message has been sent to them in Community Chat — they'll confirm there.`;
+    `Your request for "${_bkItem.title}" has been sent to ${_bkItem.mentorName}. A message has been sent to them in Direct Messages — they'll confirm there.`;
   document.getElementById('bkSuccess').classList.add('show');
   showToast('🎉 Booking request sent to ' + _bkItem.mentorName + '!','success');
 }
@@ -3611,7 +3796,7 @@ async function submitBooking(){
   'use strict';
 
   let _chUser        = null;
-  let _chChannel     = 'general';
+  let _chChannel     = null;
   let _chIsDM        = false;
   let _chDMPeer      = null;
   let _chRealtimeSub = null;
@@ -3621,14 +3806,6 @@ async function submitBooking(){
   let _chDMConvos    = [];
   let _chAllUsers    = [];
   let _chOnlineUsers = [];
-
-  const CH_INFO = {
-    general:  { name:'general',        desc:'Welcome to the Synera community — introduce yourself!' },
-    mentors:  { name:'mentors-lounge', desc:'A space for mentors to connect and share expertise.' },
-    students: { name:'students-hub',   desc:'Students: ask questions, share progress, find peers.' },
-    resources:{ name:'resources',      desc:'Share useful links, tools, and learning materials.' },
-    sessions: { name:'book-a-session', desc:'Looking for a mentor? Post your request here!' },
-  };
 
   const COLORS = ['#4338ca','#7c3aed','#0d9488','#f97316','#ec4899','#0ea5e9','#8b5cf6','#059669'];
   function chColorFor(n){ let h=0; for(let c of (n||'?')) h=(h*31+c.charCodeAt(0))&0xffffffff; return COLORS[Math.abs(h)%COLORS.length]; }
@@ -3654,8 +3831,8 @@ async function submitBooking(){
     wrap.innerHTML='';
     const gate=document.createElement('div');
     gate.className='ch-auth-gate';
-    gate.innerHTML=`<div class="icon">&#x1F4AC;</div><h3>Welcome to Synera Chat</h3>
-      <p>Sign in to your Synera account to start chatting with the community.</p>
+    gate.innerHTML=`<div class="icon">&#x1F4AC;</div><h3>Direct Messages</h3>
+      <p>Sign in to your Synera account to message mentors and students directly.</p>
       <div class="ch-gate-btns">
         <button class="btn btn-indigo" onclick="navigate('login')">Sign In</button>
         <button class="btn btn-ghost" onclick="navigate('register')">Create Account</button>
@@ -3674,23 +3851,32 @@ async function submitBooking(){
     av.style.background=chColorFor(_chUser.name);
     document.getElementById('chNavName').textContent=_chUser.name.split(' ')[0];
     const inp=document.getElementById('chChatInput');
-    inp.disabled=false; inp.placeholder='Message #general…';
-    document.getElementById('chSendBtn').disabled=false;
-    document.getElementById('chInputHint').textContent='Press Enter to send · Shift+Enter for new line';
-    _chIsDM=false; _chDMPeer=null; _chLastDate='';
-    chSetChannelHeader('general',CH_INFO.general);
-    chLoadMessages();
-    chSubscribeRealtime();
+    inp.disabled=true; inp.placeholder='Select a conversation to start messaging…';
+    document.getElementById('chSendBtn').disabled=true;
+    document.getElementById('chInputHint').textContent='Choose a conversation from the sidebar';
+    _chIsDM=false; _chDMPeer=null; _chChannel=null; _chLastDate='';
+    chShowEmptyState();
+    chSubscribeDMNotifs();
     setTimeout(chUpsertPresence,600);
     chLoadDMConvos();
     chFetchAllUsers();
+  }
+
+  function chShowEmptyState(){
+    const wrap=document.getElementById('chMessagesWrap');
+    wrap.innerHTML=`<div class="ch-auth-gate">
+      <div class="icon">💬</div>
+      <h3>Your Messages</h3>
+      <p>Select a conversation from the sidebar or start a new one.</p>
+      <button class="btn btn-indigo" onclick="chOpenDMModal()">New Message</button>
+    </div>`;
   }
 
   /* ── Header ───────────────────────────────────── */
   function chSetChannelHeader(chKey,info){
     const nameEl=document.getElementById('chChannelName');
     const descEl=document.getElementById('chChannelDesc');
-    const iconEl=document.querySelector('.ch-header-icon');
+    const iconEl=document.getElementById('chHeaderIcon');
     if(_chIsDM&&_chDMPeer){
       if(iconEl) iconEl.style.display='none';
       nameEl.innerHTML=`<div class="ch-header-dm">
@@ -3699,28 +3885,14 @@ async function submitBooking(){
           <div style="font-size:.95rem;font-weight:800;color:var(--text)">${_chDMPeer.name}</div>
           <div style="font-size:.72rem;color:var(--muted)">${_chDMPeer.role||'member'} &middot; Direct Message</div>
         </div>
-        <button class="ch-dm-header-back" onclick="chBackToChannels()" style="margin-left:8px">&larr; Channels</button>
       </div>`;
       if(descEl) descEl.style.display='none';
     } else {
-      if(iconEl) iconEl.style.display='';
-      nameEl.textContent=info?info.name:chKey;
-      if(descEl){descEl.style.display='';descEl.textContent=info?info.desc:'';}
+      if(iconEl) iconEl.style.display='none';
+      nameEl.textContent='Select a conversation';
+      if(descEl){descEl.style.display='';descEl.textContent='Choose someone to message from the sidebar, or start a new conversation.';}
     }
   }
-
-  /* ── Channel switching ───────────────────────── */
-  window.chSwitchChannel=function(ch,btn){
-    _chChannel=ch; _chIsDM=false; _chDMPeer=null;
-    document.querySelectorAll('.ch-channel-btn,.ch-dm-item').forEach(b=>b.classList.remove('active'));
-    if(btn) btn.classList.add('active');
-    const info=CH_INFO[ch]||{name:ch,desc:''};
-    chSetChannelHeader(ch,info);
-    if(_chUser){
-      document.getElementById('chChatInput').placeholder=`Message #${info.name}…`;
-      _chLastDate=''; chLoadMessages(); chSubscribeRealtime();
-    }
-  };
 
   /* ── Open DM ─────────────────────────────────── */
   window.chOpenDM=function(peer){
@@ -3728,29 +3900,21 @@ async function submitBooking(){
     if(peer.id===_chUser.id){showToast("That's you!",'info');return;}
     _chIsDM=true; _chDMPeer=peer;
     _chChannel=dmKey(_chUser.id,peer.id);
-    document.querySelectorAll('.ch-channel-btn,.ch-dm-item').forEach(b=>b.classList.remove('active'));
+    document.querySelectorAll('.ch-dm-item').forEach(b=>b.classList.remove('active'));
     const existing=document.querySelector(`.ch-dm-item[data-peer-id="${peer.id}"]`);
     if(existing){existing.classList.add('active');const badge=existing.querySelector('.ch-dm-unread');if(badge)badge.remove();}
     chSetChannelHeader(_chChannel,null);
-    document.getElementById('chChatInput').placeholder=`Message ${peer.name}…`;
+    const inp=document.getElementById('chChatInput');
+    inp.disabled=false; inp.placeholder=`Message ${peer.name}…`;
+    document.getElementById('chSendBtn').disabled=false;
+    document.getElementById('chInputHint').textContent='Press Enter to send · Shift+Enter for new line';
     _chLastDate=''; chLoadMessages(); chSubscribeRealtime();
     const c=_chDMConvos.find(x=>x.peerId===peer.id);
     if(c){c.unread=0;chRenderDMList();}
-    // Add to convo list if new
     if(!c){
       _chDMConvos.unshift({peerId:peer.id,peerName:peer.name,peerRole:peer.role,lastMsg:'',lastTime:new Date().toISOString(),unread:0});
       chRenderDMList();
     }
-  };
-
-  window.chBackToChannels=function(){
-    _chIsDM=false; _chDMPeer=null; _chChannel='general';
-    document.querySelectorAll('.ch-channel-btn,.ch-dm-item').forEach(b=>b.classList.remove('active'));
-    const firstBtn=document.querySelector('.ch-channel-btn');
-    if(firstBtn) firstBtn.classList.add('active');
-    chSetChannelHeader('general',CH_INFO.general);
-    document.getElementById('chChatInput').placeholder='Message #general…';
-    _chLastDate=''; chLoadMessages(); chSubscribeRealtime();
   };
 
   /* ── Load DM sidebar convos ──────────────────── */
@@ -3816,6 +3980,7 @@ async function submitBooking(){
 
   /* ── Load messages ───────────────────────────── */
   async function chLoadMessages(){
+    if(!_chChannel){ chShowEmptyState(); return; }
     const sb=window._sb; const wrap=document.getElementById('chMessagesWrap');
     wrap.innerHTML='<div style="text-align:center;padding:30px;color:var(--muted);font-size:.84rem">Loading…</div>';
     _chLastDate='';
@@ -3844,37 +4009,22 @@ async function submitBooking(){
       div.className='ch-date-divider';div.textContent=d;
       wrap.appendChild(div);
     }
-    const emp=wrap.querySelector('[style*="Say hi"]')||wrap.querySelector('[style*="Say hello"]')||wrap.querySelector('[style*="Loading"]');
+    const emp=wrap.querySelector('[style*="Say hi"]')||wrap.querySelector('[style*="Loading"]');
     if(emp) emp.remove();
-    const roleTag=m.user_role==='mentor'
-      ?'<span class="ch-msg-role-tag mentor">MENTOR</span>'
-      :'<span class="ch-msg-role-tag student">STUDENT</span>';
-    const ownCls=isOwn?(_chIsDM?' own dm-own':' own'):'';
+    const ownCls=isOwn?' own dm-own':'';
     const row=document.createElement('div');
     row.className=`ch-msg-row${ownCls}`;
-    const dmBtn=!isOwn&&!_chIsDM?`onclick="chOpenDM({id:'${m.user_id}',name:${JSON.stringify(m.user_name)},role:'${m.user_role||'member'}'})"`:'';
     row.innerHTML=`
-      <div class="ch-msg-av" style="background:${chColorFor(m.user_name)};${!isOwn?'cursor:pointer':''}" title="${!isOwn?'Send DM':''}" ${dmBtn}>${chInitials(m.user_name)}</div>
+      <div class="ch-msg-av" style="background:${chColorFor(m.user_name)}">${chInitials(m.user_name)}</div>
       <div class="ch-msg-body">
         <div class="ch-msg-meta">
-          <span class="ch-msg-name" style="${!isOwn&&!_chIsDM?'cursor:pointer':''}" ${dmBtn}>${m.user_name}</span>
-          ${!_chIsDM?roleTag:''}
+          <span class="ch-msg-name">${m.user_name}</span>
           <span class="ch-msg-time">${chTimeStr(m.created_at)}</span>
         </div>
         <div class="ch-msg-bubble">${chEscHtml(m.content)}</div>
       </div>`;
     wrap.appendChild(row);
-    // Track incoming DMs from other threads
-    if(_chUser&&m.user_id!==_chUser.id&&m.channel&&m.channel.startsWith('dm_')&&m.channel!==_chChannel){
-      const parts=m.channel.replace('dm_','').split('_');
-      const peerId=parts.find(p=>p!==_chUser.id);
-      if(peerId){
-        let c=_chDMConvos.find(x=>x.peerId===peerId);
-        if(!c){c={peerId,peerName:m.user_name,peerRole:m.user_role,lastMsg:m.content,lastTime:m.created_at,unread:1};_chDMConvos.unshift(c);}
-        else{c.lastMsg=m.content;c.lastTime=m.created_at;c.unread=(c.unread||0)+1;}
-        chRenderDMList();
-      }
-    }
+    // Update DM convo preview
     if(_chIsDM&&_chDMPeer&&m.channel===_chChannel){
       let c=_chDMConvos.find(x=>x.peerId===_chDMPeer.id);
       if(c){c.lastMsg=m.content;c.lastTime=m.created_at;chRenderDMList();}
@@ -3886,7 +4036,7 @@ async function submitBooking(){
 
   /* ── Send ─────────────────────────────────────── */
   window.chSendMessage=async function(){
-    if(!_chUser) return;
+    if(!_chUser||!_chChannel||!_chIsDM) return;
     const sb=window._sb; const inp=document.getElementById('chChatInput');
     const text=inp.value.trim();
     if(!text) return;
@@ -3913,10 +4063,17 @@ async function submitBooking(){
   function chSubscribeRealtime(){
     const sb=window._sb;
     if(_chRealtimeSub) sb.removeChannel(_chRealtimeSub);
+    if(!_chChannel) return;
     _chRealtimeSub=sb.channel('chat_'+_chChannel)
       .on('postgres_changes',{event:'INSERT',schema:'public',table:'chat_messages',filter:`channel=eq.${_chChannel}`},
         payload=>{chAppendMessage(payload.new,true);})
       .on('presence',{event:'sync'},()=>chUpdatePresence())
+      .on('broadcast',{event:'typing'},({payload})=>{
+        if(_chUser&&payload.name===_chUser.name) return;
+        const tr=document.getElementById('chTypingRow');const tt=document.getElementById('chTypingText');
+        if(tt) tt.textContent=`${payload.name} is typing…`;
+        if(tr){tr.style.display='flex';clearTimeout(_chTypingTimer);_chTypingTimer=setTimeout(()=>{if(tr)tr.style.display='none';},2500);}
+      })
       .subscribe();
     chSubscribeDMNotifs();
   }
@@ -3940,7 +4097,7 @@ async function submitBooking(){
   }
 
   async function chUpsertPresence(){
-    if(!_chUser||!_chRealtimeSub) return;
+    if(!_chUser||!_chRealtimeSub||!_chChannel) return;
     await _chRealtimeSub.track({user_name:_chUser.name,user_role:_chUser.role,id:_chUser.id});
   }
 
@@ -3950,44 +4107,17 @@ async function submitBooking(){
     const users=Object.values(state).flat();
     _chOnlineUsers=[...new Map(users.map(u=>[u.id||u.user_name,u])).values()];
     document.getElementById('chOnlineCount').textContent=_chOnlineUsers.length+' online';
-    const list=document.getElementById('chOnlineList');
-    const onlineSlice=_chOnlineUsers.slice(0,8);
-    list.innerHTML=onlineSlice.map((u,i)=>`
-      <div class="ch-ou-row" style="cursor:pointer" title="Send DM to ${chEscHtml(u.user_name)}" data-ou-idx="${i}">
-        <div class="ch-ou-av" style="background:${chColorFor(u.user_name)}">${chInitials(u.user_name)}</div>
-        <div style="flex:1"><div class="ch-ou-name">${chEscHtml(u.user_name)}</div><div class="ch-ou-role">${chEscHtml(u.user_role||'member')}</div></div>
-        <svg width="11" height="11" fill="none" stroke="var(--muted)" stroke-width="2" viewBox="0 0 24 24" style="flex-shrink:0"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
-      </div>`).join('');
-    list.querySelectorAll('.ch-ou-row').forEach(row=>{
-      row.addEventListener('click',function(){
-        const idx=parseInt(this.getAttribute('data-ou-idx'),10);
-        const u=onlineSlice[idx];
-        if(!u) return;
-        chOpenDM({id:u.id,name:u.user_name,role:u.user_role||'member'});
-      });
-    });
     chRenderDMList();
   }
 
   /* ── Typing ───────────────────────────────────── */
   window.chHandleTyping=function(){
-    if(!_chRealtimeSub||!_chUser) return;
+    if(!_chRealtimeSub||!_chUser||!_chIsDM) return;
     _chRealtimeSub.send({type:'broadcast',event:'typing',payload:{name:_chUser.name}});
     clearTimeout(_chTypingTimer);
     _chTypingTimer=setTimeout(chClearTyping,2500);
   };
   function chClearTyping(){const tr=document.getElementById('chTypingRow');if(tr)tr.style.display='none';}
-
-  setTimeout(()=>{
-    const sb=window._sb; if(!sb) return;
-    sb.channel('typing_broadcast_main')
-      .on('broadcast',{event:'typing'},({payload})=>{
-        if(_chUser&&payload.name===_chUser.name) return;
-        const tr=document.getElementById('chTypingRow');const tt=document.getElementById('chTypingText');
-        if(tt) tt.textContent=`${payload.name} is typing…`;
-        if(tr){tr.style.display='flex';clearTimeout(_chTypingTimer);_chTypingTimer=setTimeout(()=>{if(tr)tr.style.display='none';},2500);}
-      }).subscribe();
-  },800);
 
   window.chAutoResize=function(el){el.style.height='auto';el.style.height=Math.min(el.scrollHeight,120)+'px';};
 
@@ -4098,7 +4228,7 @@ async function submitBooking(){
         <textarea id="bkNote" placeholder="What do you want to achieve in this session?"></textarea>
       </div>
       <div style="font-size:.75rem;color:var(--muted);background:var(--bg);border-radius:10px;padding:10px 14px;line-height:1.6">
-        💡 Your booking request will be sent to the mentor. They will confirm via the community chat.
+        💡 Your booking request will be sent to the mentor. They will confirm via Direct Messages.
       </div>
       <button class="bk-submit" id="bkSubmit" onclick="submitBooking()">
         <span class="bk-label">Confirm Booking</span>
