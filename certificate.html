@@ -1,0 +1,840 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Synera – Certificate of Completion</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700;1,400&family=DM+Sans:wght@300;400;500;600&family=Dancing+Script:wght@700&display=swap" rel="stylesheet"/>
+<style>
+  /* ── TOKENS ─────────────────────────────────────────── */
+  :root{
+    --navy:#0D1B3E;
+    --navy-mid:#122352;
+    --blue-brand:#1A56DB;
+    --blue-light:#3B82F6;
+    --gold:#C9A84C;
+    --gold-light:#E8C96A;
+    --gold-pale:#F5E6B8;
+    --white:#FFFFFF;
+    --off-white:#F8FAFF;
+    --grey-100:#F1F4FB;
+    --grey-200:#E2E8F5;
+    --grey-400:#8FA3C2;
+    --grey-600:#4A5E7A;
+    --text:#0D1B3E;
+    --sidebar-w:220px;
+    --radius:14px;
+    --shadow:0 4px 24px rgba(13,27,62,.10);
+    --shadow-lg:0 12px 48px rgba(13,27,62,.16);
+  }
+
+/* ── RESET ──────────────────────────────────────────── */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{font-size:15px;scroll-behavior:smooth}
+body{font-family:‘DM Sans’,sans-serif;background:var(–off-white);color:var(–text);min-height:100vh;display:flex;flex-direction:column}
+
+/* ── TOP NAV ────────────────────────────────────────── */
+.topnav{
+position:fixed;top:0;left:0;right:0;z-index:100;
+background:var(–white);
+border-bottom:1px solid var(–grey-200);
+height:62px;display:flex;align-items:center;
+padding:0 28px;gap:24px;
+box-shadow:0 2px 10px rgba(13,27,62,.06);
+}
+.topnav .logo{display:flex;align-items:center;gap:8px;font-family:‘Playfair Display’,serif;font-size:1.25rem;font-weight:700;color:var(–navy);text-decoration:none;margin-right:auto}
+.logo-icon{width:34px;height:34px;background:var(–blue-brand);border-radius:8px;display:flex;align-items:center;justify-content:center}
+.logo-icon svg{width:20px;height:20px;fill:var(–white)}
+.nav-links{display:flex;gap:6px;align-items:center}
+.nav-links a{font-size:.875rem;font-weight:500;color:var(–grey-600);text-decoration:none;padding:6px 14px;border-radius:8px;transition:color .2s,background .2s}
+.nav-links a:hover{color:var(–navy);background:var(–grey-100)}
+.nav-links a.active{color:var(–blue-brand);border-bottom:2px solid var(–blue-brand);border-radius:0;padding-bottom:4px}
+.topnav-right{display:flex;align-items:center;gap:16px}
+.notif-btn{position:relative;background:none;border:none;cursor:pointer;width:36px;height:36px;display:flex;align-items:center;justify-content:center;border-radius:50%;transition:background .2s}
+.notif-btn:hover{background:var(–grey-100)}
+.notif-badge{position:absolute;top:4px;right:4px;background:var(–blue-brand);color:#fff;font-size:.6rem;font-weight:700;width:16px;height:16px;border-radius:50%;display:flex;align-items:center;justify-content:center;border:2px solid #fff}
+.avatar{width:36px;height:36px;border-radius:50%;object-fit:cover;background:linear-gradient(135deg,#c084fc,#818cf8);border:2px solid var(–grey-200);cursor:pointer}
+.hamburger{background:none;border:none;cursor:pointer;padding:4px}
+.hamburger span{display:block;width:20px;height:2px;background:var(–grey-600);margin:4px 0;border-radius:2px;transition:.2s}
+
+/* ── LAYOUT ─────────────────────────────────────────── */
+.app{display:flex;padding-top:62px;min-height:100vh}
+
+/* ── SIDEBAR ────────────────────────────────────────── */
+.sidebar{
+width:var(–sidebar-w);flex-shrink:0;
+position:fixed;top:62px;left:0;bottom:0;
+background:var(–white);
+border-right:1px solid var(–grey-200);
+padding:24px 14px;
+display:flex;flex-direction:column;gap:4px;
+overflow-y:auto;
+}
+.sidebar a{
+display:flex;align-items:center;gap:11px;
+padding:10px 14px;border-radius:10px;
+font-size:.875rem;font-weight:500;
+color:var(–grey-600);text-decoration:none;
+transition:background .2s,color .2s;
+}
+.sidebar a:hover{background:var(–grey-100);color:var(–navy)}
+.sidebar a.active{background:#EBF2FF;color:var(–blue-brand);font-weight:600}
+.sidebar a svg{width:18px;height:18px;flex-shrink:0}
+.sidebar-footer{margin-top:auto;padding-top:20px;border-top:1px solid var(–grey-200)}
+.help-card{background:var(–grey-100);border-radius:12px;padding:18px 16px;text-align:center}
+.help-card .help-icon{font-size:1.6rem;margin-bottom:6px}
+.help-card h4{font-size:.875rem;font-weight:600;color:var(–navy);margin-bottom:4px}
+.help-card p{font-size:.78rem;color:var(–grey-600);margin-bottom:12px;line-height:1.5}
+.btn-support{display:inline-block;border:1.5px solid var(–blue-brand);color:var(–blue-brand);font-size:.8rem;font-weight:600;padding:7px 18px;border-radius:8px;cursor:pointer;background:none;text-decoration:none;transition:background .2s,color .2s}
+.btn-support:hover{background:var(–blue-brand);color:#fff}
+
+/* ── MAIN CONTENT ───────────────────────────────────── */
+.main{margin-left:var(–sidebar-w);flex:1;padding:40px 48px;max-width:calc(100% - var(–sidebar-w));overflow-x:hidden}
+
+/* ── SUCCESS HERO ───────────────────────────────────── */
+.success-hero{text-align:center;margin-bottom:32px;animation:fadeDown .6s ease both}
+.check-ring{
+width:72px;height:72px;margin:0 auto 16px;
+background:linear-gradient(135deg,#1A56DB,#3B82F6);
+border-radius:50%;
+display:flex;align-items:center;justify-content:center;
+box-shadow:0 0 0 8px rgba(26,86,219,.12),0 0 0 16px rgba(26,86,219,.06);
+position:relative;
+}
+.check-ring::before{
+content:’’;position:absolute;inset:-6px;border-radius:50%;
+border:2px dashed rgba(26,86,219,.25);
+animation:spin 18s linear infinite;
+}
+@keyframes spin{to{transform:rotate(360deg)}}
+.check-ring svg{width:34px;height:34px;fill:none;stroke:#fff;stroke-width:3;stroke-linecap:round;stroke-linejoin:round}
+.success-hero h1{font-family:‘Playfair Display’,serif;font-size:1.9rem;font-weight:700;color:var(–navy);margin-bottom:6px}
+.success-hero p{font-size:.95rem;color:var(–grey-600);font-weight:400}
+
+/* ── CERT CARD ──────────────────────────────────────── */
+.cert-card{
+background:var(–white);border-radius:var(–radius);
+box-shadow:var(–shadow-lg);
+overflow:hidden;
+animation:fadeUp .65s ease .1s both;
+margin-bottom:32px;
+}
+.cert-preview{
+background:linear-gradient(145deg,var(–navy) 0%,var(–navy-mid) 100%);
+padding:36px 28px;
+display:flex;align-items:center;justify-content:center;
+min-height:340px;
+position:relative;overflow:hidden;
+}
+/* decorative gold lines */
+.cert-preview::before,.cert-preview::after{
+content:’’;position:absolute;
+background:linear-gradient(135deg,var(–gold),transparent);
+opacity:.35;pointer-events:none;
+}
+.cert-preview::before{width:340px;height:3px;top:48px;left:-60px;transform:rotate(-14deg)}
+.cert-preview::after{width:340px;height:3px;bottom:48px;right:-60px;transform:rotate(-14deg)}
+
+/* actual certificate paper */
+.cert-paper{
+background:#fff;
+border:2px solid var(–gold);
+border-radius:4px;
+width:100%;max-width:680px;
+padding:32px 40px 28px;
+position:relative;
+box-shadow:0 8px 40px rgba(0,0,0,.35);
+text-align:center;
+}
+.cert-corner{position:absolute;width:48px;height:48px;}
+.cert-corner.tl{top:-1px;left:-1px;border-top:3px solid var(–gold);border-left:3px solid var(–gold);border-radius:4px 0 0 0}
+.cert-corner.tr{top:-1px;right:-1px;border-top:3px solid var(–gold);border-right:3px solid var(–gold);border-radius:0 4px 0 0}
+.cert-corner.bl{bottom:-1px;left:-1px;border-bottom:3px solid var(–gold);border-left:3px solid var(–gold);border-radius:0 0 0 4px}
+.cert-corner.br{bottom:-1px;right:-1px;border-bottom:3px solid var(–gold);border-right:3px solid var(–gold);border-radius:0 0 4px 0}
+
+/* background watermark wreath */
+.cert-watermark{
+position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+pointer-events:none;opacity:.04;
+}
+.cert-watermark svg{width:200px;height:200px;fill:var(–navy)}
+
+.cert-logo-area{display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:10px}
+.cert-logo-box{width:28px;height:28px;background:var(–blue-brand);border-radius:6px;display:flex;align-items:center;justify-content:center}
+.cert-logo-box svg{width:16px;height:16px;fill:#fff}
+.cert-brand{font-family:‘Playfair Display’,serif;font-size:1rem;font-weight:700;color:var(–navy);letter-spacing:.08em}
+.cert-tagline{font-size:.6rem;color:var(–grey-600);letter-spacing:.12em;text-transform:uppercase;margin-bottom:12px}
+.cert-divider{width:100%;height:2px;background:linear-gradient(90deg,transparent,var(–gold),transparent);margin:8px 0 12px}
+
+.cert-title{font-family:‘Playfair Display’,serif;font-size:1.5rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(–navy);margin-bottom:8px}
+.cert-subtitle{font-size:.72rem;color:var(–grey-600);margin-bottom:14px;letter-spacing:.04em}
+.cert-name{font-family:‘Dancing Script’,cursive;font-size:2.6rem;color:var(–navy);line-height:1.1;margin-bottom:10px}
+.cert-completed{font-size:.72rem;color:var(–grey-600);margin-bottom:4px}
+.cert-program{font-size:1rem;font-weight:700;color:var(–blue-brand);margin-bottom:6px}
+.cert-desc{font-size:.7rem;color:var(–grey-600);line-height:1.5;max-width:340px;margin:0 auto 16px}
+
+.cert-meta{display:flex;justify-content:center;gap:28px;margin-bottom:18px}
+.cert-meta-item{text-align:center}
+.cert-meta-item .meta-icon{font-size:.9rem;margin-bottom:2px;color:var(–grey-400)}
+.cert-meta-item .meta-label{font-size:.58rem;text-transform:uppercase;letter-spacing:.1em;color:var(–grey-400)}
+.cert-meta-item .meta-val{font-size:.72rem;font-weight:600;color:var(–navy)}
+
+.cert-signatures{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;margin-top:4px}
+.sig-block{text-align:center;flex:1}
+.sig-script{font-family:‘Dancing Script’,cursive;font-size:1.3rem;color:var(–navy);line-height:1.1}
+.sig-line{width:120px;height:1px;background:var(–grey-400);margin:4px auto 4px}
+.sig-name{font-size:.67rem;font-weight:600;color:var(–navy)}
+.sig-role{font-size:.6rem;color:var(–grey-600)}
+
+.cert-seal{
+width:72px;height:72px;flex-shrink:0;
+background:radial-gradient(circle at 40% 35%,var(–gold-light),var(–gold));
+border-radius:50%;
+display:flex;flex-direction:column;align-items:center;justify-content:center;
+box-shadow:0 4px 16px rgba(201,168,76,.4);
+border:3px solid var(–gold-pale);
+position:relative;
+}
+.cert-seal::before{
+content:’’;position:absolute;inset:4px;border-radius:50%;
+border:1.5px dashed rgba(255,255,255,.5);
+}
+.cert-seal-logo{width:22px;height:22px;background:var(–navy);border-radius:5px;display:flex;align-items:center;justify-content:center;margin-bottom:2px}
+.cert-seal-logo svg{width:13px;height:13px;fill:#fff}
+.cert-seal-text{font-size:.5rem;font-weight:700;color:var(–navy);letter-spacing:.06em}
+
+.cert-qr{display:flex;align-items:center;gap:12px;justify-content:space-between;margin-top:14px;padding-top:12px;border-top:1px dashed var(–grey-200)}
+.qr-box{width:52px;height:52px;background:var(–navy);border-radius:4px;display:flex;align-items:center;justify-content:center}
+.qr-box svg{width:40px;height:40px;fill:none}
+.cert-id-text{font-size:.68rem;color:var(–navy);font-weight:600}
+.cert-verify{font-size:.62rem;color:var(–grey-600)}
+
+/* ── ACTION BUTTONS ─────────────────────────────────── */
+.cert-actions{display:flex;gap:12px;padding:22px 28px;border-top:1px solid var(–grey-100);flex-wrap:wrap}
+.btn{display:inline-flex;align-items:center;gap:8px;padding:11px 22px;border-radius:10px;font-size:.875rem;font-weight:600;cursor:pointer;border:none;transition:all .22s;text-decoration:none}
+.btn-primary{background:var(–blue-brand);color:#fff;box-shadow:0 4px 14px rgba(26,86,219,.25)}
+.btn-primary:hover{background:#1648c0;box-shadow:0 6px 20px rgba(26,86,219,.35);transform:translateY(-1px)}
+.btn-outline{background:var(–white);color:var(–blue-brand);border:1.5px solid var(–blue-brand)}
+.btn-outline:hover{background:#EBF2FF}
+.btn svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+
+/* ── BOTTOM GRID ────────────────────────────────────── */
+.bottom-grid{display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-bottom:32px;animation:fadeUp .7s ease .2s both}
+
+/* cert details */
+.details-card,.verify-card{background:var(–white);border-radius:var(–radius);padding:28px;box-shadow:var(–shadow)}
+.card-head{display:flex;align-items:center;gap:10px;margin-bottom:20px}
+.card-head svg{width:22px;height:22px;color:var(–blue-brand)}
+.card-head h3{font-size:1rem;font-weight:700;color:var(–navy)}
+.detail-row{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(–grey-100)}
+.detail-row:last-child{border-bottom:none}
+.detail-dot{width:8px;height:8px;border-radius:50%;background:var(–blue-brand);flex-shrink:0}
+.detail-label{font-size:.8rem;color:var(–grey-600);min-width:130px}
+.detail-val{font-size:.85rem;font-weight:600;color:var(–navy)}
+
+/* verify */
+.verify-desc{font-size:.82rem;color:var(–grey-600);margin-bottom:14px;line-height:1.5}
+.verify-input{width:100%;border:1.5px solid var(–grey-200);border-radius:10px;padding:11px 16px;font-size:.875rem;font-family:inherit;color:var(–navy);outline:none;transition:border .2s,box-shadow .2s;margin-bottom:10px}
+.verify-input:focus{border-color:var(–blue-brand);box-shadow:0 0 0 3px rgba(26,86,219,.1)}
+.verify-input::placeholder{color:var(–grey-400)}
+.btn-verify{width:100%;padding:12px;border-radius:10px;background:var(–blue-brand);color:#fff;font-size:.875rem;font-weight:600;border:none;cursor:pointer;transition:background .2s,transform .18s}
+.btn-verify:hover{background:#1648c0;transform:translateY(-1px)}
+.or-row{display:flex;align-items:center;gap:10px;margin:12px 0;color:var(–grey-400);font-size:.8rem}
+.or-row::before,.or-row::after{content:’’;flex:1;height:1px;background:var(–grey-200)}
+.btn-scan{width:100%;padding:11px;border-radius:10px;background:var(–white);color:var(–navy);font-size:.875rem;font-weight:600;border:1.5px solid var(–grey-200);cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;transition:background .2s}
+.btn-scan:hover{background:var(–grey-100)}
+.btn-scan svg{width:16px;height:16px}
+
+/* ── SHARE SECTION ──────────────────────────────────── */
+.share-section{background:var(–white);border-radius:var(–radius);padding:28px;box-shadow:var(–shadow);margin-bottom:24px;animation:fadeUp .7s ease .25s both}
+.share-section h3{font-size:1rem;font-weight:700;color:var(–navy);margin-bottom:4px}
+.share-section p{font-size:.82rem;color:var(–grey-600);margin-bottom:18px}
+.share-btns{display:flex;gap:12px;flex-wrap:wrap}
+.btn-share{display:inline-flex;align-items:center;gap:8px;padding:10px 18px;border-radius:10px;font-size:.82rem;font-weight:600;cursor:pointer;border:1.5px solid var(–grey-200);background:var(–white);color:var(–navy);transition:all .2s;text-decoration:none}
+.btn-share:hover{border-color:var(–blue-brand);color:var(–blue-brand);background:#EBF2FF}
+.btn-share svg{width:16px;height:16px}
+
+/* ── SECURE BADGE ───────────────────────────────────── */
+.secure-badge{
+background:linear-gradient(135deg,var(–grey-100),#e8f0fb);
+border:1.5px solid var(–grey-200);
+border-radius:var(–radius);
+padding:22px 28px;
+display:flex;align-items:center;gap:20px;
+margin-bottom:40px;
+animation:fadeUp .7s ease .3s both;
+}
+.secure-icon{width:48px;height:48px;flex-shrink:0;background:var(–blue-brand);border-radius:50%;display:flex;align-items:center;justify-content:center}
+.secure-icon svg{width:22px;height:22px;fill:none;stroke:#fff;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.secure-text h4{font-size:.9rem;font-weight:700;color:var(–navy);margin-bottom:4px;display:flex;align-items:center;gap:6px}
+.verified-dot{width:10px;height:10px;border-radius:50%;background:#22C55E;display:inline-block}
+.secure-text p{font-size:.8rem;color:var(–grey-600);line-height:1.5}
+.btn-learn{margin-left:auto;flex-shrink:0;padding:10px 20px;border-radius:10px;border:1.5px solid var(–grey-200);background:var(–white);color:var(–navy);font-size:.8rem;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:6px;transition:background .2s}
+.btn-learn:hover{background:var(–grey-100)}
+
+/* ── FOOTER ─────────────────────────────────────────── */
+footer{
+background:var(–white);border-top:1px solid var(–grey-200);
+padding:20px 48px 20px calc(var(–sidebar-w) + 48px);
+display:flex;align-items:center;gap:20px;flex-wrap:wrap;
+}
+.footer-brand{display:flex;align-items:center;gap:8px;font-family:‘Playfair Display’,serif;font-size:.95rem;font-weight:700;color:var(–navy);margin-right:auto}
+.footer-copy{font-size:.75rem;color:var(–grey-400)}
+.footer-links{display:flex;gap:16px}
+.footer-links a{font-size:.75rem;color:var(–grey-400);text-decoration:none;transition:color .2s}
+.footer-links a:hover{color:var(–navy)}
+.footer-socials{display:flex;gap:12px}
+.footer-socials a{width:30px;height:30px;border-radius:6px;background:var(–grey-100);display:flex;align-items:center;justify-content:center;transition:background .2s}
+.footer-socials a:hover{background:var(–grey-200)}
+.footer-socials svg{width:15px;height:15px;fill:var(–grey-600)}
+
+/* ── MOBILE BOTTOM NAV ──────────────────────────────── */
+.mobile-nav{
+display:none;
+position:fixed;bottom:0;left:0;right:0;z-index:200;
+background:var(–white);
+border-top:1px solid var(–grey-200);
+padding:8px 0 env(safe-area-inset-bottom,8px);
+box-shadow:0 -4px 20px rgba(13,27,62,.08);
+}
+.mobile-nav-inner{display:flex;justify-content:space-around;align-items:center}
+.mob-nav-item{
+display:flex;flex-direction:column;align-items:center;gap:3px;
+padding:6px 12px;border-radius:10px;
+font-size:.62rem;font-weight:500;color:var(–grey-400);
+text-decoration:none;transition:color .2s;border:none;background:none;cursor:pointer;
+}
+.mob-nav-item.active{color:var(–blue-brand)}
+.mob-nav-item svg{width:20px;height:20px}
+
+/* ── SIDEBAR OVERLAY (mobile) ───────────────────────── */
+.sidebar-overlay{
+display:none;position:fixed;inset:0;z-index:149;
+background:rgba(13,27,62,.45);
+backdrop-filter:blur(2px);
+opacity:0;transition:opacity .25s;
+}
+.sidebar-overlay.open{opacity:1}
+
+/* ══════════════════════════════════════════════════════
+RESPONSIVE BREAKPOINTS
+══════════════════════════════════════════════════════ */
+
+/* ── TABLET (≤900px) ─────────────────────────────────── */
+@media(max-width:900px){
+.nav-links{display:none}
+.main{padding:28px 24px;margin-left:var(–sidebar-w)}
+footer{padding:20px 24px 20px calc(var(–sidebar-w) + 24px)}
+}
+
+/* ── MOBILE (≤680px) ─────────────────────────────────── */
+@media(max-width:680px){
+/* Nav */
+.topnav{padding:0 16px;gap:12px}
+.nav-links{display:none}
+
+```
+/* Sidebar hidden off-canvas */
+.sidebar{
+  transform:translateX(-100%);
+  transition:transform .3s cubic-bezier(.4,0,.2,1);
+  z-index:150;top:0;padding-top:80px;
+}
+.sidebar.open{transform:translateX(0)}
+.sidebar-overlay{display:block}
+
+/* Main full width */
+.app{flex-direction:column}
+.main{
+  margin-left:0;
+  max-width:100%;
+  padding:20px 16px 90px;/* bottom padding for mobile nav */
+}
+
+/* Hero */
+.success-hero h1{font-size:1.35rem}
+.success-hero p{font-size:.85rem}
+
+/* Certificate preview area */
+.cert-preview{padding:20px 12px;min-height:auto}
+.cert-paper{padding:20px 16px 18px;max-width:100%}
+.cert-title{font-size:1rem;letter-spacing:.06em}
+.cert-name{font-size:1.8rem}
+.cert-program{font-size:.85rem}
+.cert-meta{gap:12px}
+.cert-meta-item .meta-val{font-size:.65rem}
+.sig-script{font-size:1rem}
+.sig-line{width:80px}
+.cert-seal{width:56px;height:56px}
+.cert-seal-logo{width:18px;height:18px}
+.cert-seal-logo svg{width:10px;height:10px}
+.cert-id-text{font-size:.6rem}
+
+/* Action buttons — stack on mobile */
+.cert-actions{
+  flex-direction:column;
+  padding:16px;
+  gap:10px;
+}
+.cert-actions .btn{width:100%;justify-content:center}
+
+/* Bottom grid — single column */
+.bottom-grid{grid-template-columns:1fr}
+
+/* Details card — label/val wrap */
+.detail-label{min-width:unset;flex:0 0 42%;font-size:.75rem}
+.detail-val{font-size:.8rem}
+
+/* Share buttons — wrap nicely */
+.share-btns{flex-direction:column;gap:8px}
+.btn-share{width:100%;justify-content:center}
+
+/* Secure badge — stack */
+.secure-badge{flex-wrap:wrap;gap:14px;padding:18px 16px}
+.btn-learn{margin-left:0;width:100%;justify-content:center}
+
+/* Footer */
+footer{
+  flex-direction:column;align-items:flex-start;
+  padding:20px 16px 100px;
+  gap:12px;
+}
+.footer-links{flex-wrap:wrap;gap:12px}
+.footer-socials{margin-top:4px}
+
+/* Show mobile bottom nav */
+.mobile-nav{display:block}
+```
+
+}
+
+/* ── SMALL PHONES (≤380px) ───────────────────────────── */
+@media(max-width:380px){
+.cert-name{font-size:1.45rem}
+.cert-title{font-size:.85rem}
+.cert-meta{gap:6px}
+.cert-signatures{gap:8px}
+.main{padding:16px 12px 90px}
+.cert-paper{padding:16px 12px 14px}
+}
+.footer-socials a{width:30px;height:30px;border-radius:6px;background:var(–grey-100);display:flex;align-items:center;justify-content:center;transition:background .2s}
+.footer-socials a:hover{background:var(–grey-200)}
+.footer-socials svg{width:15px;height:15px;fill:var(–grey-600)}
+
+/* ── ANIMATIONS ─────────────────────────────────────── */
+@keyframes fadeDown{from{opacity:0;transform:translateY(-16px)}to{opacity:1;transform:none}}
+@keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:none}}
+
+/* ── TOAST ──────────────────────────────────────────── */
+.toast{
+position:fixed;bottom:28px;right:28px;
+background:var(–navy);color:#fff;
+padding:12px 22px;border-radius:10px;
+font-size:.875rem;font-weight:500;
+box-shadow:0 8px 28px rgba(13,27,62,.25);
+transform:translateY(80px);opacity:0;
+transition:all .3s cubic-bezier(.34,1.56,.64,1);
+pointer-events:none;z-index:200;
+}
+.toast.show{transform:none;opacity:1}
+</style>
+
+</head>
+<body>
+
+<!-- ── TOP NAV ── -->
+
+<nav class="topnav">
+  <button class="hamburger" aria-label="Menu">
+    <span></span><span></span><span></span>
+  </button>
+  <a href="#" class="logo">
+    <div class="logo-icon">
+      <svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+    </div>
+    SYNERA
+  </a>
+  <nav class="nav-links">
+    <a href="#">Dashboard</a>
+    <a href="#">My Programs</a>
+    <a href="#" class="active">Certificates</a>
+  </nav>
+  <div class="topnav-right">
+    <button class="notif-btn" aria-label="Notifications">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#4A5E7A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+      <span class="notif-badge">2</span>
+    </button>
+    <div class="avatar" style="width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#a78bfa,#6366f1);display:flex;align-items:center;justify-content:center;font-size:.8rem;font-weight:700;color:#fff;cursor:pointer">AJ</div>
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#8FA3C2" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+  </div>
+</nav>
+
+<!-- Sidebar overlay (mobile) -->
+
+<div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
+
+<!-- ── APP WRAPPER ── -->
+
+<div class="app">
+
+  <!-- SIDEBAR -->
+
+  <aside class="sidebar">
+    <a href="#">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+      Overview
+    </a>
+    <a href="#">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h16M4 10h16M4 14h10"/><circle cx="17" cy="17" r="3"/><path d="m21 21-1.5-1.5"/></svg>
+      My Programs
+    </a>
+    <a href="#" class="active">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="9" y1="13" x2="15" y2="13"/><line x1="9" y1="17" x2="12" y2="17"/></svg>
+      Certificates
+    </a>
+    <a href="#">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+      Achievements
+    </a>
+    <a href="#">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l3 7h7l-6 4.5 2.5 7-6.5-4.5-6.5 4.5 2.5-7L2 9h7z"/></svg>
+      Resources
+    </a>
+    <a href="#">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M4.93 4.93a10 10 0 0 0 0 14.14"/></svg>
+      Settings
+    </a>
+
+```
+<div class="sidebar-footer">
+  <div class="help-card">
+    <div class="help-icon">🎧</div>
+    <h4>Need Help?</h4>
+    <p>We're here to help you with any questions.</p>
+    <a href="#" class="btn-support">Contact Support</a>
+  </div>
+</div>
+```
+
+  </aside>
+
+  <!-- MAIN -->
+
+  <main class="main">
+
+```
+<!-- success hero -->
+<div class="success-hero">
+  <div class="check-ring">
+    <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+  </div>
+  <h1>Your Certificate is Ready! 🎉</h1>
+  <p>Congratulations on completing your program. Your hard work is paying off.</p>
+</div>
+
+<!-- certificate card -->
+<div class="cert-card">
+  <div class="cert-preview">
+    <div class="cert-paper">
+      <!-- corner decorations -->
+      <div class="cert-corner tl"></div>
+      <div class="cert-corner tr"></div>
+      <div class="cert-corner bl"></div>
+      <div class="cert-corner br"></div>
+      <!-- watermark -->
+      <div class="cert-watermark">
+        <svg viewBox="0 0 100 100"><text y="50" x="50" text-anchor="middle" dominant-baseline="central" font-size="90" fill="currentColor">🌿</text></svg>
+      </div>
+
+      <div class="cert-logo-area">
+        <div class="cert-logo-box">
+          <svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+        </div>
+        <span class="cert-brand">SYNERA</span>
+      </div>
+      <div class="cert-tagline">Where Growth Meets Guidance</div>
+      <div class="cert-divider"></div>
+
+      <div class="cert-title">Certificate of Completion</div>
+      <div class="cert-subtitle">This is to certify that</div>
+      <div class="cert-name">Adewale Johnson</div>
+      <div class="cert-completed">has successfully completed the</div>
+      <div class="cert-program">Career Clarity &amp; Growth Program</div>
+      <div class="cert-desc">under the guidance of Synera, demonstrating commitment to growth, learning, and excellence.</div>
+
+      <div class="cert-meta">
+        <div class="cert-meta-item">
+          <div class="meta-icon">📅</div>
+          <div class="meta-label">Duration</div>
+          <div class="meta-val">6 Weeks</div>
+        </div>
+        <div class="cert-meta-item">
+          <div class="meta-icon">🎯</div>
+          <div class="meta-label">Focus Area</div>
+          <div class="meta-val">Career Development &amp; Mentorship</div>
+        </div>
+        <div class="cert-meta-item">
+          <div class="meta-icon">📋</div>
+          <div class="meta-label">Issued On</div>
+          <div class="meta-val">May 24, 2025</div>
+        </div>
+      </div>
+
+      <div class="cert-signatures">
+        <div class="sig-block">
+          <div class="sig-script">Temitayo Timileyin</div>
+          <div class="sig-line"></div>
+          <div class="sig-name">Temitayo Timileyin</div>
+          <div class="sig-role">CEO, Synera</div>
+        </div>
+        <div class="cert-seal">
+          <div class="cert-seal-logo">
+            <svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+          </div>
+          <div class="cert-seal-text">SYNERA</div>
+        </div>
+        <div class="sig-block">
+          <div class="sig-script">Aisha Bello</div>
+          <div class="sig-line"></div>
+          <div class="sig-name">Aisha Bello</div>
+          <div class="sig-role">Program Mentor</div>
+        </div>
+      </div>
+
+      <div class="cert-qr">
+        <div class="qr-box">
+          <!-- Simple QR pattern SVG -->
+          <svg viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg">
+            <rect x="2" y="2" width="16" height="16" fill="none" stroke="#fff" stroke-width="2"/>
+            <rect x="5" y="5" width="10" height="10" fill="#fff"/>
+            <rect x="22" y="2" width="16" height="16" fill="none" stroke="#fff" stroke-width="2"/>
+            <rect x="25" y="5" width="10" height="10" fill="#fff"/>
+            <rect x="2" y="22" width="16" height="16" fill="none" stroke="#fff" stroke-width="2"/>
+            <rect x="5" y="25" width="10" height="10" fill="#fff"/>
+            <rect x="22" y="22" width="4" height="4" fill="#fff"/>
+            <rect x="28" y="22" width="4" height="4" fill="#fff"/>
+            <rect x="34" y="22" width="4" height="4" fill="#fff"/>
+            <rect x="22" y="28" width="4" height="4" fill="#fff"/>
+            <rect x="28" y="34" width="4" height="4" fill="#fff"/>
+            <rect x="34" y="28" width="4" height="4" fill="#fff"/>
+            <rect x="34" y="34" width="4" height="4" fill="#fff"/>
+          </svg>
+        </div>
+        <div>
+          <div class="cert-id-text">Certificate ID: SYN-2025-0478</div>
+          <div class="cert-verify">Verify at: synera.com/verify</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- action buttons -->
+  <div class="cert-actions">
+    <button class="btn btn-primary" onclick="toast('Downloading PDF…')">
+      <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+      Download PDF
+    </button>
+    <button class="btn btn-outline" onclick="toast('Share link copied!')">
+      <svg viewBox="0 0 24 24"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+      Share Certificate
+    </button>
+    <button class="btn btn-outline" onclick="toast('Certificate ID: SYN-2025-0478')">
+      <svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+      View Certificate ID
+    </button>
+  </div>
+</div>
+
+<!-- bottom grid -->
+<div class="bottom-grid">
+  <!-- Certificate Details -->
+  <div class="details-card">
+    <div class="card-head">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+      <h3>Certificate Details</h3>
+    </div>
+    <div class="detail-row"><div class="detail-dot"></div><span class="detail-label">Recipient Name</span><span class="detail-val">Adewale Johnson</span></div>
+    <div class="detail-row"><div class="detail-dot"></div><span class="detail-label">Program Completed</span><span class="detail-val">Career Clarity &amp; Growth Program</span></div>
+    <div class="detail-row"><div class="detail-dot"></div><span class="detail-label">Issued By</span><span class="detail-val">Synera</span></div>
+    <div class="detail-row"><div class="detail-dot"></div><span class="detail-label">Date Issued</span><span class="detail-val">May 24, 2025</span></div>
+    <div class="detail-row"><div class="detail-dot"></div><span class="detail-label">Certificate ID</span><span class="detail-val">SYN-2025-0478</span></div>
+  </div>
+
+  <!-- Verify Certificate -->
+  <div class="verify-card">
+    <div class="card-head">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+      <h3>Verify Certificate</h3>
+    </div>
+    <p class="verify-desc">Enter the certificate ID to verify its authenticity.</p>
+    <input class="verify-input" type="text" placeholder="Enter Certificate ID" id="certIdInput"/>
+    <button class="btn-verify" onclick="verifyCert()">Verify Certificate</button>
+    <div class="or-row">or</div>
+    <button class="btn-scan" onclick="toast('Opening QR scanner…')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+      Scan QR Code
+    </button>
+  </div>
+</div>
+
+<!-- Share section -->
+<div class="share-section">
+  <h3>Share your achievement</h3>
+  <p>Showcase your achievement and inspire others.</p>
+  <div class="share-btns">
+    <a href="#" class="btn-share" onclick="share('LinkedIn')">
+      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"/><rect x="2" y="9" width="4" height="12"/><circle cx="4" cy="4" r="2"/></svg>
+      Add to LinkedIn
+    </a>
+    <a href="#" class="btn-share" onclick="share('WhatsApp')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
+      Share on WhatsApp
+    </a>
+    <a href="#" class="btn-share" onclick="share('X')">
+      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+      Share on X
+    </a>
+  </div>
+</div>
+
+<!-- Secure badge -->
+<div class="secure-badge">
+  <div class="secure-icon">
+    <svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+  </div>
+  <div class="secure-text">
+    <h4><span class="verified-dot"></span> Your achievement is verified and secure</h4>
+    <p>This certificate is digitally verified and tamper-proof.<br>Employers and institutions can verify it in real-time.</p>
+  </div>
+  <button class="btn-learn" onclick="toast('Opening documentation…')">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+    Learn More
+  </button>
+</div>
+```
+
+  </main>
+</div>
+
+<!-- FOOTER -->
+
+<footer>
+  <div class="footer-brand">
+    <div class="logo-icon" style="width:26px;height:26px;border-radius:6px">
+      <svg viewBox="0 0 24 24" style="width:14px;height:14px" fill="white"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+    </div>
+    SYNERA
+  </div>
+  <span class="footer-copy">© 2025 Synera. All rights reserved.</span>
+  <div class="footer-links">
+    <a href="#">Privacy Policy</a>
+    <a href="#">Terms of Service</a>
+    <a href="#">Contact Us</a>
+  </div>
+  <div class="footer-socials">
+    <a href="#" aria-label="LinkedIn"><svg viewBox="0 0 24 24"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"/><rect x="2" y="9" width="4" height="12"/><circle cx="4" cy="4" r="2"/></svg></a>
+    <a href="#" aria-label="Twitter"><svg viewBox="0 0 24 24"><path d="M23 3a10.9 10.9 0 0 1-3.14 1.53 4.48 4.48 0 0 0-7.86 3v1A10.66 10.66 0 0 1 3 4s-4 9 5 13a11.64 11.64 0 0 1-7 2c9 5 20 0 20-11.5a4.5 4.5 0 0 0-.08-.83A7.72 7.72 0 0 0 23 3z"/></svg></a>
+    <a href="#" aria-label="Instagram"><svg viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg></a>
+    <a href="#" aria-label="Facebook"><svg viewBox="0 0 24 24"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg></a>
+  </div>
+</footer>
+
+<!-- Mobile bottom nav -->
+
+<nav class="mobile-nav" aria-label="Mobile navigation">
+  <div class="mobile-nav-inner">
+    <a href="#" class="mob-nav-item">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+      Overview
+    </a>
+    <a href="#" class="mob-nav-item">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h16M4 10h16M4 14h10"/></svg>
+      Programs
+    </a>
+    <a href="#" class="mob-nav-item active">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+      Certs
+    </a>
+    <a href="#" class="mob-nav-item">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+      Profile
+    </a>
+    <button class="mob-nav-item" onclick="toggleSidebar()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+      More
+    </button>
+  </div>
+</nav>
+
+<!-- Toast -->
+
+<div class="toast" id="toastEl"></div>
+
+<script>
+  let toastTimer;
+  function toast(msg){
+    const el = document.getElementById('toastEl');
+    el.textContent = msg;
+    el.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(()=>el.classList.remove('show'), 2600);
+  }
+
+  function share(platform){
+    event.preventDefault();
+    toast(`Sharing on ${platform}…`);
+  }
+
+  function verifyCert(){
+    const val = document.getElementById('certIdInput').value.trim();
+    if(!val){ toast('Please enter a Certificate ID'); return; }
+    if(val.toUpperCase() === 'SYN-2025-0478'){
+      toast('✅ Certificate verified — Adewale Johnson');
+    } else {
+      toast('❌ Certificate ID not found');
+    }
+  }
+
+  // Sidebar toggle (mobile)
+  function toggleSidebar(){
+    const sb = document.querySelector('.sidebar');
+    const ov = document.getElementById('sidebarOverlay');
+    const isOpen = sb.classList.toggle('open');
+    ov.classList.toggle('open', isOpen);
+    document.body.style.overflow = isOpen ? 'hidden' : '';
+  }
+  function closeSidebar(){
+    document.querySelector('.sidebar').classList.remove('open');
+    document.getElementById('sidebarOverlay').classList.remove('open');
+    document.body.style.overflow = '';
+  }
+
+  // Hamburger button also toggles sidebar
+  document.querySelector('.hamburger').addEventListener('click', toggleSidebar);
+
+  // Sidebar active state
+  document.querySelectorAll('.sidebar a').forEach(a=>{
+    a.addEventListener('click', e=>{
+      e.preventDefault();
+      document.querySelectorAll('.sidebar a').forEach(x=>x.classList.remove('active'));
+      a.classList.add('active');
+      // close sidebar on mobile after tap
+      if(window.innerWidth <= 680) closeSidebar();
+    });
+  });
+
+  // Mobile bottom nav active state
+  document.querySelectorAll('.mob-nav-item').forEach(item=>{
+    item.addEventListener('click', function(e){
+      if(this.tagName === 'A'){
+        e.preventDefault();
+        document.querySelectorAll('.mob-nav-item').forEach(x=>x.classList.remove('active'));
+        this.classList.add('active');
+      }
+    });
+  });
+</script>
+
+</body>
+</html>
