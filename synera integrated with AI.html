@@ -518,6 +518,7 @@ body.is-mentor .d-ring-inner{background:linear-gradient(135deg,#5eead4,var(--tea
 /* Overlay + FABs */
 .d-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.38);z-index:250;opacity:0;transition:opacity var(--tr);backdrop-filter:blur(2px)}
 .d-overlay.show{opacity:1}
+body.no-scroll{overflow:hidden;height:100vh}
 .d-panel-fab{display:none;position:fixed;bottom:22px;right:22px;width:48px;height:48px;background:var(--indigo);border-radius:50%;color:#fff;font-size:19px;align-items:center;justify-content:center;box-shadow:0 6px 22px rgba(67,56,202,.45);cursor:pointer;z-index:300;border:none;transition:transform .2s,background .2s}
 .d-panel-fab:hover{transform:scale(1.08);background:var(--violet)}
 .m-fab{position:fixed;bottom:82px;right:22px;background:linear-gradient(135deg,var(--teal),#0f766e);color:#fff;border:none;border-radius:50px;padding:12px 20px;display:none;align-items:center;gap:8px;font-size:.85rem;font-weight:700;cursor:pointer;box-shadow:0 6px 24px rgba(13,148,136,.42);transition:transform var(--tr),box-shadow var(--tr);z-index:200}
@@ -2270,10 +2271,6 @@ body.is-mentor .m-fab{display:flex}
         <div class="m-hero-tag">✦ Mentorship Platform</div>
         <h1>Find the Right Mentor.<br><span>Build Your Future Faster.</span></h1>
         <p class="m-hero-sub">Explore curated mentors across tech, design, business, and more — all tailored to help you grow with clarity.</p>
-        <div style="display:flex;gap:12px;flex-wrap:wrap">
-          <button class="btn btn-indigo" onclick="document.getElementById('mSearch').focus()">Explore Mentors</button>
-          <button class="btn btn-ghost" onclick="navigate('register')">Become a Mentor</button>
-        </div>
       </div>
       <div class="m-hero-visual">
         <div class="float-card fc1"><div class="fc-av" style="background:linear-gradient(135deg,var(--indigo),var(--violet))">BB</div><div><div class="fc-name">Bola Banjo</div><div class="fc-role">C.E.O Cencori</div></div></div>
@@ -2629,6 +2626,14 @@ function navigate(page){
   if(window._chCleanup && document.getElementById('page-chat')?.classList.contains('active') && page !== 'chat'){
     window._chCleanup();
   }
+  // Safety: never leave the dashboard's mobile sidebar/scroll-lock stuck open
+  document.body.classList.remove('no-scroll');
+  document.getElementById('dSide')?.classList.remove('open');
+  document.getElementById('dHam')?.classList.remove('open');
+  document.getElementById('dRight')?.classList.remove('open');
+  document.getElementById('dOverlay')?.classList.remove('show');
+  if(document.getElementById('dOverlay')) document.getElementById('dOverlay').style.display = 'none';
+  if(window._dashSetOpenState) window._dashSetOpenState(false,false);
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
   const el = document.getElementById('page-' + page);
   if(el){ el.classList.add('active'); window.scrollTo(0,0); }
@@ -3045,6 +3050,7 @@ async function renderStudentPackages(){
 
 function buildStudentMCardHTML(c){
   const initials = c.mentor_initials || (c.mentor_name||'M').split(' ').map(n=>n[0]).join('').slice(0,2).toUpperCase();
+  const _payData = encodeURIComponent(JSON.stringify({type:'card',id:c.id,title:c.title,mentorName:c.mentor_name||'Mentor',mentorId:c.mentor_id||'',price:c.price||0,desc:c.tagline||'',sessions:c.sessions||1,duration:c.duration||'',emoji:c.emoji||'',color:c.color||''}));
   return `<div class="mcard">
     <div class="mcard-banner" style="background:${c.color||'var(--indigo)'}">${c.emoji||'🎓'}<div class="mcard-type">Mentorship</div></div>
     <div class="mcard-body">
@@ -3055,7 +3061,7 @@ function buildStudentMCardHTML(c){
         <div class="mcard-price">$${c.price||0}</div>
         <div class="mcard-meta">${c.sessions||1} session${(c.sessions||1)!==1?'s':''}${c.duration?' · '+c.duration:''}</div>
       </div>
-      <button class="mcard-book-btn" onclick='openBkModal(${JSON.stringify({type:"card",id:c.id,title:c.title,mentorName:c.mentor_name||"Mentor",mentorId:c.mentor_id||"",price:c.price||0})})'>Book Now</button>
+      <button class="mcard-book-btn" onclick="try{goToPayment(JSON.parse(decodeURIComponent('${_payData}')))}catch(e){}">Book Now</button>
     </div>
   </div>`;
 }
@@ -3368,7 +3374,7 @@ function buildMCardHTML(c){
         <div class="mcard-meta">${c.sessions} session${c.sessions!==1?'s':''}${c.duration?' · '+c.duration:''}</div>
       </div>
       <div class="mcard-actions">
-        <button class="mcard-book-btn" style="flex:1" onclick='openBkModal(${JSON.stringify({type:"card",id:c._id,title:c.title,mentorName:c.mentorName||"Mentor",mentorId:c._uid||"",price:c.price||0})})'>Book Now</button>
+        <button class="mcard-book-btn" style="flex:1" data-pay-card="true">Book Now</button>
         <button class="mcard-del" onclick="delPubCard(${c._id})" title="Delete">🗑</button>
       </div>
     </div>
@@ -3413,12 +3419,17 @@ function initDashInteractions(){
   const rp   = document.getElementById('dRight');
   if(ham._wired) return; ham._wired = true;
   let so=false, po=false;
-  const updOv = () => { over.classList.toggle('show', so||po); over.style.display = (so||po) ? 'block' : 'none'; };
+  const updOv = () => {
+    over.classList.toggle('show', so||po);
+    over.style.display = (so||po) ? 'block' : 'none';
+    document.body.classList.toggle('no-scroll', so||po);
+  };
+  window._dashSetOpenState = (sOpen, pOpen) => { so=!!sOpen; po=!!pOpen; if(fab) fab.textContent = po?'✕':'📊'; };
   ham.addEventListener('click', () => { so=!so; side.classList.toggle('open',so); ham.classList.toggle('open',so); updOv(); });
   fab.addEventListener('click', () => { po=!po; rp.classList.toggle('open',po);   fab.textContent = po?'✕':'📊'; updOv(); });
-  over.addEventListener('click', () => { so=false; po=false; side.classList.remove('open'); ham.classList.remove('open'); rp.classList.remove('open'); fab.textContent='📊'; over.classList.remove('show'); over.style.display='none'; });
+  over.addEventListener('click', () => { so=false; po=false; side.classList.remove('open'); ham.classList.remove('open'); rp.classList.remove('open'); fab.textContent='📊'; over.classList.remove('show'); over.style.display='none'; document.body.classList.remove('no-scroll'); });
   window.matchMedia('(min-width:961px)').addEventListener('change', e => { if(e.matches){ so=false; side.classList.remove('open'); ham.classList.remove('open'); updOv(); }});
-  window.matchMedia('(min-width:1201px)').addEventListener('change', e => { if(e.matches){ po=false; rp.classList.remove('open'); fab.textContent='📊'; }});
+  window.matchMedia('(min-width:1201px)').addEventListener('change', e => { if(e.matches){ po=false; rp.classList.remove('open'); fab.textContent='📊'; updOv(); }});
 }
 
 /* ─────────────────────────────────────
@@ -3615,7 +3626,7 @@ async function renderMCMCards(){
         <div class="mcard-tagline">${c.tagline}</div>
         <div class="mcard-foot"><div class="mcard-price">$${c.price}</div><div class="mcard-meta">${c.sessions} session${c.sessions!==1?'s':''}${c.duration?' · '+c.duration:''}</div></div>
         <div class="mcard-actions">
-          <button class="mcard-book-btn" style="flex:1" onclick="showToast('Booking coming soon!','info')">Book Now</button>
+          <button class="mcard-book-btn" style="flex:1" data-pay-card="true">Book Now</button>
           <button class="mcard-del" onclick="delMCM('cards',${c._id})">🗑</button>
         </div>
       </div>
@@ -3800,12 +3811,14 @@ async function renderBrowseCourses(){
   const courses = (data||[]).map(r => MCM._norm(r,'courses'));
   if(!courses.length){ sec.style.display='none'; return; }
   sec.style.display = '';
+  const _coursesData = courses;
   grid.innerHTML = courses.map(c => {
     const bg  = CAT_BG[c.cat] || 'linear-gradient(135deg,#f1f0f7,#e2e8f0)';
     const em  = CAT_EMOJI[c.cat] || '📚';
     const av  = browseInitials(c._mentorName || 'Mentor');
     const col = browseColorFor(c._mentorName || '');
-    return `<div class="browse-course-card">
+    const _cdata = encodeURIComponent(JSON.stringify({type:'course',id:c._id,title:c.title,mentorName:c._mentorName||'Mentor',mentorId:c._uid||'',price:c.price||0,desc:c.desc||'',cat:c.cat||'',lessons:c.lessons||0,duration:c.duration||''}));
+    return `<div class="browse-course-card" data-pay="${_cdata}">
       <div class="browse-course-banner" style="background:${bg}">
         ${em}<span class="browse-course-cat-tag">${c.cat || 'Course'}</span>
       </div>
@@ -3820,10 +3833,15 @@ async function renderBrowseCourses(){
           ${c.duration ? `<span class="browse-course-dur">${c.duration}</span>` : ''}
         </div>
         ${c.desc ? `<div class="browse-course-desc">${c.desc}</div>` : ''}
-        <button class="browse-course-btn" onclick="showToast('Enrolment coming soon!','info')">Enrol Now</button>
+        <button class="browse-course-btn">Enrol Now</button>
       </div>
     </div>`;
   }).join('');
+  grid.querySelectorAll('.browse-course-card').forEach(card => {
+    card.querySelector('.browse-course-btn').addEventListener('click', () => {
+      try{ goToPayment(JSON.parse(decodeURIComponent(card.dataset.pay))); }catch(_){}
+    });
+  });
 }
 
 async function renderBrowseSessions(){
@@ -3870,7 +3888,7 @@ async function renderBrowseSessions(){
   grid.querySelectorAll('.browse-session-card').forEach(card => {
     card.querySelector('.browse-session-btn').addEventListener('click', () => {
       const s = _sessData[parseInt(card.dataset.sessIdx)];
-      openBkModal({ type:'session', id:s._id, title:s.title, mentorName:s._mentorName||'Mentor', mentorId:s._uid, price:s.price||0 });
+      goToPayment({ type:'session', id:s._id, title:s.title, mentorName:s._mentorName||'Mentor', mentorId:s._uid||'', price:s.price||0, desc:s.desc||'', avail:s.avail||'', duration:s.dur||'' });
     });
   });
 }
@@ -3918,7 +3936,7 @@ async function renderBrowseMCards(){
   grid.querySelectorAll('.mcard').forEach(card => {
     card.querySelector('.mcard-book-btn').addEventListener('click', () => {
       const c = _cardData[parseInt(card.dataset.cardIdx)];
-      openBkModal({ type:'card', id:c._id, title:c.title, mentorName:c.mentorName||'Mentor', mentorId:c._uid, price:c.price||0 });
+      goToPayment({ type:'card', id:c._id, title:c.title, mentorName:c.mentorName||'Mentor', mentorId:c._uid||'', price:c.price||0, desc:c.tagline||'', sessions:c.sessions||1, duration:c.duration||'', emoji:c.emoji||'', color:c.color||'' });
     });
   });
 }
@@ -3962,13 +3980,14 @@ function renderMentors(list){
 function bookMentor(id, btn){
   const mentor = MENTORS.find(m => m.id === id);
   if(!mentor) return;
-  openBkModal({
+  goToPayment({
     type:       'session',
     id:         null,
     title:      mentor.role + ' Session',
     mentorName: mentor.name,
     mentorId:   String(id),
-    price:      mentor.price,
+    price:      mentor.price || 0,
+    desc:       mentor.bio || mentor.specialty || '',
   });
 }
 function subscribe(){
@@ -5134,14 +5153,11 @@ async function expOpenProfile(id){
   btn.onclick=async()=>{
     if(m.isLive){
       // Use the real booking modal
-      openBkModal({type:'session',id:null,title:m.role+' Session',mentorName:m.name,mentorId:m._dbId,price:m.price});
+      goToPayment({type:'session',id:null,title:m.role+' Session',mentorName:m.name,mentorId:m._dbId||'',price:m.price||0,desc:m.specialty||''});
       expCloseModal();
     } else {
-      btn.textContent='Booking…';btn.disabled=true;
-      const res=await expAPI.bookSession(m.id);
-      document.getElementById('expProfileModal').classList.remove('open');
-      showToast(`✅ Session booked! Ref: ${res.sessionId}`);
-      btn.textContent='Book a Session';btn.disabled=false;
+      expCloseModal();
+      goToPayment({type:'session',id:null,title:m.role+' Session',mentorName:m.name,mentorId:String(m.id)||'',price:m.price||0,desc:m.bio||m.specialty||''});
     }
   };
   document.getElementById('expProfileModal').classList.add('open');
@@ -5535,6 +5551,900 @@ if(document.getElementById('page-explore')&&document.getElementById('page-explor
   _expInited=true;expInitListeners();expRender();
 }
 })();
+</script>
+
+
+<!-- ═══════════════════════════════════════════════════
+     PAGE 9 — PAYMENT
+═══════════════════════════════════════════════════ -->
+<div class="page" id="page-payment">
+<style>
+/* ── Payment page design tokens (scoped) ── */
+#page-payment {
+  --pp: #6c4df6; --pp-light: #ede9fe; --pp-dark: #5b21b6;
+  --pp-navy: #0f172a; --pp-text: #1e293b; --pp-muted: #64748b;
+  --pp-border: #e2e8f0; --pp-bg: #f8fafc; --pp-white: #ffffff;
+  --pp-green: #10b981; --pp-red: #ef4444;
+  --pp-radius: 12px; --pp-radius-sm: 8px;
+  --pp-shadow: 0 1px 3px rgba(0,0,0,.08), 0 4px 16px rgba(0,0,0,.06);
+  --pp-shadow-md: 0 4px 24px rgba(0,0,0,.10);
+  font-family: 'Inter', 'Plus Jakarta Sans', sans-serif;
+  background: var(--pp-bg);
+  min-height: 100vh;
+}
+
+/* ── Nav ── */
+.pp-nav {
+  background: var(--pp-white);
+  border-bottom: 1px solid var(--pp-border);
+  padding: 0 clamp(16px,4vw,48px);
+  height: 64px;
+  display: flex; align-items: center; justify-content: space-between;
+  position: sticky; top: 0; z-index: 10;
+}
+.pp-logo { display:flex;align-items:center;gap:8px;font-weight:700;font-size:1.1rem;color:var(--pp-navy);cursor:pointer;border:none;background:none; }
+.pp-logo .logo-mark { width:28px;height:28px;border-radius:8px;background:linear-gradient(135deg,var(--indigo),var(--violet));display:flex;align-items:center;justify-content:center;color:#fff;font-size:13px;font-weight:900; }
+.pp-secure { display:flex;align-items:center;gap:8px;font-size:.8rem;color:var(--pp-muted); }
+.pp-secure svg { color:var(--pp-navy); }
+.pp-secure strong { display:block;color:var(--pp-navy);font-size:.875rem;line-height:1.2; }
+
+/* ── Page layout ── */
+.pp-page { max-width:1100px;margin:0 auto;padding:clamp(24px,4vw,48px) clamp(16px,4vw,32px); }
+.pp-hero-tag {
+  background:var(--pp-light);border:1px solid #ddd6fe;border-radius:var(--pp-radius);
+  padding:16px 20px;display:flex;align-items:center;gap:16px;margin-bottom:32px;
+}
+.pp-hero-tag .pp-icon-circle {
+  width:48px;height:48px;border-radius:50%;background:var(--pp);
+  display:flex;align-items:center;justify-content:center;flex-shrink:0;
+}
+.pp-hero-tag .pp-icon-circle svg { color:#fff;width:24px;height:24px; }
+.pp-hero-tag strong { font-size:1rem;color:var(--pp-navy); }
+.pp-hero-tag p { font-size:.85rem;color:var(--pp-muted);margin-top:2px; }
+
+/* Loading skeleton */
+.pp-loading { text-align:center;padding:40px 0;color:var(--pp-muted);font-size:.9rem; }
+.pp-loading-dot { display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--pp);margin:0 3px;animation:ppDot 1.2s ease-in-out infinite; }
+.pp-loading-dot:nth-child(2){animation-delay:.2s}
+.pp-loading-dot:nth-child(3){animation-delay:.4s}
+@keyframes ppDot{0%,80%,100%{transform:scale(0);opacity:.5}40%{transform:scale(1);opacity:1}}
+
+.pp-layout { display:grid;grid-template-columns:1fr 340px;gap:32px;align-items:start; }
+
+/* ── Main col ── */
+.pp-main-col h1 { font-size:clamp(1.4rem,3vw,1.9rem);font-weight:800;color:var(--pp-navy); }
+.pp-main-col .pp-sub { font-size:1rem;color:var(--pp-muted);margin-top:4px; }
+.pp-main-col .pp-sub span { color:var(--pp);font-weight:600; }
+
+/* ── Stepper ── */
+.pp-stepper {
+  display:flex;align-items:center;margin:28px 0 32px;
+  background:var(--pp-white);border:1px solid var(--pp-border);
+  border-radius:var(--pp-radius);padding:16px 20px;overflow-x:auto;
+}
+.pp-step { display:flex;align-items:center;gap:8px;white-space:nowrap; }
+.pp-step-num { width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.8rem;font-weight:700;background:var(--pp-border);color:var(--pp-muted); }
+.pp-step.active .pp-step-num { background:var(--pp);color:#fff; }
+.pp-step-label { font-size:.875rem;font-weight:500;color:var(--pp-muted); }
+.pp-step.active .pp-step-label { color:var(--pp-navy);font-weight:600; }
+.pp-step.done .pp-step-num { background:var(--pp-green);color:#fff; }
+.pp-step-line { flex:1;height:2px;background:var(--pp-border);margin:0 12px;min-width:32px; }
+
+/* ── Card ── */
+.pp-card {
+  background:var(--pp-white);border:1px solid var(--pp-border);
+  border-radius:var(--pp-radius);padding:clamp(16px,3vw,24px);
+  margin-bottom:20px;box-shadow:var(--pp-shadow);
+}
+.pp-card-header { display:flex;align-items:center;gap:10px;margin-bottom:20px; }
+.pp-card-header .pp-icon { width:36px;height:36px;border-radius:50%;background:var(--pp-light);display:flex;align-items:center;justify-content:center;flex-shrink:0; }
+.pp-card-header .pp-icon svg { color:var(--pp);width:18px;height:18px; }
+.pp-card-header h2 { font-size:1rem;font-weight:700;color:var(--pp-navy); }
+
+/* ── Item description banner ── */
+.pp-item-banner {
+  border-radius:var(--pp-radius-sm);padding:18px;margin-bottom:18px;
+  display:flex;gap:16px;align-items:flex-start;
+  border:1px solid var(--pp-border);background:var(--pp-bg);
+}
+.pp-item-banner .pp-ib-icon {
+  width:52px;height:52px;border-radius:var(--pp-radius-sm);
+  display:flex;align-items:center;justify-content:center;font-size:1.5rem;flex-shrink:0;
+}
+.pp-ib-title { font-size:1rem;font-weight:700;color:var(--pp-navy);margin-bottom:4px; }
+.pp-ib-mentor { font-size:.82rem;color:var(--pp-muted);margin-bottom:6px; }
+.pp-ib-desc { font-size:.84rem;color:var(--pp-text);line-height:1.65;margin-bottom:10px; }
+.pp-ib-meta { display:flex;flex-wrap:wrap;gap:8px; }
+.pp-ib-tag { display:inline-flex;align-items:center;gap:4px;font-size:.72rem;font-weight:600;padding:3px 10px;border-radius:20px;background:var(--pp-light);color:var(--pp); }
+
+/* ── Order item ── */
+.pp-order-item {
+  display:flex;align-items:center;gap:14px;
+  padding:14px 0;border-bottom:1px solid var(--pp-border);
+}
+.pp-order-item:last-of-type { border-bottom:none; }
+.pp-order-item .pp-thumb {
+  width:44px;height:44px;border-radius:var(--pp-radius-sm);
+  display:flex;align-items:center;justify-content:center;flex-shrink:0;
+}
+.pp-thumb-blue { background:#eff6ff; } .pp-thumb-blue svg { color:#3b82f6; }
+.pp-thumb-teal { background:#f0fdfa; } .pp-thumb-teal svg { color:#0d9488; }
+.pp-thumb-purple { background:var(--pp-light); } .pp-thumb-purple svg { color:var(--pp); }
+.pp-order-item .pp-info { flex:1; }
+.pp-order-item .pp-info strong { font-size:.9rem;color:var(--pp-navy);display:block; }
+.pp-order-item .pp-info span { font-size:.8rem;color:var(--pp-muted); }
+.pp-order-item .pp-price { font-size:.95rem;font-weight:700;color:var(--pp-navy);white-space:nowrap; }
+
+/* ── Coupon ── */
+.pp-coupon-row {
+  display:flex;align-items:center;justify-content:space-between;
+  padding:14px 0 0;cursor:pointer;color:var(--pp);font-size:.9rem;font-weight:500;
+}
+.pp-coupon-row svg { transition:transform .2s; }
+.pp-coupon-row.open svg { transform:rotate(180deg); }
+.pp-coupon-body { display:none;padding-top:12px;gap:8px; }
+.pp-coupon-body.visible { display:flex; }
+.pp-coupon-body input {
+  flex:1;border:1px solid var(--pp-border);border-radius:var(--pp-radius-sm);
+  padding:10px 14px;font-size:.9rem;outline:none;font-family:inherit;transition:border-color .2s;
+}
+.pp-coupon-body input:focus { border-color:var(--pp); }
+.pp-coupon-body button {
+  background:var(--pp);color:#fff;border:none;border-radius:var(--pp-radius-sm);
+  padding:10px 18px;font-size:.875rem;font-weight:600;cursor:pointer;white-space:nowrap;
+  font-family:inherit;transition:background .2s;
+}
+.pp-coupon-body button:hover { background:var(--pp-dark); }
+
+/* ── Payment methods ── */
+.pp-methods { display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:24px; }
+.pp-method {
+  border:2px solid var(--pp-border);border-radius:var(--pp-radius-sm);padding:14px 10px;
+  display:flex;align-items:center;justify-content:center;cursor:pointer;position:relative;
+  transition:border-color .2s,box-shadow .2s;background:var(--pp-white);min-height:60px;
+}
+.pp-method:hover { border-color:#c4b5fd; }
+.pp-method.selected { border-color:var(--pp);box-shadow:0 0 0 3px #ede9fe; }
+.pp-method .pp-check {
+  position:absolute;top:-8px;right:-8px;width:20px;height:20px;border-radius:50%;
+  background:var(--pp);color:#fff;display:none;align-items:center;justify-content:center;font-size:.6rem;
+}
+.pp-method.selected .pp-check { display:flex; }
+.pp-method-label { font-size:.75rem;font-weight:600;color:var(--pp-text);display:flex;flex-direction:column;align-items:center;gap:4px; }
+.pp-method-label svg { width:20px;height:20px; }
+.pp-visa-text { font-size:1.1rem;font-weight:900;font-style:italic;color:#1a1f71;letter-spacing:-1px; }
+.pp-mc { display:flex; }
+.pp-mc-r { width:22px;height:22px;border-radius:50%;background:#eb001b; }
+.pp-mc-y { width:22px;height:22px;border-radius:50%;background:#f79e1b;margin-left:-8px; }
+
+/* ── Form fields ── */
+.pp-field { margin-bottom:18px; }
+.pp-field label { display:block;font-size:.82rem;font-weight:600;color:var(--pp-navy);margin-bottom:6px; }
+.pp-input-wrap {
+  display:flex;align-items:center;border:1px solid var(--pp-border);border-radius:var(--pp-radius-sm);
+  padding:0 14px;transition:border-color .2s,box-shadow .2s;background:var(--pp-white);
+}
+.pp-input-wrap:focus-within { border-color:var(--pp);box-shadow:0 0 0 3px #ede9fe; }
+.pp-input-wrap svg { color:var(--pp-muted);flex-shrink:0;width:16px;height:16px; }
+.pp-input-wrap input {
+  flex:1;border:none;outline:none;padding:12px 10px;font-size:.9rem;
+  font-family:inherit;background:transparent;color:var(--pp-text);
+}
+.pp-input-wrap input::placeholder { color:#adb5bd; }
+.pp-row-2 { display:grid;grid-template-columns:1fr 1fr;gap:14px; }
+.pp-ssl-notice {
+  display:flex;align-items:center;gap:8px;background:#f8fafc;border:1px solid var(--pp-border);
+  border-radius:var(--pp-radius-sm);padding:12px 14px;font-size:.82rem;color:var(--pp-muted);margin-top:4px;
+}
+.pp-ssl-notice svg { color:var(--pp-green);flex-shrink:0; }
+
+/* ── Sidebar ── */
+.pp-summary {
+  background:var(--pp-navy);color:#fff;border-radius:var(--pp-radius);
+  padding:24px;position:sticky;top:80px;
+}
+.pp-summary-header { display:flex;align-items:center;gap:10px;margin-bottom:20px; }
+.pp-summary-header .pp-sh-icon { width:36px;height:36px;background:#1e3a5f;border-radius:50%;display:flex;align-items:center;justify-content:center; }
+.pp-summary-header .pp-sh-icon svg { color:#7dd3fc;width:18px;height:18px; }
+.pp-summary-header h3 { font-size:1rem;font-weight:700; }
+.pp-sum-sec-title { font-size:.75rem;font-weight:600;color:#94a3b8;text-transform:uppercase;letter-spacing:.05em;margin-bottom:12px; }
+.pp-sum-line { display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px;font-size:.875rem; }
+.pp-sum-line .pp-sum-name { color:#cbd5e1;max-width:60%; }
+.pp-sum-line .pp-sum-amt { font-weight:600;color:#fff;white-space:nowrap; }
+.pp-divider { border:none;border-top:1px solid #334155;margin:16px 0; }
+.pp-sum-sub { display:flex;justify-content:space-between;font-size:.875rem;margin-bottom:8px; }
+.pp-sum-sub .pp-sum-lbl { color:#94a3b8; }
+.pp-sum-sub .pp-sum-val { color:#fff;font-weight:500; }
+.pp-sum-sub .pp-sum-discount { color:var(--pp-green);font-weight:600; }
+.pp-sum-total { display:flex;justify-content:space-between;align-items:center;margin-top:12px; }
+.pp-sum-total .pp-sum-lbl { font-size:1rem;font-weight:700; }
+.pp-sum-total .pp-sum-val { font-size:1.4rem;font-weight:800;color:var(--pp); }
+.pp-trust-items { margin-top:24px;display:flex;flex-direction:column;gap:14px; }
+.pp-trust-item { display:flex;align-items:flex-start;gap:12px; }
+.pp-trust-item .pp-ti-icon { width:36px;height:36px;background:#1e3a5f;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0; }
+.pp-trust-item .pp-ti-icon svg { width:16px;height:16px;color:#7dd3fc; }
+.pp-trust-item strong { font-size:.875rem;color:#fff;display:block; }
+.pp-trust-item span { font-size:.8rem;color:#94a3b8; }
+.pp-social-proof { margin-top:20px;padding-top:20px;border-top:1px solid #334155;text-align:center; }
+.pp-social-proof p { font-size:.82rem;color:#94a3b8;margin-bottom:12px; }
+.pp-avatars { display:flex;align-items:center;justify-content:center;margin-bottom:10px; }
+.pp-avatar { width:32px;height:32px;border-radius:50%;border:2px solid var(--pp-navy);background:#334155;overflow:hidden;display:flex;align-items:center;justify-content:center;margin-left:-6px;font-size:.7rem;font-weight:700;color:#94a3b8; }
+.pp-avatar:first-child { margin-left:0; }
+.pp-avatar-count { background:var(--pp);color:#fff;font-size:.65rem;font-weight:700; }
+.pp-stars { display:flex;justify-content:center;gap:3px;margin-bottom:4px; }
+.pp-star { color:#facc15;font-size:1.1rem; }
+.pp-rating-text { font-size:.82rem;color:#94a3b8; }
+
+/* ── CTA banner ── */
+.pp-cta-banner {
+  background:var(--pp-white);border:1px solid var(--pp-border);border-radius:var(--pp-radius);
+  padding:clamp(16px,3vw,24px);display:flex;align-items:flex-start;gap:16px;
+  margin-bottom:20px;box-shadow:var(--pp-shadow);
+}
+.pp-cta-banner .pp-icon-circle { width:44px;height:44px;border-radius:50%;background:var(--pp);display:flex;align-items:center;justify-content:center;flex-shrink:0; }
+.pp-cta-banner .pp-icon-circle svg { color:#fff;width:20px;height:20px; }
+.pp-cta-banner strong { font-size:.95rem;color:var(--pp-navy); }
+.pp-cta-banner p { font-size:.85rem;color:var(--pp-muted);margin-top:2px; }
+
+/* ── Pay button ── */
+.pp-pay-btn {
+  width:100%;background:var(--pp);color:#fff;border:none;border-radius:var(--pp-radius);
+  padding:18px 24px;font-size:1.05rem;font-weight:700;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;gap:12px;
+  margin-bottom:16px;transition:background .2s,transform .15s,box-shadow .2s;
+  box-shadow:0 4px 18px rgba(108,77,246,.35);font-family:inherit;
+}
+.pp-pay-btn:hover { background:var(--pp-dark);transform:translateY(-1px);box-shadow:0 8px 28px rgba(108,77,246,.45); }
+.pp-pay-btn:active { transform:none; }
+.pp-pay-btn svg { width:20px;height:20px; }
+.pp-pay-btn .pp-arrow { width:18px;height:18px;margin-left:auto; }
+.pp-pay-btn.loading { opacity:.75;pointer-events:none; }
+.pp-pay-btn.loading .pp-arrow { display:none; }
+
+/* ── Success state ── */
+.pp-success-overlay {
+  display:none;text-align:center;padding:48px 24px;animation:pgIn .4s ease both;
+}
+.pp-success-overlay.show { display:block; }
+.pp-success-icon { width:80px;height:80px;border-radius:50%;background:#d1fae5;margin:0 auto 20px;display:flex;align-items:center;justify-content:center;font-size:2.5rem; }
+.pp-success-overlay h2 { font-size:1.5rem;font-weight:800;color:var(--pp-navy);margin-bottom:10px; }
+.pp-success-overlay p { font-size:.95rem;color:var(--pp-muted);max-width:420px;margin:0 auto 24px;line-height:1.7; }
+
+/* ── Footer trust ── */
+.pp-footer-trust {
+  background:var(--pp-white);border-top:1px solid var(--pp-border);
+  padding:20px clamp(16px,4vw,48px);display:flex;align-items:center;
+  justify-content:center;gap:40px;flex-wrap:wrap;margin-top:32px;
+}
+.pp-ft-item { display:flex;align-items:center;gap:10px; }
+.pp-ft-item svg { color:var(--pp);width:20px;height:20px;flex-shrink:0; }
+.pp-ft-item strong { font-size:.82rem;color:var(--pp-navy);display:block; }
+.pp-ft-item span { font-size:.74rem;color:var(--pp-muted); }
+
+/* ── Terms ── */
+.pp-terms { font-size:.78rem;color:var(--pp-muted);text-align:center;line-height:1.7; }
+.pp-terms a { color:var(--pp);text-decoration:underline; }
+
+/* ── Responsive ── */
+
+/* Tablet (≤900px): start collapsing sidebar */
+@media(max-width:900px){
+  .pp-layout { grid-template-columns:1fr 300px; gap:20px; }
+  .pp-summary { top:72px; }
+}
+
+/* Mobile landscape / small tablet (≤780px): single column */
+@media(max-width:780px){
+  .pp-layout {
+    grid-template-columns:1fr;
+    /* Show sidebar (order summary) above the payment form on mobile */
+    display:flex; flex-direction:column;
+  }
+  .pp-summary { position:static; order:-1; }
+  .pp-main-col { order:1; }
+  .pp-methods { grid-template-columns:repeat(2,1fr); }
+  .pp-row-2 { grid-template-columns:1fr; }
+  .pp-footer-trust { gap:20px; }
+  .pp-hero-tag { flex-direction:column; align-items:flex-start; gap:12px; }
+  .pp-cta-banner { flex-direction:column; gap:12px; }
+  .pp-item-banner { flex-direction:column; }
+  .pp-item-banner .pp-ib-icon { width:44px; height:44px; }
+  .pp-trust-items { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+  .pp-footer-trust { flex-direction:column; align-items:flex-start; padding:20px 16px; gap:16px; }
+}
+
+/* Mobile portrait (≤480px): tighten everything */
+@media(max-width:480px){
+  .pp-nav { padding:0 16px; }
+  /* Hide the "256-bit SSL encrypted" sub-text on very small screens, keep icon+title */
+  .pp-secure div { font-size:0; }
+  .pp-secure strong { font-size:.8rem; display:block; }
+
+  .pp-page { padding:16px 12px 24px; }
+  .pp-hero-tag { padding:12px 14px; margin-bottom:20px; }
+  .pp-hero-tag .pp-icon-circle { width:38px; height:38px; }
+  .pp-hero-tag .pp-icon-circle svg { width:18px; height:18px; }
+  .pp-hero-tag strong { font-size:.9rem; }
+  .pp-hero-tag p { font-size:.8rem; }
+
+  .pp-main-col h1 { font-size:1.25rem; }
+  .pp-main-col .pp-sub { font-size:.88rem; }
+
+  /* Stepper: shrink text and circles */
+  .pp-stepper { padding:12px 14px; margin:20px 0 24px; }
+  .pp-step-num { width:24px; height:24px; font-size:.72rem; }
+  .pp-step-label { font-size:.78rem; }
+  .pp-step-line { margin:0 6px; min-width:16px; }
+
+  /* Cards */
+  .pp-card { padding:14px; }
+  .pp-card-header { margin-bottom:14px; }
+  .pp-card-header h2 { font-size:.9rem; }
+
+  /* Payment methods: 2 columns, tighter */
+  .pp-methods { grid-template-columns:repeat(2,1fr); gap:8px; margin-bottom:18px; }
+  .pp-method { padding:12px 8px; min-height:52px; }
+  .pp-visa-text { font-size:.95rem; }
+  .pp-mc-r, .pp-mc-y { width:18px; height:18px; }
+  .pp-mc-y { margin-left:-6px; }
+  .pp-method-label { font-size:.7rem; }
+  .pp-method-label svg { width:17px; height:17px; }
+
+  /* Form inputs */
+  .pp-input-wrap input { padding:10px 8px; font-size:.85rem; }
+  .pp-field label { font-size:.8rem; }
+  .pp-ssl-notice { font-size:.76rem; padding:10px 12px; }
+
+  /* Coupon */
+  .pp-coupon-row { font-size:.84rem; }
+  .pp-coupon-body { flex-direction:column; gap:8px; }
+  .pp-coupon-body input { width:100%; }
+  .pp-coupon-body button { width:100%; }
+
+  /* CTA banner */
+  .pp-cta-banner { padding:14px; }
+  .pp-cta-banner .pp-icon-circle { width:36px; height:36px; }
+  .pp-cta-banner .pp-icon-circle svg { width:16px; height:16px; }
+  .pp-cta-banner strong { font-size:.88rem; }
+  .pp-cta-banner p { font-size:.8rem; }
+
+  /* Pay button */
+  .pp-pay-btn { padding:15px 18px; font-size:.97rem; }
+
+  /* Sidebar summary */
+  .pp-summary { padding:18px 16px; border-radius:var(--pp-radius); }
+  .pp-summary-header h3 { font-size:.95rem; }
+  .pp-trust-items { grid-template-columns:1fr; }
+  .pp-sum-total .pp-sum-val { font-size:1.25rem; }
+
+  /* Footer trust */
+  .pp-ft-item strong { font-size:.8rem; }
+  .pp-ft-item span { font-size:.72rem; }
+
+  /* Success overlay */
+  .pp-success-overlay { padding:32px 16px; }
+  .pp-success-icon { width:64px; height:64px; font-size:2rem; }
+  .pp-success-overlay h2 { font-size:1.25rem; }
+  .pp-success-overlay p { font-size:.88rem; }
+}
+
+/* Extra small (≤360px): minimal adjustments */
+@media(max-width:360px){
+  .pp-nav { height:56px; }
+  .pp-logo { font-size:.95rem; }
+  .pp-secure strong { font-size:.75rem; }
+  .pp-methods { grid-template-columns:1fr 1fr; gap:6px; }
+  .pp-step-label { display:none; } /* hide labels, show numbers only */
+  .pp-step-line { min-width:10px; }
+}
+</style>
+
+<!-- Payment Nav -->
+<nav class="pp-nav">
+  <button class="pp-logo" onclick="navigate('landing')">
+    <div class="logo-mark"><img class="logimg" src="https://mkuklkqvatequxvlpncm.supabase.co/storage/v1/object/public/local%20images/IMG_1358%20(1).png"></div>
+    Synera
+  </button>
+  <div class="pp-secure">
+    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+    <div><strong>Secure Checkout</strong>256-bit SSL encrypted</div>
+  </div>
+</nav>
+
+<main class="pp-page">
+  <!-- Hero tagline -->
+  <div class="pp-hero-tag">
+    <div class="pp-icon-circle">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+    </div>
+    <div>
+      <strong id="ppHeroTitle">Complete your enrolment</strong>
+      <p id="ppHeroSub">You're moments away from unlocking expert-led learning on Synera.</p>
+    </div>
+  </div>
+
+  <div class="pp-layout">
+    <!-- LEFT: main payment column -->
+    <div class="pp-main-col" id="ppMainCol">
+      <h1>Complete Your Payment</h1>
+      <p class="pp-sub">Checking out as <span id="ppUserName">—</span></p>
+
+      <!-- Stepper -->
+      <div class="pp-stepper" role="list">
+        <div class="pp-step done" role="listitem">
+          <div class="pp-step-num">✓</div>
+          <span class="pp-step-label">Your Selection</span>
+        </div>
+        <div class="pp-step-line"></div>
+        <div class="pp-step active" role="listitem">
+          <div class="pp-step-num">2</div>
+          <span class="pp-step-label">Payment</span>
+        </div>
+        <div class="pp-step-line"></div>
+        <div class="pp-step" role="listitem">
+          <div class="pp-step-num">3</div>
+          <span class="pp-step-label">Confirmation</span>
+        </div>
+      </div>
+
+      <!-- Item description card — populated by JS -->
+      <div class="pp-card" id="ppItemCard">
+        <div class="pp-card-header">
+          <div class="pp-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
+          </div>
+          <h2>You're paying for</h2>
+        </div>
+        <!-- Item loaded dynamically -->
+        <div id="ppItemDetail">
+          <div class="pp-loading">
+            <div class="pp-loading-dot"></div>
+            <div class="pp-loading-dot"></div>
+            <div class="pp-loading-dot"></div>
+          </div>
+        </div>
+        <!-- Coupon -->
+        <div class="pp-coupon-row" id="ppCouponToggle" role="button" tabindex="0" aria-expanded="false">
+          <span>
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle;margin-right:6px"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+            Have a coupon code?
+          </span>
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+        </div>
+        <div class="pp-coupon-body" id="ppCouponBody">
+          <input type="text" id="ppCouponInput" placeholder="Enter coupon code" />
+          <button type="button" id="ppCouponApply">Apply</button>
+        </div>
+      </div>
+
+      <!-- Payment method -->
+      <div class="pp-card">
+        <div class="pp-card-header">
+          <div class="pp-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
+          </div>
+          <h2>Choose payment method</h2>
+        </div>
+        <div class="pp-methods" role="radiogroup">
+          <div class="pp-method selected" role="radio" aria-checked="true" tabindex="0" data-method="visa">
+            <div class="pp-check">✓</div>
+            <span class="pp-visa-text">VISA</span>
+          </div>
+          <div class="pp-method" role="radio" aria-checked="false" tabindex="0" data-method="mastercard">
+            <div class="pp-check">✓</div>
+            <div class="pp-mc"><div class="pp-mc-r"></div><div class="pp-mc-y"></div></div>
+          </div>
+          <div class="pp-method" role="radio" aria-checked="false" tabindex="0" data-method="applepay">
+            <div class="pp-check">✓</div>
+            <div class="pp-method-label">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/></svg>
+              Pay
+            </div>
+          </div>
+          <div class="pp-method" role="radio" aria-checked="false" tabindex="0" data-method="bank">
+            <div class="pp-check">✓</div>
+            <div class="pp-method-label">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="22" x2="21" y2="22"/><line x1="6" y1="18" x2="6" y2="11"/><line x1="10" y1="18" x2="10" y2="11"/><line x1="14" y1="18" x2="14" y2="11"/><line x1="18" y1="18" x2="18" y2="11"/><polygon points="12 2 20 7 4 7"/></svg>
+              Bank Transfer
+            </div>
+          </div>
+        </div>
+
+        <!-- Card fields -->
+        <div id="ppCardFields">
+          <div class="pp-field">
+            <label for="ppCardNumber">Card number</label>
+            <div class="pp-input-wrap">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
+              <input type="text" id="ppCardNumber" placeholder="4242 4242 4242 4242" inputmode="numeric" maxlength="19" autocomplete="cc-number" />
+            </div>
+          </div>
+          <div class="pp-row-2">
+            <div class="pp-field">
+              <label for="ppExpiry">Expiry date</label>
+              <div class="pp-input-wrap">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                <input type="text" id="ppExpiry" placeholder="MM / YY" inputmode="numeric" maxlength="7" autocomplete="cc-exp" />
+              </div>
+            </div>
+            <div class="pp-field">
+              <label for="ppCVV">CVV</label>
+              <div class="pp-input-wrap">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                <input type="text" id="ppCVV" placeholder="123" inputmode="numeric" maxlength="4" autocomplete="cc-csc" />
+              </div>
+            </div>
+          </div>
+          <div class="pp-field">
+            <label for="ppNameOnCard">Name on card</label>
+            <div class="pp-input-wrap">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+              <input type="text" id="ppNameOnCard" placeholder="Full name" autocomplete="cc-name" />
+            </div>
+          </div>
+        </div>
+
+        <div class="pp-ssl-notice">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+          Your payment is protected by 256-bit SSL encryption.
+        </div>
+      </div>
+
+      <!-- CTA -->
+      <div class="pp-cta-banner">
+        <div class="pp-icon-circle">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+        </div>
+        <div>
+          <strong>You're one step away from levelling up your skills.</strong>
+          <p>Complete your payment and start your learning journey with Synera today.</p>
+        </div>
+      </div>
+
+      <!-- Pay button -->
+      <button class="pp-pay-btn" id="ppPayBtn" type="button">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+        <span class="pp-btn-text" id="ppBtnText">Pay Securely</span>
+        <svg class="pp-arrow" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+      </button>
+
+      <!-- Success state -->
+      <div class="pp-success-overlay" id="ppSuccess">
+        <div class="pp-success-icon">🎉</div>
+        <h2>Payment Successful!</h2>
+        <p id="ppSuccessMsg">Your enrolment is confirmed. Check your dashboard to get started.</p>
+        <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap">
+          <button class="btn btn-indigo" onclick="navigate('dashboard')">Go to Dashboard</button>
+          <button class="btn btn-ghost" onclick="navigate('mentors')">Browse More</button>
+        </div>
+      </div>
+
+      <p class="pp-terms">By completing your purchase, you agree to our <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a>.</p>
+    </div>
+
+    <!-- RIGHT: order summary sidebar -->
+    <aside class="pp-summary" id="ppSidebar">
+      <div class="pp-summary-header">
+        <div class="pp-sh-icon">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+        </div>
+        <h3>Order Summary</h3>
+      </div>
+
+      <div class="pp-sum-sec-title" id="ppSumSecTitle">Your Selection</div>
+      <div id="ppSumLines">
+        <div class="pp-loading"><div class="pp-loading-dot"></div><div class="pp-loading-dot"></div><div class="pp-loading-dot"></div></div>
+      </div>
+
+      <hr class="pp-divider"/>
+      <div class="pp-sum-sub"><span class="pp-sum-lbl">Subtotal</span><span class="pp-sum-val" id="ppSubtotal">—</span></div>
+      <div class="pp-sum-sub"><span class="pp-sum-lbl">Discount</span><span class="pp-sum-discount" id="ppDiscount">- ₦0</span></div>
+      <div class="pp-sum-total"><span class="pp-sum-lbl">Total</span><span class="pp-sum-val" id="ppTotal">—</span></div>
+      <hr class="pp-divider"/>
+
+      <div class="pp-trust-items">
+        <div class="pp-trust-item">
+          <div class="pp-ti-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg></div>
+          <div><strong>Lifetime Access</strong><span>Learn at your own pace, anytime.</span></div>
+        </div>
+        <div class="pp-trust-item">
+          <div class="pp-ti-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg></div>
+          <div><strong>Expert Sessions</strong><span>Connect with industry mentors.</span></div>
+        </div>
+        <div class="pp-trust-item">
+          <div class="pp-ti-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div>
+          <div><strong>7-Day Guarantee</strong><span>Full refund within 7 days.</span></div>
+        </div>
+      </div>
+
+      <div class="pp-social-proof">
+        <p>Join thousands of learners achieving their goals with Synera.</p>
+        <div class="pp-avatars">
+          <div class="pp-avatar">A</div><div class="pp-avatar">B</div>
+          <div class="pp-avatar">C</div><div class="pp-avatar">D</div>
+          <div class="pp-avatar pp-avatar-count">2K+</div>
+        </div>
+        <div class="pp-stars"><span class="pp-star">★</span><span class="pp-star">★</span><span class="pp-star">★</span><span class="pp-star">★</span><span class="pp-star">★</span></div>
+        <p class="pp-rating-text">4.9/5 from 2,000+ learners</p>
+      </div>
+    </aside>
+  </div>
+
+  <!-- Footer trust bar -->
+  <footer class="pp-footer-trust">
+    <div class="pp-ft-item">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+      <div><strong>Secure & Encrypted</strong><span>256-bit SSL protection</span></div>
+    </div>
+    <div class="pp-ft-item">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+      <div><strong>Trusted Platform</strong><span>Used by 2,000+ learners</span></div>
+    </div>
+    <div class="pp-ft-item">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+      <div><strong>Need Help?</strong><span>support@synera.com</span></div>
+    </div>
+  </footer>
+</main>
+</div><!-- /page-payment -->
+
+<script>
+/* ═══════════════════════════════════════════════════
+   PAYMENT PAGE — JS MODULE
+   _ppItem = { type:'course'|'session'|'card', id, title, mentorName, mentorId, price, desc, cat, lessons, duration, avail, emoji, color }
+═══════════════════════════════════════════════════ */
+let _ppItem     = null;
+let _ppBaseAmt  = 0;
+let _ppDiscount = 0;
+
+/* Format currency. Items stored in USD from mentor; display in ₦ (×1600 approx) or raw $ */
+function ppFmt(amount, currency){
+  if(!amount || isNaN(amount)) return '—';
+  if(currency === 'NGN'){
+    return '₦' + Math.round(amount * 1600).toLocaleString();
+  }
+  return '$' + Number(amount).toLocaleString(undefined, {minimumFractionDigits:0, maximumFractionDigits:2});
+}
+
+/* Called by every Enrol / Book / Book Now button. Opens payment page. */
+function goToPayment(item){
+  // item = { type, id, title, mentorName, mentorId, price, desc, cat, lessons, duration, avail, emoji, color }
+  DB.currentUser().then(u => {
+    if(!u){
+      showToast('Please sign in to proceed.', 'info');
+      setTimeout(() => navigate('login'), 1200);
+      return;
+    }
+    if(u.role === 'mentor'){
+      showToast('Switch to a student account to enrol.', 'info');
+      return;
+    }
+    _ppItem     = item;
+    _ppBaseAmt  = Number(item.price) || 0;
+    _ppDiscount = 0;
+
+    navigate('payment');
+    ppLoadItem();
+  });
+}
+
+async function ppLoadItem(){
+  const item = _ppItem;
+  if(!item) return;
+
+  /* User name */
+  const u = await DB.currentUser();
+  const nameEl = document.getElementById('ppUserName');
+  if(nameEl && u) nameEl.textContent = u.fullname;
+
+  /* Hero text */
+  const heroTitle = document.getElementById('ppHeroTitle');
+  const heroSub   = document.getElementById('ppHeroSub');
+  if(heroTitle) heroTitle.textContent = item.type === 'course'
+    ? 'Complete your enrolment'
+    : item.type === 'card' ? 'Confirm your mentorship package' : 'Confirm your session booking';
+  if(heroSub) heroSub.textContent = item.type === 'course'
+    ? `You're enrolling in "${item.title}" with ${item.mentorName}.`
+    : `You're booking "${item.title}" with ${item.mentorName}.`;
+
+  /* Fetch full description from Supabase if we don't have it yet */
+  if(!item.desc && item.id){
+    const sb = window._sb;
+    const tableMap = { course:'mentor_courses', session:'mentor_sessions', card:'mentor_cards' };
+    const tbl = tableMap[item.type];
+    if(tbl){
+      const { data } = await sb.from(tbl).select('*').eq('id', item.id).maybeSingle();
+      if(data){
+        item.desc     = data.description || data.tagline || '';
+        item.cat      = item.cat  || data.cat      || '';
+        item.lessons  = item.lessons || data.lessons || 0;
+        item.duration = item.duration || data.duration || '';
+        item.avail    = item.avail    || data.availability || '';
+        item.emoji    = item.emoji    || data.emoji   || '';
+        item.color    = item.color    || data.color   || '';
+        item.sessions = item.sessions || data.sessions || 1;
+        item.tagline  = item.tagline  || data.tagline  || '';
+        /* Update price in case it changed */
+        if(!item.price && data.price) { item.price = data.price; _ppBaseAmt = Number(data.price); }
+      }
+    }
+  }
+
+  ppRenderItemDetail(item);
+  ppRenderSidebar(item);
+  ppUpdateTotals();
+}
+
+function ppItemIcon(type, cat){
+  if(type === 'course'){
+    return `<svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"/></svg>`;
+  }
+  if(type === 'card'){
+    return `<svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>`;
+  }
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>`;
+}
+
+function ppTypeLbl(type){ return type === 'course' ? 'Course' : type === 'card' ? 'Mentorship Package' : 'Live Session'; }
+
+const CAT_EMOJI_PAY = {'UI/UX Design':'🎨','Frontend Dev':'💻','Backend Dev':'⚙️','Full-Stack':'🔧','Data Science':'📊','AI / ML':'🤖','Digital Marketing':'📣','Branding':'✏️','Business':'💼','Other':'📚'};
+
+function ppRenderItemDetail(item){
+  const el = document.getElementById('ppItemDetail');
+  if(!el) return;
+  const em = item.emoji || CAT_EMOJI_PAY[item.cat] || (item.type === 'course' ? '📖' : item.type === 'card' ? '🪪' : '🗓');
+  const thumbClass = item.type === 'session' ? 'pp-thumb-teal' : item.type === 'card' ? 'pp-thumb-purple' : 'pp-thumb-blue';
+  const bannerBg = item.color
+    ? `background:${item.color}`
+    : item.type === 'session' ? 'background:linear-gradient(135deg,#f0fdfa,#ccfbf1)'
+    : item.type === 'card' ? 'background:linear-gradient(135deg,#ede9fe,#ddd6fe)'
+    : 'background:linear-gradient(135deg,#eff6ff,#dbeafe)';
+
+  let metaTags = '';
+  if(item.cat)      metaTags += `<span class="pp-ib-tag">📂 ${item.cat}</span>`;
+  if(item.lessons)  metaTags += `<span class="pp-ib-tag">📌 ${item.lessons} lessons</span>`;
+  if(item.duration) metaTags += `<span class="pp-ib-tag">⏱ ${item.duration}</span>`;
+  if(item.avail)    metaTags += `<span class="pp-ib-tag">📅 ${item.avail}</span>`;
+  if(item.sessions && item.type === 'card') metaTags += `<span class="pp-ib-tag">🗓 ${item.sessions} session${item.sessions!==1?'s':''}</span>`;
+  if(item.type)     metaTags += `<span class="pp-ib-tag" style="background:#d1fae5;color:#065f46">✅ ${ppTypeLbl(item.type)}</span>`;
+
+  const descText = item.desc || item.tagline || 'Full access to this content once payment is confirmed.';
+
+  el.innerHTML = `
+    <div class="pp-item-banner">
+      <div class="pp-ib-icon" style="${bannerBg}">${em}</div>
+      <div style="flex:1;min-width:0">
+        <div class="pp-ib-title">${item.title}</div>
+        <div class="pp-ib-mentor">with ${item.mentorName}</div>
+        <div class="pp-ib-desc">${descText}</div>
+        ${metaTags ? `<div class="pp-ib-meta">${metaTags}</div>` : ''}
+      </div>
+    </div>
+    <div class="pp-order-item">
+      <div class="pp-thumb ${thumbClass}">${ppItemIcon(item.type, item.cat)}</div>
+      <div class="pp-info">
+        <strong>${item.title}</strong>
+        <span>${ppTypeLbl(item.type)}${item.mentorName ? ' · ' + item.mentorName : ''}</span>
+      </div>
+      <div class="pp-price">${ppFmt(_ppBaseAmt)}</div>
+    </div>`;
+}
+
+function ppRenderSidebar(item){
+  const linesEl   = document.getElementById('ppSumLines');
+  const secTitle  = document.getElementById('ppSumSecTitle');
+  if(secTitle) secTitle.textContent = item.type === 'course' ? 'Course Enrolment' : item.type === 'card' ? 'Mentorship Package' : 'Session Booking';
+  if(linesEl) linesEl.innerHTML = `
+    <div class="pp-sum-line">
+      <span class="pp-sum-name">${item.title}</span>
+      <span class="pp-sum-amt">${ppFmt(_ppBaseAmt)}</span>
+    </div>
+    ${item.mentorName ? `<div class="pp-sum-line"><span class="pp-sum-name" style="font-size:.78rem;opacity:.8">with ${item.mentorName}</span></div>` : ''}`;
+}
+
+function ppUpdateTotals(){
+  const net = Math.max(0, _ppBaseAmt - _ppDiscount);
+  document.getElementById('ppSubtotal').textContent = ppFmt(_ppBaseAmt);
+  document.getElementById('ppDiscount').textContent = _ppDiscount > 0 ? `- ${ppFmt(_ppDiscount)}` : '- $0';
+  document.getElementById('ppTotal').textContent    = ppFmt(net);
+  const btnText = document.getElementById('ppBtnText');
+  if(btnText) btnText.textContent = `Pay ${ppFmt(net)} Securely`;
+}
+
+/* ── Payment method selector ── */
+document.querySelectorAll('.pp-method').forEach(m => {
+  m.addEventListener('click', () => {
+    document.querySelectorAll('.pp-method').forEach(x => { x.classList.remove('selected'); x.setAttribute('aria-checked','false'); });
+    m.classList.add('selected'); m.setAttribute('aria-checked','true');
+    const isCard = m.dataset.method === 'visa' || m.dataset.method === 'mastercard';
+    document.getElementById('ppCardFields').style.display = isCard ? '' : 'none';
+  });
+});
+
+/* ── Coupon toggle ── */
+const ppCTog = document.getElementById('ppCouponToggle');
+const ppCBody = document.getElementById('ppCouponBody');
+ppCTog.addEventListener('click', () => {
+  const open = ppCBody.classList.toggle('visible');
+  ppCTog.classList.toggle('open', open);
+  ppCTog.setAttribute('aria-expanded', String(open));
+});
+document.getElementById('ppCouponApply').addEventListener('click', () => {
+  const code = document.getElementById('ppCouponInput').value.trim().toUpperCase();
+  _ppDiscount = (code === 'SYNERA10') ? _ppBaseAmt * 0.1 : (code === 'SYNERA20') ? _ppBaseAmt * 0.2 : 0;
+  ppUpdateTotals();
+  if(_ppDiscount === 0 && code) showToast('Invalid coupon code.', 'error');
+  else if(_ppDiscount > 0) showToast(`✅ Coupon applied! You saved ${ppFmt(_ppDiscount)}.`);
+});
+
+/* ── Card number formatting ── */
+document.getElementById('ppCardNumber').addEventListener('input', function(){
+  let v = this.value.replace(/\D/g,'').slice(0,16);
+  this.value = v.replace(/(.{4})/g,'$1 ').trim();
+});
+document.getElementById('ppExpiry').addEventListener('input', function(){
+  let v = this.value.replace(/\D/g,'').slice(0,4);
+  if(v.length >= 3) v = v.slice(0,2) + ' / ' + v.slice(2);
+  this.value = v;
+});
+document.getElementById('ppCVV').addEventListener('input', function(){
+  this.value = this.value.replace(/\D/g,'').slice(0,4);
+});
+
+/* ── Pay button ── */
+document.getElementById('ppPayBtn').addEventListener('click', async () => {
+  if(!_ppItem) return;
+  const btn = document.getElementById('ppPayBtn');
+  const txt = document.getElementById('ppBtnText');
+  btn.classList.add('loading');
+  txt.textContent = 'Processing…';
+
+  /* Save booking to Supabase */
+  const u = await DB.currentUser();
+  if(u && window._sb){
+    const sb = window._sb;
+    await sb.from('session_bookings').insert([{
+      student_id:   String(u.id),
+      student_name: u.fullname,
+      mentor_id:    String(_ppItem.mentorId || ''),
+      mentor_name:  _ppItem.mentorName || '',
+      item_type:    _ppItem.type,
+      item_id:      _ppItem.id || null,
+      item_title:   _ppItem.title,
+      price:        Math.max(0, _ppBaseAmt - _ppDiscount),
+      status:       'pending'
+    }]).catch(e => console.warn('Booking insert error:', e.message));
+  }
+
+  setTimeout(() => {
+    btn.classList.remove('loading');
+    txt.textContent = `Pay ${ppFmt(Math.max(0, _ppBaseAmt - _ppDiscount))} Securely`;
+    /* Show success */
+    document.getElementById('ppMainCol').style.display = 'none';
+    document.getElementById('ppSidebar').style.display  = 'none';
+    const suc = document.getElementById('ppSuccess');
+    const msg = document.getElementById('ppSuccessMsg');
+    suc.classList.add('show');
+    suc.style.display = 'block';
+    if(msg) msg.textContent = `Your ${_ppItem.type === 'course' ? 'enrolment' : 'booking'} for "${_ppItem.title}" has been confirmed and sent to ${_ppItem.mentorName}. Check your dashboard to get started.`;
+    showToast('🎉 Payment confirmed!', 'success', 4000);
+  }, 2800);
+});
+
+/* Reset payment page state when navigating away */
+const _ppOrigNav = window.navigate;
+window.navigate = function(page, ...args){
+  if(page !== 'payment'){
+    /* Reset visibility */
+    const mc = document.getElementById('ppMainCol');
+    const sb = document.getElementById('ppSidebar');
+    const su = document.getElementById('ppSuccess');
+    if(mc){ mc.style.display = ''; }
+    if(sb){ sb.style.display = ''; }
+    if(su){ su.classList.remove('show'); su.style.display = 'none'; }
+  }
+  if(typeof _ppOrigNav === 'function') _ppOrigNav(page, ...args);
+};
 </script>
 
 </body></html>
