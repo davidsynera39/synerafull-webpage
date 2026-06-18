@@ -1,0 +1,15 @@
+{
+  "name": "synera-meet-backend",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Small Vercel serverless backend that adds Google Calendar + Meet integration to Synera: auto-generated Meet links, 30-min reminders, and completion tracking.",
+  "scripts": {
+    "dev": "vercel dev"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.45.0",
+    "googleapis": "^140.0.0",
+    "resend": "^3.4.0"
+  }
+}
